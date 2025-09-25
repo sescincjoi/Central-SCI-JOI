@@ -66,6 +66,56 @@
       background-size: cover;
       border-radius: 10em;
     }
+    .lista-links {
+      display: flex;
+      width: 100vw;
+      height: 40dvh;
+      margin: 5dvh 0;
+      padding: 0;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .lista-links li {
+      display: flex;
+      list-style: none;
+      align-items: center;
+      justify-content: flex-start;
+      width: 90vw;
+      background: rgb(255 255 255 / 90%);
+      margin: calc(((2.4vw + 3vh) / 2) * 0.4) calc(((2.4vw + 3vh) / 2) * 0);
+      padding: calc(((2.4vw + 3vh) / 2) * 0.8) calc(((2.4vw + 3vh) / 2) * 0);
+      border-radius: 1em;
+      box-shadow: 0 0.2em 1em rgb(190 190 190 / 70%);
+    }
+    .lista-links li a {
+      display: flex;
+      flex-direction: row;
+      font-size: calc(((2.4vw + 3vh) / 2) * 1.4);
+      align-items: center;
+      padding-left: calc(((2.4vw + 3vh) / 2) * 1.8);
+      text-decoration: none;
+      color: rgb(15 15 15);
+    }
+    .app-extintores a:before {
+      display: block;
+      content: "";
+      width: calc(((2.4vw + 3vh) / 2) * 2);
+      height: calc(((2.4vw + 3vh) / 2) * 2);
+      background: url(https://img.icons8.com/?size=192&id=g77tYSUST8KO&format=png);
+      background-size: cover;
+      margin-right: calc(((2.4vw + 3vh) / 2) * 1.4);
+    }
+    .Planilhas li.planilha a:before {
+      display: block;
+      content: "";
+      width: calc(((2.4vw + 3vh) / 2) * 2);
+      height: calc(((2.4vw + 3vh) / 2) * 2);
+      background: url(https://raw.githubusercontent.com/sescincjoi/Central-SCI-JOI/refs/heads/main/icon-planilha.png);
+      background-size: cover;
+      margin-right: calc(((2.4vw + 3vh) / 2) * 1.4);
+    }
+    
 
 /* BOTÕES INSTALAR APP */
     .msg-ios {
@@ -160,19 +210,19 @@
   
  <div class="corpo-container">
    <h1><img class="logoSCI">CENTRAL SCI<br>AEROPORTO DE JOINVILLE</h1>
-   <div class="lista-links">
-      <ul class="Extintores">
-        <li class="App-inspecao">
-          <a href="area-protegida">Aplicativo de Inspeção</a>
+   <div class="links-container">
+      <ul class="lista-links">
+        <li class="app-extintores">
+          <a href="area-protegida">App Extintores</a>
         </li>
-        <li class="planilha-extintores">
-          <a href="https://docs.google.com/spreadsheets/d/1RKNORO-bzM83ixu09xFVFboXLjwaOsCzWcZwKMLTTXM/edit?gid=1255221780#gid=1255221780" onclick="mostrarPlanilhaExtintores()">Controle dos Extintores</a>
+        <li class="planilha extintores">
+          <a href="https://docs.google.com/spreadsheets/d/1RKNORO-bzM83ixu09xFVFboXLjwaOsCzWcZwKMLTTXM/edit?gid=1255221780#gid=1255221780">Controle dos Extintores</a>
         </li>
-        <li class="planilha-hidrantes">
-          <a href="https://docs.google.com/spreadsheets/d/1f3bDjvHOKlu4sQpVeis8ACpb1qlSoYnzvOFOOWYY-yU/edit?gid=0#gid=0" onclick="mostrarPlanilhaExtintores()">Planilha - Controle dos Hidrantes</a>
+        <li class="planilha hidrantes">
+          <a href="https://docs.google.com/spreadsheets/d/1f3bDjvHOKlu4sQpVeis8ACpb1qlSoYnzvOFOOWYY-yU/edit?gid=0#gid=0" onclick="mostrarPlanilhaExtintores()">Controle dos Hidrantes</a>
         </li>
-        <li class="planilha-EPR">
-          <a href="https://docs.google.com/spreadsheets/d/1DVjkvUXDWPYaKyzN1IeOdbKLxMkP97BPjdhTIuMkpkQ/edit?gid=0#gid=0" onclick="mostrarPlanilhaExtintores()">Planilha - Controle dos EPR's</a>
+        <li class="planilha EPR">
+          <a href="https://docs.google.com/spreadsheets/d/1DVjkvUXDWPYaKyzN1IeOdbKLxMkP97BPjdhTIuMkpkQ/edit?gid=0#gid=0" onclick="mostrarPlanilhaExtintores()">Controle dos EPR's</a>
         </li>
       </ul>
    </div>
