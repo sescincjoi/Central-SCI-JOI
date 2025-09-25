@@ -632,7 +632,7 @@
 
   <br>
   <div class="botoes-rodape">
-    <a href="https://docs.google.com/spreadsheets/d/1FrnEZLrJPFxoMV5BimdygDT4XBqVrxybK_xDoA-1vCU/edit?usp=sharing">Acessar planilha ▶️</a>
+    <a href="https://docs.google.com/spreadsheets/d/1RKNORO-bzM83ixu09xFVFboXLjwaOsCzWcZwKMLTTXM/edit?gid=1255221780#gid=1255221780">Acessar planilha ▶️</a>
     <button id="reset" onclick="resetarTodos()">🔄 Resetar TODOS os extintores</button>
   </div>
   <div id="confirmReset" style="display:none; margin-top:10px;">
@@ -675,14 +675,14 @@
 
     // 🔹 Config Firebase
     const firebaseConfig = {
-      apiKey: "AIzaSyCUBR8N4ywAaEvJ1KaUFUapAJ--M_QLWm4",
-      authDomain: "central-sci-joi.firebaseapp.com",
-      projectId: "central-sci-joi",
-      storageBucket: "central-sci-joi.firebasestorage.app",
-      messagingSenderId: "912572203961",
-      appId: "1:912572203961:web:4f913b91550c2651efac68",
-      measurementId: "G-KY9J9MZLM2",
-      databaseURL: "https://central-sci-joi-default-rtdb.firebaseio.com/"
+      apiKey: "AIzaSyC7lypBBMv9RJ7ta3uaXTiU4txg8x91TWI",
+      authDomain: "ronda-extintores.firebaseapp.com",
+      projectId: "ronda-extintores",
+      storageBucket: "ronda-extintores.firebasestorage.app",
+      messagingSenderId: "712050420595",
+      appId: "1:712050420595:web:96ce82f25307c7aba4f306",
+      measurementId: "G-S8SERMVVCR",
+      databaseURL: "https://ronda-extintores-default-rtdb.firebaseio.com/"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
@@ -1084,7 +1084,7 @@ function mostrarNaoConforme(valor) {
     form.reportValidity(); // mostra os erros nativos do navegador
     return; // não deixa prosseguir
   }
-      
+
   const dados = {
     numero: numeroAtual,
     usuario: document.getElementById("nomeUsuario").value,
@@ -1113,7 +1113,7 @@ function mostrarNaoConforme(valor) {
   });
 
       // Enviar para Google Sheets
-      fetch("https://script.google.com/macros/s/AKfycbxYjxyBxrBFCaqL9BLT0Ikr9mZlHkrvlVsPYgdqT6Sp2tWQSrcqotlqmYTa6NZ4BGQEzA/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbzBoQ_sx5EMrIK-FECB5S2-Oq_Ysr1TBC-T0nXGEVlCe8EeY1aYXyVP06_sXM1GD3E_/exec", {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
