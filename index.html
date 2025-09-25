@@ -68,25 +68,86 @@
     }
 
     .planilha-extintores {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh;
-}
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+    }
     .barra-superior {
-    display: flex;
-    width: 100vw;
-    height: 3dvh;
-    background: var(--cor-primaria);
-    justify-content: space-between;
-    flex-direction: row;
-}
+      display: flex;
+      width: 100vw;
+      height: 3dvh;
+      background: var(--cor-primaria);
+      justify-content: space-between;
+      flex-direction: row;
+    }
     iframe {
-    width: 100vw;
-    height: 96dvh;
-}
+      width: 100vw;
+      height: 96dvh;
+    }
 
+/* BOTÕES INSTALAR APP */
+    .msg-ios {
+      position: fixed;
+      top: 45%;
+      left: 10%;
+      right: 10%;
+      padding: 5% 2%;
+      background: rgb(255 255 255 / 95%);
+      box-shadow: 0 1em 100vw 100vw rgb(0 0 0 / 60%);
+      color: rgb(44 44 44);
+      font-size: 2.4em;
+      text-align: center;
+      border-radius: 0.7em;
+      z-index: 1000;
+    }
+    .msg-ios div {
+      text-align: center;
+    }
+    .msg-ios span {
+      position: absolute;
+      right: 0;
+      top: 0;
+      font-size: 1em;
+      margin: 0;
+      padding: 2% 4%;
+    }
+    .instal-android {
+      position: fixed;
+      top: 45%;
+      left: 20%;
+      right: 20%;
+      padding: 10px 20px;
+      background: rgb(73 73 73);
+      color: rgb(255, 255, 255);
+      border-radius: 1.2em;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      box-shadow: inset 0 40px 20px -15px rgb(255 255 255 / 28%);
+      gap: 10px;
+      filter: drop-shadow(2px 4px 6px black);
+    }
+    .botao-instal {
+      background: rgb(255, 255, 255);
+      color: rgb(102 102 102);
+      border: none;
+      padding: 2% 7%;
+      border-radius: 0.4em;
+      cursor: pointer;
+      font-size: 3.5em;
+    }
+    .instal-android span {
+      position: absolute;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 3em;
+      padding: 2% 5%;
+      right: 0;
+    }
+    
+/* TELA MODO PAISAGEM */
   @media (min-aspect-ratio: 1/1) {
 
     h1 {
@@ -110,6 +171,7 @@
       border-radius: 10em;
       margin-right: calc(((2vw + 2vh) / 2) * 1);
     }
+    
   }
   </style>
 </head>
@@ -228,67 +290,6 @@
     });
   }
 </script>
-  <style>
-    .msg-ios {
-      position: fixed;
-      top: 45%;
-      left: 10%;
-      right: 10%;
-      padding: 5% 2%;
-      background: rgb(255 255 255 / 95%);
-      box-shadow: 0 1em 100vw 100vw rgb(0 0 0 / 60%);
-      color: rgb(44 44 44);
-      font-size: 2.4em;
-      text-align: center;
-      border-radius: 0.7em;
-      z-index: 1000;
-    }
-    .msg-ios div {
-      text-align: center;
-    }
-    .msg-ios span {
-      position: absolute;
-      right: 0;
-      top: 0;
-      font-size: 1em;
-      margin: 0;
-      padding: 2% 4%;
-    }
-    .instal-android {
-      position: fixed;
-      top: 45%;
-      left: 20%;
-      right: 20%;
-      padding: 10px 20px;
-      background: rgb(73 73 73);
-      color: rgb(255, 255, 255);
-      border-radius: 1.2em;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      box-shadow: inset 0 40px 20px -15px rgb(255 255 255 / 28%);
-      gap: 10px;
-      filter: drop-shadow(2px 4px 6px black);
-    }
-    .botao-instal {
-      background: rgb(255, 255, 255);
-      color: rgb(102 102 102);
-      border: none;
-      padding: 2% 7%;
-      border-radius: 0.4em;
-      cursor: pointer;
-      font-size: 3.5em;
-    }
-    .instal-android span {
-      position: absolute;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 3em;
-      padding: 2% 5%;
-      right: 0;
-    }
-    
-  </style>
 
 </body>
 </html>
