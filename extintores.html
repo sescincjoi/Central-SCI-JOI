@@ -1084,8 +1084,7 @@ function mostrarNaoConforme(valor) {
     form.reportValidity(); // mostra os erros nativos do navegador
     return; // não deixa prosseguir
   }
-
-  const url = "https://script.google.com/macros/s/AKfycbx4kngwMjz_Sv0YtS4NlvwcfV0ShO69wgJwq__WsWqDQSWnsaQMqjegRXhYgekPgQz9HA/exec";
+      
   const dados = {
     numero: numeroAtual,
     usuario: document.getElementById("nomeUsuario").value,
@@ -1114,12 +1113,24 @@ function mostrarNaoConforme(valor) {
   });
 
       // Enviar para Google Sheets
-      fetch("https://script.google.com/macros/s/AKfycbx4kngwMjz_Sv0YtS4NlvwcfV0ShO69wgJwq__WsWqDQSWnsaQMqjegRXhYgekPgQz9HA/exec", {
+      /*fetch("https://script.google.com/macros/s/AKfycbwM-hyq_z4LgnXyYq-M48Pajx_93yN8cgZ3Y0zWQGINAwOhhgVUSssu2E8jv5qevdZ35g/exec", {
+        method: "POST",*/
+        /*mode: "no-cors",*/
+        /*headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      });*/
+
+      try {
+        await fetch("https://script.google.com/macros/s/AKfycbwM-hyq_z4LgnXyYq-M48Pajx_93yN8cgZ3Y0zWQGINAwOhhgVUSssu2E8jv5qevdZ35g/exec", {
         method: "POST",
-        mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dados)
       });
+      console.log("Dados enviados para o Sheets ✅");
+      } catch(err) {
+      console.error("Erro ao enviar para o Sheets:", err);
+      }
+
 
       fecharModal();
     }
