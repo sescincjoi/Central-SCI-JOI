@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Área Protegida</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    :root { --radius: 16px; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, sans-serif;
+      display: grid;
+      place-items: center;
+      /*background: url(https://images.pexels.com/photos/2030190/pexels-photo-2030190.jpeg?_gl=1*1n66gxr*_ga*MTkzMjk5NDA3OC4xNzU3NDYzMDM3*_ga_8JE65Q40S6*czE3NTc0NjMwMzYkbzEkZzEkdDE3NTc0NjMwNTIkajQ0JGwwJGgw);*/
+      background: url(https://images.pexels.com/photos/3058827/pexels-photo-3058827.jpeg?_gl=1*1tzayhi*_ga*MTIyNzk3OTcyMS4xNzU3NDcxOTc2*_ga_8JE65Q40S6*czE3NTc0NzE5NzYkbzEkZzEkdDE3NTc0NzIwNTUkajU5JGwwJGgw);
+      color: #e5e7eb;
+      background-size: cover;
+      background-position: center;
+      box-shadow: inset 0 0 100vw rgb(255 255 255 / 60%);
+    }
+    .card {
+      width: min(90vw, 460px);
+      background: rgb(0 0 0 / 75%);
+      border: 1px solid #00000040;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
+      overflow: hidden;
+    }
+    .hdr {
+      padding: 1em 2em;
+      border-bottom: 1px solid #00000073;
+      background: rgb(0 0 0 / 70%);
+    }
+    .hdr h1 { font-size: 1.2em; margin: 0; letter-spacing: .2px; }
+    .cnt { padding: 1.5em; }
+    label { display: block; font-size: .9rem; margin: 0 0.2em 0.5em; color: #c2c2c2; font-weight: 400; }
+    input[type="password"] {
+      width: 80%;
+      padding: 4% 9.5%;
+      border-radius: 0.7em;
+      border: 1px solid #000000cf;
+      background: #000000ed;
+      color: #e5e7eb;
+      outline: none;
+      font-size: 1rem;  
+    }
+    input[type="password"]:focus { box-shadow: 0 0 7px rgb(255 255 255 / 40%); border: none; }
+    button {
+      margin-top: 0.6em;
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: none;
+      background: rgb(255 255 255 / 60%);
+      color: #000;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { filter: brightness(1.06); }
+    .msg { margin: 0.5em 0 0 0.2em; font-size: .9rem; color: #e04e61; min-height: 1.2em; }
+    .foot {
+      padding: 1em 0 1.3em 2.1em;
+      border-top: 1px solid rgb(0 0 0 / 15%);
+      font-size: .8rem;
+      color: #a0a0a0;
+    }
+    .foot a {
+      text-decoration: none;
+      color: #a0a0a0;
+      font-weight: 500;
+    }
+    .hide { display:none; }
+    .shake { animation: shake .45s; }
+    @keyframes shake { 10%, 90% {transform: translateX(-1px);} 20%, 80% {transform: translateX(2px);} 30%, 50%, 70% {transform: translateX(-4px);} 40%, 60% {transform: translateX(4px);} }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="hdr"><h1>Área destinada aos<br>Bombeiros de Aeródromo</h1></div>
+    <form class="cnt" id="form">
+      <label for="pw">Digite a senha para acessar o link</label>
+      <input id="pw" type="password" placeholder="Senha" autocomplete="current-password" required />
+      <button type="submit">Entrar</button>
+      <div class="msg" id="msg" aria-live="polite"></div>
+    </form>
+    <div class="foot">Designed by <a href="https://www.instagram.com/mmocena/">@mmocena</a></div>
+  </div>
+
+  <script>
+    // ========================
+    // CONFIGURAÇÃO
+    // ========================
+
+    // Lista de senhas (hash SHA-256) e URLs correspondentes
+    // Formato: { hash: "sha256_hex", url: "https://..." }
+    const LINKS_PROTEGIDOS = [
+      {
+        hash: "773f46043726440e98f61e90039525989ca4a3349119329f4b949630133de9fc", // senha1
+        url: "../extintores"
+      },
+      {
+        hash: "5d41402abc4b2a76b9719d911017c592", // senha2
+        url: "https://exemplo.com/link2"
+      },
+      {
+        hash: "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae", // senha3
+        url: "https://exemplo.com/link3"
+      }
+    ];
+
+    const MAX_TRIES = 5;
+
+    // ========================
+    // LÓGICA
+    // ========================
+    const $ = sel => document.querySelector(sel);
+    const form = $('#form');
+    const pwInput = $('#pw');
+    const msg = $('#msg');
+    const card = $('#card');
+
+    let tries = +(sessionStorage.getItem('tries') || 0);
+
+    async function sha256Hex(str){
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+
+    function delay(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+    form.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      msg.textContent = '';
+
+      if (tries >= MAX_TRIES) {
+        msg.textContent = 'Muitas tentativas. Aguarde 30 segundos e tente novamente.';
+        form.classList.add('shake');
+        await delay(300);
+        form.classList.remove('shake');
+        await delay(30000);
+        tries = 0;
+        sessionStorage.setItem('tries', tries);
+        return;
+      }
+
+      const value = pwInput.value;
+      if (!value) return;
+
+      const hash = await sha256Hex(value);
+      const linkObj = LINKS_PROTEGIDOS.find(item => item.hash === hash);
+
+      if (linkObj) {
+        msg.textContent = 'Acessando…';
+        await delay(200);
+        location.replace(linkObj.url);
+      } else {
+        tries++;
+        sessionStorage.setItem('tries', tries);
+        msg.textContent = 'Senha incorreta. Tente novamente.';
+        form.classList.add('shake');
+        await delay(450);
+        form.classList.remove('shake');
+        pwInput.select();
+      }
+    });
+
+    pwInput.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter') form.requestSubmit();
+    });
+  </script>
+</body>
+</html>
