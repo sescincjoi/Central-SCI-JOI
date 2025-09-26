@@ -171,6 +171,16 @@
     pwInput.addEventListener('keydown', (e)=>{
       if (e.key === 'Enter') form.requestSubmit();
     });
+
+    // Registrar o service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('✅ Service Worker registrado'))
+        .catch(err => console.log('❌ Erro no SW', err));
+      }
+
+      let deferredPrompt;
+
   </script>
 </body>
 </html>
