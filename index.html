@@ -79,48 +79,55 @@
       height: fit-content;
       margin: 0;
       padding: 0;
-      flex-direction: column;
-      align-items: center;
+      flex-wrap: wrap;
       justify-content: center;
+      align-items: center;
     }
     .lista-links li {
       display: flex;
       list-style: none;
       align-items: center;
       justify-content: flex-start;
-      width: 90vw;
-      background: rgb(255 255 255 / 90%);
-      margin: calc(((2.4vw + 3vh) / 2) * 0.4) calc(((2.4vw + 3vh) / 2) * 0);
-      padding: calc(((2.4vw + 3vh) / 2) * 0.8) calc(((2.4vw + 3vh) / 2) * 0);
+      width: calc(((2.4vw + 3vh) / 2) * 6);
+      margin: calc(((2.4vw + 3vh) / 2) * 0.6);
+      padding: calc(((2.4vw + 3vh) / 2) * 0);
       border-radius: 1em;
-      box-shadow: 0 0.2em 1em rgb(190 190 190 / 70%);
+      flex-direction: column;
+      text-align: center;
     }
     .lista-links li a {
       display: flex;
-      flex-direction: row;
-      font-size: calc(((2.4vw + 3vh) / 2) * 1.4);
-      align-items: center;
-      padding-left: calc(((2.4vw + 3vh) / 2) * 1.8);
+      flex-direction: column;
+      font-size: calc(((2.4vw + 3vh) / 2) * 1);
       text-decoration: none;
       color: rgb(15 15 15);
+      align-items: center;
+      text-wrap-mode: wrap;
+    }
+    .lista-links li a:before {
+      display: block;
+      content: "";
+      width: calc(((2.4vw + 3vh) / 2) * 3.5);
+      height: calc(((2.4vw + 3vh) / 2) * 3.5);
+      margin-bottom: calc(((2.4vw + 3vh) / 2) * 0.5);
     }
     .app-extintores a:before {
       display: block;
       content: "";
-      width: calc(((2.4vw + 3vh) / 2) * 2);
-      height: calc(((2.4vw + 3vh) / 2) * 2);
+      width: calc(((2.4vw + 3vh) / 2) * 3.5);
+      height: calc(((2.4vw + 3vh) / 2) * 3.5);
       background: url(https://img.icons8.com/?size=192&id=g77tYSUST8KO&format=png);
       background-size: cover;
-      margin-right: calc(((2.4vw + 3vh) / 2) * 1.4);
+      margin-bottom: calc(((2.4vw + 3vh) / 2) * 0.6);
     }
     .planilha a:before {
       display: block;
       content: "";
-      width: calc(((2.4vw + 3vh) / 2) * 2);
-      height: calc(((2.4vw + 3vh) / 2) * 2);
+      width: calc(((2.4vw + 3vh) / 2) * 3.5);
+      height: calc(((2.4vw + 3vh) / 2) * 3.5);
       background: url(https://raw.githubusercontent.com/sescincjoi/Central-SCI-JOI/refs/heads/main/icon-planilha.png);
       background-size: cover;
-      margin-right: calc(((2.4vw + 3vh) / 2) * 1.4);
+      margin-bottom: calc(((2.4vw + 3vh) / 2) * 0.5);
     }
     
 
@@ -260,13 +267,16 @@
    <div class="links-container">
       <ul class="lista-links">
         <li class="app-extintores">
-          <a href="area-protegida">App Extintores</a>
+          <a href="extintores">Extintores</a>
+        </li>
+        <li class="app-hidrantes">
+          <a href="hidrantes">Hidrantes</a>
         </li>
         <li class="planilha extintores">
           <a target="_blank" href="https://docs.google.com/spreadsheets/d/1RKNORO-bzM83ixu09xFVFboXLjwaOsCzWcZwKMLTTXM/edit?gid=1255221780#gid=1255221780">Controle dos Extintores</a>
         </li>
         <li class="planilha hidrantes">
-          <a href="https://docs.google.com/spreadsheets/d/1f3bDjvHOKlu4sQpVeis8ACpb1qlSoYnzvOFOOWYY-yU/edit?gid=0#gid=0" onclick="mostrarPlanilhaExtintores()">Controle dos Hidrantes</a>
+          <a href="https://docs.google.com/spreadsheets/d/10Ibww1n68LzOAzXZ4la0eo6tkd5pVyf75afrQpNgOQs/edit?gid=860734063#gid=860734063" onclick="mostrarPlanilhaExtintores()">Controle dos Hidrantes</a>
         </li>
         <li class="planilha EPR">
           <a href="https://docs.google.com/spreadsheets/d/1DVjkvUXDWPYaKyzN1IeOdbKLxMkP97BPjdhTIuMkpkQ/edit?gid=0#gid=0" onclick="mostrarPlanilhaExtintores()">Controle dos EPR's</a>
