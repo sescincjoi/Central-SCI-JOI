@@ -44,7 +44,7 @@
       background: url(https://images.pexels.com/photos/2030190/pexels-photo-2030190.jpeg?_gl=1*tco6zh*_ga*NjA4MTQzMzAwLjE3NTg4Mjg0Mjc.*_ga_8JE65Q40S6*czE3NTg4Mjg0MjckbzEkZzEkdDE3NTg4Mjk3NjEkajUzJGwwJGgw);
       background-size: cover;
       background-position: 45% 50%;
-      box-shadow: inset 0 0 100vh 100vh rgb(244 244 244 / 70%);
+      box-shadow: inset 0 0 100vh 100vh rgb(244 244 244 / 85%);
       border-radius: 0;
       overflow: hidden;
       margin-bottom: -1vh;
@@ -246,6 +246,12 @@
       background-size: cover;
       margin-right: calc(((2.4vw + 3vh) / 2) * 1.4);
     }
+    .app-hidrantes a:before {
+      background: url(https://github.com/sescincjoi/Central-SCI-JOI/blob/main/Icone_Caixa_Hidrante.png?raw=true);
+      background-size: 110%;
+      background-position: 50% 50%;
+      filter: drop-shadow(2px 4px 5px rgb(0 0 0 / 40%));
+    }
     .planilha a:before {
       display: block;
       content: "";
@@ -265,13 +271,15 @@
  <div class="corpo-container">
    <h1><img class="logoSCI">CENTRAL SCI<br>AEROPORTO DE JOINVILLE</h1>
    <div class="links-container">
-      <ul class="lista-links">
+      <ul class="lista-links app">
         <li class="app-extintores">
           <a href="extintores">Extintores</a>
         </li>
         <li class="app-hidrantes">
           <a href="hidrantes">Hidrantes</a>
         </li>
+</ul>
+<ul class="lista-links planilhas">
         <li class="planilha extintores">
           <a target="_blank" href="https://docs.google.com/spreadsheets/d/1RKNORO-bzM83ixu09xFVFboXLjwaOsCzWcZwKMLTTXM/edit?gid=1255221780#gid=1255221780">Controle dos Extintores</a>
         </li>
