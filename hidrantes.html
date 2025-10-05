@@ -32,6 +32,12 @@
         .p-4 {
             padding: 0 !important;
         }
+		header:before {
+		    content: "";
+		    background: var(--cor-primaria);
+		    height: env(safe-area-inset-top);
+		    width: 100vw;
+		}
         header.text-center.mb-8 {
             position: fixed;
             width: 100%;
