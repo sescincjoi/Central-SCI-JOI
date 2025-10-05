@@ -40,22 +40,22 @@
         }
         h1.text-4xl.font-extrabold.text-gray-900.mb-2 {
             width: 100%;
-		    position: relative;
-		    display: flex;
-		    font-size: 1em;
-		    font-weight: 600;
-		    line-height: 1.3em;
-		    color: #eaeaea;
-		    background: var(--cor-primaria);
-		    margin: 0;
-		    padding-top: 4.5em;
-		    height: 9em;
-		    top: -4.5em;
-		    align-items: center;
-		    border-radius: 0 0 0.3em 0.3em;
-		    filter: drop-shadow(2px 0px 3px black);
-		    text-align: left;
-		    justify-content: space-evenly;
+            position: absolute;
+            display: flex;
+            font-size: 1em;
+            font-weight: 600;
+            line-height: 1.3em;
+            color: #eaeaea;
+            background: var(--cor-primaria);
+            margin: 0;
+            padding-top: 4.5em;
+            height: 9em;
+            top: -4.5em;
+            align-items: center;
+            border-radius: 0 0 0.3em 0.3em;
+            filter: drop-shadow(2px 0px 3px black);
+            text-align: left;
+            justify-content: space-evenly;
         }
         img.logoSCI {
             width: 3em;
@@ -246,9 +246,10 @@
 	    	    display: none;
 		}
 
-
-        button#reset-status-btn {
+        .rodape {
+            display: flex;
             position: fixed;
+            width: 100vw;
             height: 3.5em;
             bottom: 0dvh;
             left: 0;
@@ -262,6 +263,56 @@
             border: 1px solid rgb(255 255 255 / 2%);
             filter: drop-shadow(2px 0px 2px black);
             z-index: 998;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+        .rodape button {
+            height: 80%;
+        }
+        button.central-sci {
+            display: flex;
+            width: 34vw;
+            font-size: 0.95em;
+            font-weight: 400;
+            border-right: 1px solid rgb(255 255 255 / 20%);
+            padding: 0 3vw;
+            align-items: center;
+            flex-direction: row;
+        }
+        button.central-sci:before {
+            display: flex;
+            content: "⤶";
+            font-size: 2em;
+            align-items: center;
+            justify-content: center;
+            padding-top: 0.2em;
+            height: 80%;
+        }
+        a.link-central-sci {
+            width: 100%;
+        }
+        button#reset-status-btn {
+            display: flex;
+            text-align: left;
+            width: 34vw;
+            line-height: 1.1em;
+            padding: 0 4vw;
+            margin: 0;
+            font-weight: 300;
+            font-size: 1em;
+            border-radius: 0;
+            color: var(--cor-textoclaro);
+            text-wrap-mode: wrap;
+            flex-direction: row;
+            background: none;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid rgb(255 255 255 / 20%);
+        }
+        button#reset-status-btn:before {
+            content: "↻";
+            font-size: 1.95em;
+            padding-right: 2vw;
         }
         .col-span-full.fixed.top-4.right-4.p-4.rounded-xl.shadow-xl.font-medium.bg-red-100.text-red-700.z-50.transition-transform.transform.translate-x-0 {
             position: fixed;
@@ -291,6 +342,26 @@
             justify-content: center;
             border-radius: 0 0 0.5em 0.5em;
         }
+        button.Planilha {
+            padding: 0 4vw;
+        }
+        .link-planilha {
+            display: flex;
+            font-size: 0.95em;
+            flex-direction: row;
+            align-items: center;
+        }
+        .link-planilha:before {
+            display: block;
+            content: "";
+            width: 8vw;
+            height: 9vw;
+            background: url(https://raw.githubusercontent.com/sescincjoi/Central-SCI-JOI/refs/heads/main/icon-planilha-line.png);
+            background-size: cover;
+            background-position: center;
+            margin-right: 1.2vw;
+        }
+        
 
 	@media (min-aspect-ratio: 1/1) {
 
@@ -335,9 +406,19 @@
             <label for="inspector-name" class="block text-sm font-medium text-gray-700 mb-2">Seu Nome</label>
             <input type="text" id="inspector-name" placeholder="Digite seu nome de BA" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
             
-            <button id="reset-status-btn" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150 ease-in-out">
-                🔄 Resetar TODOS os Hidrantes
-            </button>
+            <div class="rodape">
+                <button class="central-sci">
+                    <a class="link-central-sci" href="../index.html">
+                        Central SCI</a>
+                </button>
+                <button id="reset-status-btn" class="mt-4 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150 ease-in-out">
+                        Resetar Hidrantes
+                </button>
+                <button class="Planilha">
+                    <a class="link-planilha" target="_blank" href="https://docs.google.com/spreadsheets/d/10Ibww1n68LzOAzXZ4la0eo6tkd5pVyf75afrQpNgOQs/edit?gid=860734063#gid=860734063">
+                        Planilha</a>
+                </button>
+            </div>
         </div>
 
         <!-- Lista de Hidrantes -->
