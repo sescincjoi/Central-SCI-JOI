@@ -50,14 +50,14 @@
         h1.text-4xl.font-extrabold.text-gray-900.mb-2 {
             width: 100%;
 		    position: absolute;
-			top: 0;
+			top: env(safe-area-inset-top);
 		    display: flex;
 		    font-size: 1em;
 		    font-weight: 600;
 		    line-height: 1.3em;
 		    color: #eaeaea;
 		    background: var(--cor-primaria);
-		    margin: 0;
+		    margin: env(safe-area-inset-top) 0 0 0;
 		    height: 4.5em;
 			padding-top: env(safe-area-inset-top);
 		    align-items: center;
