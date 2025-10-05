@@ -38,7 +38,7 @@
 		    top: env(safe-area-inset-top);
 		    content: "";
 		    background: var(--cor-primaria);
-		    height: env(safe-area-inset-top)*2;
+		    height: env(safe-area-inset-top);
 		    width: 100vw;
 		}
         header.text-center.mb-8 {
@@ -50,6 +50,7 @@
         h1.text-4xl.font-extrabold.text-gray-900.mb-2 {
             width: 100%;
 		    position: absolute;
+			top: 0;
 		    display: flex;
 		    font-size: 1em;
 		    font-weight: 600;
@@ -57,7 +58,6 @@
 		    color: #eaeaea;
 		    background: var(--cor-primaria);
 		    margin: 0;
-			padding-top: env(safe-area-inset-top)*2;
 		    height: 4.5em;
 		    align-items: center;
 		    border-radius: 0 0 0.3em 0.3em;
