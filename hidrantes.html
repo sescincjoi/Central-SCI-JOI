@@ -34,9 +34,12 @@
         }
 		header:before {
 			display: block;
+		    position: fixed;
+		    top: env(safe-area-inset-top);
 		    content: "";
 		    background: var(--cor-primaria);
 		    height: env(safe-area-inset-top);
+		    padding-bottom: 2em;
 		    width: 100vw;
 		}
         header.text-center.mb-8 {
