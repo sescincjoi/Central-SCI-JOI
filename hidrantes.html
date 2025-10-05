@@ -8,7 +8,7 @@
 	  <meta name="apple-mobile-web-app-capable" content="yes">
 	  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0 viewport-fit=cover">
     <title>Ronda de Hidrantes - Inspeção em Tempo Real</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -51,6 +51,7 @@
             padding-top: 4.5em;
             height: 9em;
             top: -4.5em;
+			padding-top: env(safe-area-inset-top);
             align-items: center;
             border-radius: 0 0 0.3em 0.3em;
             filter: drop-shadow(2px 0px 3px black);
