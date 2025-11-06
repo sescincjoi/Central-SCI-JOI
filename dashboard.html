@@ -909,40 +909,6 @@
                         </div>
                     </section>
                     
-                    <!-- Largura das Colunas -->
-                    <section>
-                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Ajuste de Largura das Colunas (Tabela)</h4>
-                        <div class="space-y-2 p-4 border rounded-lg bg-gray-50">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-2 border rounded-lg bg-white">
-                                ${state.config.allColumns.filter(c => c.visible).map(col => {
-                                    const currentWidthStr = state.config.tableStyle.columnWidths[col.key];
-                                    const currentWidth = currentWidthStr ? parseInt(currentWidthStr.match(/\[(\d+)px\]/)?.[1] || '120', 10) : 'Auto';
-                                    return `
-                                        <div key="${col.key}" class="flex items-center space-x-2 p-2 border rounded-lg bg-gray-100">
-                                            <span class="text-xs font-medium text-gray-700 w-16 truncate">${col.label}</span>
-                                            <div class="flex items-center space-x-1">
-                                                <button 
-                                                    onclick="window.handleColumnWidthChange('${col.key}', -10)"
-                                                    class="p-1 bg-red-200 text-red-700 rounded-full hover:bg-red-300"
-                                                >
-                                                    ${icon('Minus', 'w-3.5 h-3.5')}
-                                                </button>
-                                                <span class="text-xs font-mono w-8 text-center">${currentWidth}</span>
-                                                <button 
-                                                    onclick="window.handleColumnWidthChange('${col.key}', 10)"
-                                                    class="p-1 bg-red-200 text-red-700 rounded-full hover:bg-red-300"
-                                                >
-                                                    ${icon('Plus', 'w-3.5 h-3.5')}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    `;
-                                }).join('')}
-                            </div>
-                        </div>
-                    </section>
-
-
                     <!-- Configuração de Colunas Visíveis -->
                     <section>
                         <h4 class="text-xl font-semibold text-gray-800 mb-2">Colunas Visíveis (Todo o Sistema)</h4>
