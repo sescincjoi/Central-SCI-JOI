@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Extintores (Vanilla JS)</title>
+    <!-- Carrega Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração de Fonte: Inter -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="app" class="min-h-screen p-4 md:p-8">
+        <!-- O conteúdo será injetado aqui pelo JavaScript -->
+    </div>
+
+    <!-- Container para Modals -->
+    <div id="modal-root"></div>
+
+    <script>
+        // --- LUCIDE ICONS (Convertidos para SVG inline para o Vanilla JS) ---
+
+        const ICONS = {
+            RefreshCw: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw"><path d="M21 12a9 9 0 0 0-9-9 9 9 0 0 0-8 2.8c-.83.94-1.29 2.1-1.35 3.5m.3 2.5a9 9 0 0 0 9 9 9 9 0 0 0 8.77-6.5"/><path d="M17 2v5h5M2 12h2M2 12h2"/></svg>`,
+            LayoutGrid: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3"/><rect width="7" height="7" x="14" y="3"/><rect width="7" height="7" x="14" y="14"/><rect width="7" height="7" x="3" y="14"/></svg>`,
+            List: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>`,
+            BarChart2: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart-2"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>`,
+            Settings: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73 2.73l.08.15a2 2 0 0 1 0 2l-.25.43a2 2 0 0 1-1.73 1L2 12.22v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 1 0 2l-.08.15a2 2 0 0 0 2.73 2.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V22h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-2.73l-.08-.15a2 2 0 0 1 0-2l.25-.43a2 2 0 0 1 1.73-1L22 12.44v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1-1.73l-.25-.43a2 2 0 0 1 0-2l.08-.15a2 2 0 0 0-2.73-2.73l-.15.08a2 2 0 0 1-2 0l-.43-.25A2 2 0 0 1 12.22 2z"/><circle cx="12" cy="12" r="3"/></svg>`,
+            AlertTriangle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12.01" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>`,
+            CheckCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.35-8.88"/><path d="M12 2v10"/><path d="m9 12 2 2 4-4"/></svg>`,
+            XCircle: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>`,
+            FireExtinguisher: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-fire-extinguisher"><path d="M11 20h2v-4h-2v4z"/><path d="M12 10a4 4 0 0 1 4 4v2H8v-2a4 4 0 0 1 4-4z"/><path d="M18 10V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v4"/><path d="M18 16h2a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"/><path d="M10 2v2"/><path d="M14 2v2"/></svg>`,
+            Minus: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus"><path d="M5 12h14"/></svg>`,
+            Plus: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>`,
+            X: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`
+        };
+
+        // Função utilitária para renderizar ícones
+        const icon = (name, className = '') => {
+            return `<span class="inline-block ${className}">${ICONS[name] || ''}</span>`;
+        };
+
+        // --- ESTADO GLOBAL (Substituindo React State) ---
+        let state = {
+            data: [],
+            loading: true,
+            activeTab: 'Dashboard',
+            filterText: 'Todas as Opções',
+            filterColumn: 'Nº',
+            showModal: null, // null, 'conforming', 'alerts', 'panel'
+            selectedExtinguisher: null,
+            chartSourceKey: 'Equipe',
+            config: {
+                dataRange: 'A:P',
+                allColumns: [], // Preenchido no init
+                tableStyle: {
+                    fontSize: 'text-xs',
+                    rowHeight: 'py-2',
+                    columnWidths: {},
+                },
+            },
+        };
+
+        // --- CONSTANTES ---
+        const SHEET_ID = '13ba_yYrzwSo6ExfZUC3vF7PFQCKAP3PBw2grkJAbmm8';
+        const GID = '1255221780';
+        const GOOGLE_SHEET_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}&range=`;
+
+        const INITIAL_COLUMNS_CONFIG = [
+            { key: 'Nº', label: 'Nº', visible: true, isId: true, isFixed: true },
+            { key: 'Local', label: 'Local', visible: true },
+            { key: 'Descrição', label: 'Descrição', visible: true },
+            { key: 'Tipo Kg', label: 'Tipo/Kg', visible: true, isChartSource: true },
+            { key: 'MESMO TIPO DA PLANTA?', label: 'Mesmo Tipo?', visible: true, isChartSource: true },
+            { key: 'SUBSTITUTO', label: 'Substituto', visible: true },
+            { key: 'Kg', label: 'Kg', visible: true },
+            { key: 'SITUAÇÃO', label: 'Situação', visible: true, isStatus: true, isChartSource: true },
+            { key: 'Não conformidade', label: 'Não conformidade', visible: true },
+            { key: 'Observação', label: 'Observação', visible: true },
+            { key: '2º Nível', label: '2º Nível', visible: true, isDate: true, dateFormat: 'MM/YY' },
+            { key: '3º Nível', label: '3º Nível', visible: true, isDate: true, dateFormat: 'YYYY' },
+            { key: 'Equipe', label: 'Equipe', visible: true, isChartSource: true },
+            { key: 'Responsável', label: 'Responsável', visible: true, isChartSource: true },
+            { key: 'DATA/HORA', label: 'Data/Hora', visible: true },
+        ];
+
+        const PANEL_BLOCKS_STRUCTURE = [
+            { name: 'Identificação', fields: ['Nº', 'Local', 'Descrição'] },
+            { name: 'Tipo e Peso', fields: ['Tipo Kg', 'Kg', 'MESMO TIPO DA PLANTA?'] },
+            { name: 'Situação', fields: ['SITUAÇÃO', 'Não conformidade', 'Observação'] },
+            { name: 'Datas de Inspeção', fields: ['2º Nível', '3º Nível'] },
+            { name: 'Responsabilidade', fields: ['Equipe', 'Responsável', 'DATA/HORA'] },
+        ];
+
+        // --- FUNÇÕES DE UTENTE (GETTERS / SETTERS) ---
+
+        /**
+         * Atualiza o estado e re-renderiza a UI
+         */
+        const setState = (newState) => {
+            state = { ...state, ...newState };
+            updateUI();
+        };
+        
+        // --- HELPERS DE LÓGICA DE DATAS E CORES ---
+        
+        const parseDateMMYY = (dateStr) => {
+            if (!dateStr || dateStr.length !== 5 || dateStr === '-') return null;
+            const [month, year] = dateStr.split('/');
+            const fullYear = 2000 + parseInt(year, 10);
+            const monthInt = parseInt(month, 10);
+            if (isNaN(fullYear) || isNaN(monthInt) || monthInt < 1 || monthInt > 12) return null;
+            return new Date(fullYear, monthInt, 0);
+        };
+
+        const parseDateYYYY = (yearStr) => {
+            const year = parseInt(yearStr, 10);
+            if (isNaN(year) || year < 1900) return null;
+            return new Date(year, 11, 31);
+        };
+
+        const getDateStatus = (key, value) => {
+            if (value === '-' || !value) {
+                return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Indefinido' };
+            }
+
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+
+            let expireDate = null;
+            let status = 'Válido';
+
+            if (key === '2º Nível') {
+                expireDate = parseDateMMYY(String(value));
+                if (!expireDate) return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Inválido' };
+
+                if (expireDate < now) {
+                    status = 'Vencido';
+                    return { color: 'text-red-600', bgColor: 'bg-red-200/50', status };
+                }
+
+                const threeMonthsAhead = new Date(now);
+                threeMonthsAhead.setMonth(now.getMonth() + 3);
+
+                if (expireDate <= threeMonthsAhead) {
+                    status = 'Próximo do Vencimento';
+                    return { color: 'text-yellow-600', bgColor: 'bg-yellow-200/50', status };
+                }
+
+                return { color: 'text-green-600', bgColor: 'bg-green-200/50', status };
+
+            } else if (key === '3º Nível') {
+                const year = parseInt(value, 10);
+                if (isNaN(year)) return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Inválido' };
+                expireDate = parseDateYYYY(year);
+
+                if (year < now.getFullYear()) {
+                    status = 'Vencido';
+                    return { color: 'text-red-600', bgColor: 'bg-red-200/50', status };
+                }
+
+                if (year === now.getFullYear()) {
+                    if (now.getMonth() >= 9) {
+                        status = 'Próximo do Vencimento';
+                        return { color: 'text-red-600', bgColor: 'bg-red-200/50', status };
+                    }
+                    status = 'No Ano Vigente';
+                    return { color: 'text-yellow-600', bgColor: 'bg-yellow-200/50', status };
+                }
+
+                return { color: 'text-green-600', bgColor: 'bg-green-200/50', status };
+            }
+
+            return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Indefinido' };
+        };
+
+        const getStatusColor = (value) => {
+            const normalized = String(value).toUpperCase().trim();
+            if (normalized === 'CONFORME') {
+                return { color: 'text-green-600', bgColor: 'bg-green-200/50' };
+            }
+            if (normalized === 'NÃO CONFORME') {
+                return { color: 'text-red-600', bgColor: 'bg-red-200/50' };
+            }
+            if (normalized === '-') {
+                return { color: 'text-blue-600', bgColor: 'bg-blue-200/50' };
+            }
+            return { color: 'text-gray-600', bgColor: 'bg-gray-200/50' };
+        };
+        
+        // --- FUNÇÃO DE BUSCA E PARSE DE DADOS ---
+
+        const fetchData = async (sheetUrl) => {
+            try {
+                const response = await fetch(sheetUrl);
+                const text = await response.text();
+                // Limpa o JSON P para JSON puro
+                const jsonText = text.substring(47, text.length - 2).trim();
+                const data = JSON.parse(jsonText);
+
+                if (!data.table || !data.table.rows) {
+                    console.error('Dados da planilha em formato inesperado.');
+                    return [];
+                }
+
+                const colLabels = data.table.cols.map(col => col.label).filter(label => label);
+
+                const parsedData = data.table.rows.map((row, rowIndex) => {
+                    const extinguisher = { id: rowIndex };
+
+                    row.c.forEach((cell, cellIndex) => {
+                        const colLabel = colLabels[cellIndex];
+                        if (colLabel) {
+                            let value = cell && cell.v !== undefined ? cell.v : '-';
+                            
+                            if (cell && cell.f !== undefined) {
+                                value = cell.f;
+                            }
+
+                            if (value === null || value === "") {
+                                value = '-';
+                            }
+                            
+                            extinguisher[colLabel] = String(value);
+                        }
+                    });
+
+                    return extinguisher;
+                }).filter(e => e['Nº'] !== undefined && e['Nº'] !== '-' && e['Nº'] !== 'Nº');
+
+                return parsedData;
+
+            } catch (error) {
+                console.error('Erro ao buscar dados do Google Sheets:', error);
+                return [];
+            }
+        };
+
+
+        // --- LÓGICA DE CÁLCULO DE KPIS E FILTROS (Substituindo useMemo) ---
+
+        const getExtinguisherStatus = (ext) => {
+            const situacao = String(ext['SITUAÇÃO']).toUpperCase().trim();
+            let isConforme = situacao === 'CONFORME';
+            let isNaoConforme = situacao === 'NÃO CONFORME';
+            let isAlert = false;
+            let alertDetails = [];
+
+            if (!isConforme && !isNaoConforme) {
+                isAlert = true;
+                alertDetails.push('Situação Indefinida / Não Vistoriado');
+            }
+
+            const status2N = getDateStatus('2º Nível', ext['2º Nível']);
+            if (status2N.status === 'Vencido' || status2N.status === 'Próximo do Vencimento') {
+                isAlert = true;
+                alertDetails.push(`2º Nível: ${status2N.status}`);
+            }
+
+            const status3N = getDateStatus('3º Nível', ext['3º Nível']);
+            if (status3N.status === 'Vencido' || status3N.status === 'Próximo do Vencimento') {
+                isAlert = true;
+                alertDetails.push(`3º Nível: ${status3N.status}`);
+            }
+
+            return { isConforme, isNaoConforme, isAlert, alertDetails };
+        };
+
+        const computeData = () => {
+            let conf = 0;
+            let naoConf = 0;
+            let alerts = 0;
+            const naoConfList = [];
+            const alertsList = [];
+            const filterValue = String(state.filterText);
+            
+            const uniqueValsSet = new Set(['Todas as Opções']);
+
+            state.data.forEach(ext => {
+                const { isConforme, isNaoConforme, isAlert, alertDetails } = getExtinguisherStatus(ext);
+
+                if (isConforme) conf++;
+                if (isNaoConforme) {
+                    naoConf++;
+                    naoConfList.push({
+                        id: ext.id,
+                        num: ext['Nº'],
+                        situacao: ext['SITUAÇÃO'],
+                        naoConformidade: ext['Não conformidade'],
+                        observacao: ext['Observação'],
+                    });
+                }
+                if (isAlert) {
+                    alerts++;
+                    alertsList.push({
+                        id: ext.id,
+                        num: ext['Nº'],
+                        local: ext['Local'],
+                        details: alertDetails,
+                    });
+                }
+                
+                // Popula valores únicos para o filtro
+                uniqueValsSet.add(String(ext[state.filterColumn] || '-'));
+            });
+
+            const uniqueValuesForFilter = Array.from(uniqueValsSet).sort();
+
+
+            // 2. Filtragem Geral - SEMPRE por correspondência exata
+            const filteredData = state.data.filter(ext => {
+                if (!state.filterText || state.filterText === 'Todas as Opções') return true;
+
+                const extValue = String(ext[state.filterColumn] || '-');
+                return extValue === filterValue;
+            });
+            
+            return {
+                filteredData,
+                conformingCount: conf,
+                nonConformingCount: naoConf,
+                alertCount: alerts,
+                nonConformingList: naoConfList,
+                activeAlertsList: alertsList,
+                uniqueValuesForFilter,
+            };
+        };
+
+        let computedData = computeData(); // Guarda os dados computados
+
+        // --- HANDLERS GLOBAIS DE INTERAÇÃO (Disponíveis no escopo global para o 'onclick' funcionar) ---
+        
+        window.closeModal = () => setState({ showModal: null, selectedExtinguisher: null });
+
+        window.handleKpiClick = (kpi) => {
+            if (kpi === 'Total') {
+                setState({ activeTab: 'Visualização' });
+            } else if (kpi === 'Conformes') {
+                setState({ showModal: 'conforming' });
+            } else if (kpi === 'Não conformes') {
+                setState({ activeTab: 'Dashboard' });
+                // Rolagem para a lista de não conformidades (com pequeno atraso para dar tempo de renderizar)
+                setTimeout(() => {
+                    document.getElementById('non-conformity-list')?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            } else if (kpi === 'Alertas Ativos') {
+                setState({ showModal: 'alerts' });
+            }
+        };
+
+        window.handleRangeChange = (e) => {
+            const newRange = e.target.value.toUpperCase();
+            state.config.dataRange = newRange; 
+        };
+        
+        window.handleColumnToggle = (key) => {
+            const newColumns = state.config.allColumns.map(col =>
+                col.key === key ? { ...col, visible: !col.visible } : col
+            );
+            setState({ config: { ...state.config, allColumns: newColumns } });
+        };
+
+        window.handleColumnWidthChange = (key, delta) => {
+            const currentWidthStr = state.config.tableStyle.columnWidths[key];
+            const currentWidth = currentWidthStr ? parseInt(currentWidthStr.match(/\[(\d+)px\]/)?.[1] || '120', 10) : 120;
+            const newWidth = Math.max(80, currentWidth + delta);
+            
+            const newColumnWidths = {
+                ...state.config.tableStyle.columnWidths,
+                [key]: `w-[${newWidth}px]`
+            };
+            
+            const newConfig = { 
+                ...state.config, 
+                tableStyle: {
+                    ...state.config.tableStyle,
+                    columnWidths: newColumnWidths
+                } 
+            };
+            setState({ config: newConfig });
+        };
+        
+        // --- MODAL COMPONENT (Renderiza diretamente no DOM) ---
+
+        const renderModal = () => {
+            const root = document.getElementById('modal-root');
+            if (!state.showModal) {
+                root.innerHTML = '';
+                return;
+            }
+
+            // closeModal não precisa mais ser definida aqui, pois é global (window.closeModal)
+
+            let title = '';
+            let content = '';
+            let size = 'md';
+            
+            const { activeAlertsList } = computedData;
+
+
+            if (state.showModal === 'conforming') {
+                const conformingExtinguishers = state.data.filter(ext => getExtinguisherStatus(ext).isConforme);
+                title = `Extintores Conformes (${conformingExtinguishers.length})`;
+                size = 'sm';
+                
+                content = `
+                    <p class="mb-3 text-gray-600">Lista de Nº de extintores que estão com status 'Conforme'.</p>
+                    <div class="grid grid-cols-5 gap-3 max-h-80 overflow-y-auto p-2 border rounded-lg bg-green-50">
+                        ${conformingExtinguishers.map(ext => `
+                            <div 
+                                class="p-2 bg-green-200 text-green-800 text-center text-sm font-bold rounded-lg shadow-sm cursor-pointer hover:bg-green-300 transition"
+                                onclick="setState({ selectedExtinguisher: state.data.find(e => e.id === ${ext.id}), showModal: 'panel' })"
+                            >
+                                ${ext['Nº']}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (state.showModal === 'alerts') {
+                title = `Alertas Ativos (${activeAlertsList.length})`;
+                size = 'lg';
+                
+                content = `
+                    <p class="mb-3 text-gray-600">Extintores com datas de inspeção próximas ao vencimento ou vencidas, ou com situação indefinida.</p>
+                    <div class="space-y-3 max-h-96 overflow-y-auto p-3 border rounded-lg bg-yellow-50">
+                        ${activeAlertsList.length === 0 ? 
+                            '<p class="text-gray-500">Nenhum alerta ativo no momento.</p>' : 
+                            activeAlertsList.map(item => `
+                                <div
+                                    class="p-4 border border-yellow-300 rounded-lg cursor-pointer hover:bg-yellow-100 transition"
+                                    onclick="setState({ selectedExtinguisher: state.data.find(e => e.id === ${item.id}), showModal: 'panel' })"
+                                >
+                                    <p class="font-bold text-lg text-yellow-800 flex justify-between items-center">
+                                        Nº ${item.num} - ${item.local}
+                                        ${icon('AlertTriangle', 'text-yellow-600 w-5 h-5')}
+                                    </p>
+                                    <ul class="list-disc list-inside text-sm mt-1 text-gray-700">
+                                        ${item.details.map(detail => `<li>${detail}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                `;
+
+            } else if (state.showModal === 'panel' && state.selectedExtinguisher) {
+                title = `Detalhes do Extintor Nº ${state.selectedExtinguisher['Nº']}`;
+                size = 'lg';
+                
+                // Painel de Detalhes SEM o botão de Ação Concluída
+                content = `
+                    ${renderExtinguisherPanel(state.selectedExtinguisher, state.config.allColumns)}
+                `;
+            }
+
+            const sizeClasses = {
+                sm: 'max-w-sm',
+                md: 'max-w-lg',
+                lg: 'max-w-2xl',
+                xl: 'max-w-4xl',
+            };
+
+            root.innerHTML = `
+                <div class="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4" onclick="window.closeModal()">
+                    <div
+                        class="bg-white rounded-xl shadow-2xl p-6 transform transition-all w-full ${sizeClasses[size]}"
+                        onclick="event.stopPropagation()"
+                    >
+                        <div class="flex justify-between items-center border-b pb-3 mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">${title}</h3>
+                            <button onclick="window.closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                ${icon('X', 'w-6 h-6')}
+                            </button>
+                        </div>
+                        ${content}
+                    </div>
+                </div>
+            `;
+        };
+
+        // --- RENDERIZADORES DE COMPONENTES (Substituindo JSX Components) ---
+        
+        const renderExtinguisherPanel = (extinguisher, allColumns) => {
+            const renderField = (key, label) => {
+                const value = extinguisher[key] || '-';
+                const colConfig = allColumns.find(c => c.key === key);
+                if (!colConfig || !colConfig.visible) return '';
+
+                let colorClass = 'text-gray-800';
+                let bgColorClass = 'bg-white';
+                let statusText = '';
+                let isBig = false;
+
+                if (key === 'Nº') isBig = true;
+                
+                if (key === 'SITUAÇÃO') {
+                    const status = getStatusColor(value);
+                    colorClass = status.color;
+                    bgColorClass = status.bgColor;
+                    isBig = true; 
+                } else if (key === '2º Nível' || key === '3º Nível') {
+                    const dateStatus = getDateStatus(key, value);
+                    colorClass = dateStatus.color;
+                    statusText = dateStatus.status;
+                }
+                
+                const fontSizeClass = isBig ? 'text-lg font-extrabold' : 'text-sm font-medium';
+                const widthClass = isBig ? 'col-span-2' : 'col-span-1';
+
+                return `
+                    <div key="${key}" class="p-1.5 ${widthClass} border-b border-gray-100 ${bgColorClass}">
+                        <p class="text-xs text-gray-500 mb-0.5">${label}</p>
+                        <div class="flex items-center space-x-2">
+                            <span class="${fontSizeClass} ${colorClass}">
+                            ${value}
+                            </span>
+                            ${statusText ? `<span class="text-xs px-2 py-0.5 rounded-full bg-gray-200 text-gray-600 border border-gray-300">${statusText}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            };
+
+            const renderPanelContent = () => {
+                return PANEL_BLOCKS_STRUCTURE.map((block, index) => {
+                    const hasVisibleField = block.fields.some(key => allColumns.find(c => c.key === key)?.visible);
+                    if (!hasVisibleField) return '';
+
+                    const fieldsHtml = block.fields.map(key => renderField(key, allColumns.find(c => c.key === key)?.label || key)).join('');
+
+                    return `
+                        <div key="${index}" class="mb-2 last:mb-0 border rounded-lg p-2 bg-gray-50">
+                            <p class="text-xs font-bold text-gray-600 border-b pb-1 mb-1">${block.name}</p>
+                            <div class="grid grid-cols-2 gap-x-3">
+                                ${fieldsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            };
+
+            return `
+                <div class="relative bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="flex items-center justify-between p-3 bg-red-600 text-white">
+                        <h4 class="text-lg font-extrabold flex items-center">
+                            ${icon('FireExtinguisher', 'inline-block mr-2 w-5 h-5')}
+                            Extintor Nº ${extinguisher['Nº']}
+                        </h4>
+                        <span class="text-xs font-semibold bg-white text-red-600 px-3 py-1 rounded-full">
+                            ${extinguisher['Local']}
+                        </span>
+                    </div>
+                    <div class="p-3">
+                        ${renderPanelContent()}
+                    </div>
+                </div>
+            `;
+        };
+        
+        const renderFilterBar = (columns, uniqueValues) => {
+            const visibleColumns = columns.filter(c => c.visible);
+
+            return `
+                <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4 bg-white p-4 rounded-xl shadow-md border">
+                    <div class="w-full md:w-56">
+                        <label class="text-xs text-gray-500 block mb-1">Filtrar Base</label>
+                        <select
+                            id="filter-column-select"
+                            onchange="setState({ filterColumn: this.value, filterText: 'Todas as Opções' })"
+                            class="w-full p-2 border border-gray-300 rounded-lg bg-white"
+                        >
+                            ${visibleColumns.map(col => `
+                                <option value="${col.key}" ${state.filterColumn === col.key ? 'selected' : ''}>
+                                    ${col.label}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                    
+                    <div class="flex-grow">
+                        <label class="text-xs text-gray-500 block mb-1">Valor do Filtro</label>
+                        <select
+                            id="filter-text-select"
+                            onchange="setState({ filterText: this.value })"
+                            class="w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-red-500 focus:border-red-500"
+                        >
+                            ${uniqueValues.map(value => `
+                                <option value="${value}" ${state.filterText === value ? 'selected' : ''}>
+                                    ${value === 'Todas as Opções' ? 'Todas as Opções' : (value === '-' ? '(Vazio/Indefinido)' : value)}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderSimpleDoughnutChart = (chartSourceKey) => {
+            const chartData = state.data
+                .filter(ext => ext[chartSourceKey] && ext[chartSourceKey] !== '-')
+                .reduce((acc, ext) => {
+                    const key = String(ext[chartSourceKey]);
+                    acc[key] = (acc[key] || 0) + 1;
+                    return acc;
+                }, {});
+
+            const total = Object.values(chartData).reduce((sum, count) => sum + count, 0);
+
+            if (total === 0) return '<p class="text-center text-gray-500">Sem dados para o gráfico.</p>';
+            
+            const radius = 60;
+            const center = 70;
+            let currentAngle = 0;
+
+            const chartValues = Object.entries(chartData).map(([name, count], index) => {
+                const percent = (count / total) * 100;
+                const color = `hsl(${index * 45 % 360}, 70%, 50%)`; 
+
+                const startAngle = currentAngle;
+                const endAngle = currentAngle + percent * 3.6; 
+                currentAngle = endAngle;
+
+                return { name, value: count, percent: percent.toFixed(1), color, startAngle, endAngle };
+            }).filter(item => item.value > 0);
+
+            const renderArc = (item) => {
+                const startAngleRad = (item.startAngle - 90) * Math.PI / 180;
+                const endAngleRad = (item.endAngle - 90) * Math.PI / 180;
+                
+                const startX = center + radius * Math.cos(startAngleRad);
+                const startY = center + radius * Math.sin(startAngleRad);
+                const endX = center + radius * Math.cos(endAngleRad);
+                const endY = center + radius * Math.sin(endAngleRad);
+                
+                const largeArcFlag = item.percent > 50 ? 1 : 0;
+                
+                return `
+                    <path
+                        d="M ${center},${center} L ${startX},${startY} A ${radius},${radius} 0 ${largeArcFlag},1 ${endX},${endY} Z"
+                        fill="${item.color}"
+                    />
+                `;
+            };
+
+            const svgContent = `
+                <div class="w-full md:w-1/2 p-4 flex justify-center">
+                    <svg
+                        width="200"
+                        height="200"
+                        viewBox="0 0 ${center * 2} ${center * 2}"
+                        class="transform -rotate-90"
+                    >
+                        ${chartValues.map(renderArc).join('')}
+
+                        <circle cx="${center}" cy="${center}" r="${radius * 0.6}" fill="white" class="shadow-inner" />
+                        
+                        <text x="${center}" y="${center}" text-anchor="middle" dy="0.3em" font-size="18" fill="#333" class="font-bold rotate-90 transform origin-center">
+                            ${total}
+                        </text>
+                        <text x="${center}" y="${center + 15}" text-anchor="middle" dy="0.3em" font-size="10" fill="#666" class="font-semibold rotate-90 transform origin-center">
+                            Total
+                        </text>
+                    </svg>
+                </div>
+            `;
+            
+            const legendaContent = `
+                <div class="w-full md:w-1/2 p-4">
+                    <h5 class="font-semibold text-gray-700 mb-3">Legenda (${state.config.allColumns.find(c => c.key === chartSourceKey)?.label || chartSourceKey})</h5>
+                    <ul class="space-y-2 max-h-48 overflow-y-auto">
+                        ${chartValues.map((item) => `
+                            <li 
+                                class="flex justify-between items-center text-sm cursor-pointer hover:bg-gray-100 p-1 rounded transition"
+                                onclick="setState({ filterColumn: '${chartSourceKey}', filterText: '${item.name}' })"
+                            >
+                                <div class="flex items-center">
+                                    <span class="w-3 h-3 rounded-full mr-2 shadow" style="background-color: ${item.color};"></span>
+                                    ${item.name}
+                                </div>
+                                <span class="font-semibold">${item.percent}% (${item.value})</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            return `
+                <div class="flex flex-col md:flex-row items-start justify-center">
+                    ${svgContent}
+                    ${legendaContent}
+                </div>
+            `;
+        };
+
+        const renderDashboard = () => {
+            const { conformingCount, nonConformingCount, alertCount, nonConformingList } = computedData;
+            
+            const KPI_CARDS = [
+                { title: 'Total de Extintores', count: state.data.length, color: 'text-blue-600', icon: 'FireExtinguisher', kpi: 'Total' },
+                { title: 'Conformes', count: conformingCount, color: 'text-green-600', icon: 'CheckCircle', kpi: 'Conformes' },
+                { title: 'Não conformes', count: nonConformingCount, color: 'text-red-600', icon: 'XCircle', kpi: 'Não conformes' },
+                { title: 'Alertas Ativos', count: alertCount, color: 'text-yellow-600', icon: 'AlertTriangle', kpi: 'Alertas Ativos' },
+            ];
+
+            return `
+                <div class="space-y-8">
+                    <!-- Bloco de KPIs -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        ${KPI_CARDS.map(card => `
+                            <div
+                                onclick="window.handleKpiClick('${card.kpi}')"
+                                class="bg-white rounded-xl p-5 shadow-lg flex items-center justify-between cursor-pointer hover:shadow-xl transition-shadow border-t-4 border-red-500"
+                            >
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">${card.title}</p>
+                                    <h2 class="text-3xl font-bold mt-1 ${card.color}">${card.count}</h2>
+                                </div>
+                                ${icon(card.icon, `w-9 h-9 opacity-20 ${card.color}`)}
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Gráfico de Pizza Anel -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-bold text-gray-800">Gráfico de Distribuição</h3>
+                            <div class="flex items-center space-x-2">
+                                <label for="chart-select" class="text-sm text-gray-600">Base:</label>
+                                <select
+                                    id="chart-select"
+                                    onchange="setState({ chartSourceKey: this.value })"
+                                    class="p-2 border rounded-lg text-sm"
+                                >
+                                    ${state.config.allColumns.filter(c => c.isChartSource).map(col => `
+                                        <option value="${col.key}" ${state.chartSourceKey === col.key ? 'selected' : ''}>${col.label}</option>
+                                    `).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        ${renderSimpleDoughnutChart(state.chartSourceKey)}
+                    </div>
+
+                    <!-- Lista de Não Conformidades -->
+                    <div id="non-conformity-list" class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center">
+                            ${icon('XCircle', 'w-6 h-6 mr-2')}
+                            Extintores Não Conformes (${nonConformingList.length})
+                        </h3>
+                        <div class="space-y-3">
+                            ${nonConformingList.length === 0 ? 
+                                '<p class="text-gray-500">Nenhuma não conformidade ativa.</p>' :
+                                nonConformingList.map(item => `
+                                    <div
+                                        class="p-4 border border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition"
+                                        onclick="setState({ selectedExtinguisher: state.data.find(e => e.id === ${item.id}), showModal: 'panel' })"
+                                    >
+                                        <p class="font-bold text-lg text-red-800">Nº ${item.num}</p>
+                                        <p class="text-sm mt-1">
+                                            <span class="font-semibold">Situação:</span> <span class="text-red-600">${item.situacao}</span>
+                                        </p>
+                                        <p class="text-sm"><span class="font-semibold">Não conformidade:</span> ${item.naoConformidade || '-'}</p>
+                                        <p class="text-xs text-gray-600 mt-1"><span class="font-semibold">Observação:</span> ${item.observacao || '-'}</p>
+                                    </div>
+                                `).join('')
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        };
+        
+        const renderVisualizacao = () => {
+            const { filteredData, uniqueValuesForFilter } = computedData;
+            return `
+                <div class="space-y-6">
+                    ${renderFilterBar(state.config.allColumns, uniqueValuesForFilter)}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        ${filteredData.map(ext => `
+                            <div 
+                                key="${ext.id}" 
+                                class="cursor-pointer hover:shadow-xl transition-shadow duration-300" 
+                                onclick="setState({ selectedExtinguisher: state.data.find(e => e.id === ${ext.id}), showModal: 'panel' })"
+                            >
+                                ${renderExtinguisherPanel(ext, state.config.allColumns)}
+                            </div>
+                        `).join('')}
+                        ${filteredData.length === 0 ? 
+                            '<p class="text-gray-500 col-span-full text-center py-10">Nenhum extintor encontrado com o filtro atual.</p>' : ''
+                        }
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderTabela = () => {
+            const { filteredData, uniqueValuesForFilter } = computedData;
+            const visibleColumns = state.config.allColumns.filter(c => c.visible);
+            const { fontSize, rowHeight } = state.config.tableStyle;
+
+            const renderCell = (ext, key) => {
+                const colConfig = state.config.allColumns.find(c => c.key === key);
+                let bgColorClass = 'bg-white';
+                let status = '';
+                const value = ext[key] || '-';
+
+                if (key === 'SITUAÇÃO') {
+                    ({ bgColor: bgColorClass } = getStatusColor(value));
+                } else if (key === '2º Nível' || key === '3º Nível') {
+                    const dateStatus = getDateStatus(key, value);
+                    bgColorClass = dateStatus.bgColor;
+                    status = dateStatus.status;
+                }
+                
+                const isIdCol = colConfig.isId;
+                const columnWidthClass = state.config.tableStyle.columnWidths[key] || 'w-auto'; 
+                
+                const isObservacao = key === 'Observação';
+                const cellWhitespaceClass = isObservacao ? 'whitespace-normal' : 'whitespace-nowrap';
+                const contentMinWidthClass = isObservacao ? 'min-w-[250px]' : 'min-w-0';
+
+                return `
+                    <td
+                        class="px-3 ${rowHeight} ${fontSize} border border-gray-200 ${bgColorClass} ${columnWidthClass} ${cellWhitespaceClass} align-top"
+                    >
+                        <div class="flex items-start ${isIdCol ? 'font-bold text-red-700' : 'text-gray-800'} ${contentMinWidthClass}">
+                            ${value}
+                            ${status ? `<span class="text-xs ml-2 px-1 py-0.5 rounded-full bg-white text-gray-600 border border-gray-300">${status}</span>` : ''}
+                        </div>
+                    </td>
+                `;
+            };
+
+            const tableRows = filteredData.map(ext => `
+                <tr
+                    key="${ext.id}"
+                    class="hover:bg-gray-50 transition duration-150"
+                >
+                    ${visibleColumns.map(col => renderCell(ext, col.key)).join('')}
+                </tr>
+            `).join('');
+
+            return `
+                <div class="space-y-6">
+                    ${renderFilterBar(state.config.allColumns, uniqueValuesForFilter)}
+
+                    <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50 sticky top-0 z-10 shadow-md">
+                                <tr>
+                                    ${visibleColumns.map(col => `
+                                        <th
+                                            key="${col.key}"
+                                            class="px-3 ${state.config.tableStyle.rowHeight} text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
+                                        >
+                                            ${col.label}
+                                        </th>
+                                    `).join('')}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                ${tableRows}
+                                ${filteredData.length === 0 ? `
+                                    <tr>
+                                        <td colspan="${visibleColumns.length}" class="text-center py-10 text-gray-500">
+                                            Nenhum extintor encontrado.
+                                        </td>
+                                    </tr>
+                                ` : ''}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderConfiguracoes = () => {
+            
+            // Handlers para input de range e botões de largura estão agora no escopo global (window.*)
+
+            return `
+                <div class="space-y-8 bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-red-600 border-b pb-3 mb-4">Configurações do Sistema</h3>
+
+                    <!-- Configuração da Fonte de Dados -->
+                    <section>
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Fonte de Dados e Atualização</h4>
+                        <div class="p-4 border rounded-lg bg-gray-50 space-y-3">
+                            <label class="block text-sm font-medium text-gray-700">Alcance de Dados (Ex: A:P, A1:H50)</label>
+                            <div class="flex space-x-2">
+                                <input
+                                    type="text"
+                                    value="${state.config.dataRange}"
+                                    onchange="window.handleRangeChange(event)"
+                                    class="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500"
+                                />
+                                <button
+                                    onclick="loadData(GOOGLE_SHEET_BASE_URL + state.config.dataRange)"
+                                    class="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:bg-red-400"
+                                    ${state.loading ? 'disabled' : ''}
+                                >
+                                    ${icon('RefreshCw', `w-4 h-4 mr-2 ${state.loading ? 'animate-spin' : ''}`)}
+                                    ${state.loading ? 'Buscando...' : 'Aplicar e Atualizar Dados'}
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Largura das Colunas -->
+                    <section>
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Ajuste de Largura das Colunas (Tabela)</h4>
+                        <div class="space-y-2 p-4 border rounded-lg bg-gray-50">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-2 border rounded-lg bg-white">
+                                ${state.config.allColumns.filter(c => c.visible).map(col => {
+                                    const currentWidthStr = state.config.tableStyle.columnWidths[col.key];
+                                    const currentWidth = currentWidthStr ? parseInt(currentWidthStr.match(/\[(\d+)px\]/)?.[1] || '120', 10) : 'Auto';
+                                    return `
+                                        <div key="${col.key}" class="flex items-center space-x-2 p-2 border rounded-lg bg-gray-100">
+                                            <span class="text-xs font-medium text-gray-700 w-16 truncate">${col.label}</span>
+                                            <div class="flex items-center space-x-1">
+                                                <button 
+                                                    onclick="window.handleColumnWidthChange('${col.key}', -10)"
+                                                    class="p-1 bg-red-200 text-red-700 rounded-full hover:bg-red-300"
+                                                >
+                                                    ${icon('Minus', 'w-3.5 h-3.5')}
+                                                </button>
+                                                <span class="text-xs font-mono w-8 text-center">${currentWidth}</span>
+                                                <button 
+                                                    onclick="window.handleColumnWidthChange('${col.key}', 10)"
+                                                    class="p-1 bg-red-200 text-red-700 rounded-full hover:bg-red-300"
+                                                >
+                                                    ${icon('Plus', 'w-3.5 h-3.5')}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </section>
+
+
+                    <!-- Configuração de Colunas Visíveis -->
+                    <section>
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">Colunas Visíveis (Todo o Sistema)</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                            ${state.config.allColumns.map(col => `
+                                <div key="${col.key}" class="flex items-center">
+                                    <input
+                                        id="checkbox-${col.key}"
+                                        type="checkbox"
+                                        onchange="window.handleColumnToggle('${col.key}')"
+                                        ${col.visible ? 'checked' : ''}
+                                        ${col.isFixed ? 'disabled' : ''}
+                                        class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                                    />
+                                    <label for="checkbox-${col.key}" class="ml-2 text-sm font-medium ${col.isFixed ? 'text-gray-400' : 'text-gray-700'}">
+                                        ${col.label}
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                </div>
+            `;
+        };
+
+        const renderContent = () => {
+            if (state.loading) {
+                return `
+                    <div class="flex items-center justify-center h-64 text-red-500">
+                        ${icon('RefreshCw', 'w-6 h-6 animate-spin mr-3')}
+                        <span class="text-lg font-semibold">Carregando dados da planilha...</span>
+                    </div>
+                `;
+            }
+            switch (state.activeTab) {
+                case 'Dashboard':
+                    return renderDashboard();
+                case 'Visualização':
+                    return renderVisualizacao();
+                case 'Tabela':
+                    return renderTabela();
+                case 'Configurações':
+                    return renderConfiguracoes();
+                default:
+                    return '';
+            }
+        };
+
+        const renderTabs = () => {
+             const tabs = [
+                { id: 'Dashboard', label: 'Dashboard', icon: 'BarChart2' },
+                { id: 'Visualização', label: 'Visualização (Painéis)', icon: 'LayoutGrid' },
+                { id: 'Tabela', label: 'Tabela', icon: 'List' },
+                { id: 'Configurações', label: 'Configurações', icon: 'Settings' },
+            ];
+
+            return `
+                <div class="flex border-b border-gray-300 mb-6 sticky top-0 bg-gray-100 z-20">
+                    ${tabs.map(tab => `
+                        <button
+                            onclick="setState({ activeTab: '${tab.id}' })"
+                            class="flex items-center px-4 py-3 text-sm font-semibold transition-colors rounded-t-lg ${
+                                state.activeTab === tab.id
+                                    ? 'border-b-4 border-red-600 text-red-600 bg-white shadow-t-lg'
+                                    : 'text-gray-600 hover:text-red-500 hover:bg-gray-200'
+                            }"
+                        >
+                            ${icon(tab.icon, 'w-4.5 h-4.5 mr-2')}
+                            ${tab.label}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        };
+
+        // --- FUNÇÃO PRINCIPAL DE RENDERIZAÇÃO E INICIALIZAÇÃO ---
+
+        const updateUI = () => {
+            // Recalcula dados derivados após qualquer mudança de estado
+            computedData = computeData(); 
+            
+            const appRoot = document.getElementById('app');
+            
+            // Renderiza o cabeçalho e as abas
+            appRoot.innerHTML = `
+                <header class="mb-6">
+                    <h1 class="text-3xl font-extrabold text-red-700 flex items-center">
+                        ${icon('FireExtinguisher', 'w-8 h-8 mr-3')}
+                        Painel de Controle de Extintores
+                    </h1>
+                </header>
+                ${renderTabs()}
+                <main class="pb-8">
+                    ${renderContent()}
+                </main>
+            `;
+            
+            // Sempre renderiza ou remove o modal separadamente
+            renderModal();
+        };
+
+        const loadData = async (url) => {
+            setState({ loading: true, data: [] });
+            const fetchedData = await fetchData(url);
+            setState({ data: fetchedData, loading: false });
+        };
+        
+        const init = () => {
+            // 1. Inicializa a configuração das colunas
+            state.config.allColumns = JSON.parse(JSON.stringify(INITIAL_COLUMNS_CONFIG)); // Deep copy
+
+            // 2. Carrega os dados iniciais
+            loadData(GOOGLE_SHEET_BASE_URL + state.config.dataRange);
+
+            // 3. Renderiza a UI inicial (mostrará o estado 'loading')
+            updateUI();
+        };
+
+        // Inicia a aplicação quando a janela carregar
+        window.onload = init;
+    </script>
+</body>
+</html>
