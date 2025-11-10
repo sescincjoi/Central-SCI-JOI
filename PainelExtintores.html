@@ -1,0 +1,1044 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Painel de Controle de Extintores (HTML)</title>
+
+  <!-- Tailwind (Play CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* Pequenos ajustes para o layout */
+    .shadow-t-lg { box-shadow: 0 -6px 18px rgba(0,0,0,0.06); }
+    /* Corrigindo a rotação do texto central do gráfico de rosca */
+    .shadow-inner { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.04)); }
+    /* Forçar que selects e inputs tenham boa aparência em browsers */
+    select, input[type="text"], input[type="number"], input[type="password"] { appearance: none; -webkit-appearance: none; }
+    /* Modal scroll */
+    .modal-scroll { max-height: 70vh; overflow-y: auto; }
+    
+    /* Regras de largura específicas */
+    .w-fit-content { width: fit-content; }
+    .min-w-200 { min-width: 200px; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-100 font-sans p-4 md:p-8">
+
+<!-- Header -->
+<header class="mb-6">
+  <div class="flex items-center">
+    <div class="text-4xl mr-3">🧯</div>
+    <h1 class="text-3xl font-extrabold text-red-700">Painel de Controle de Extintores</h1>
+  </div>
+  <p class="text-sm text-gray-500 mt-1">Versão HTML – Painel Principal.</p>
+</header>
+
+<!-- Tabs -->
+<!-- Classe modificada para justify-between -->
+<div id="tabs" class="flex justify-between border-b border-gray-300 mb-6 sticky top-0 bg-gray-100 z-20">
+  <!-- Buttons gerados por JS -->
+</div>
+
+<main id="main-content" class="pb-8"></main>
+
+<!-- Modal container -->
+<div id="modal-root"></div>
+
+<!-- Template: Loading -->
+<template id="loading-template">
+  <div class="flex items-center justify-center h-64 text-red-500">
+    <div class="animate-spin mr-3">🔄</div>
+    <span class="text-lg font-semibold">Carregando dados da planilha...</span>
+  </div>
+</template>
+
+<script>
+/* ============================================
+   Conversão do index.jsx para JS "vanilla"
+   Mantive as mesmas variáveis e lógica
+   ============================================ */
+
+/* --------- CONFIGURAÇÕES (origem do sheet) --------- */
+const SHEET_ID = '13ba_yYrzwSo6ExfZUC3vF7PFQCKAP3PBw2grkJAbmm8';
+const GID = '1255221780';
+const DEFAULT_RANGE = 'A:P';
+const GOOGLE_SHEET_BASE_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}&range=`;
+
+/* ----- CONFIG INICIAL (colunas, painéis) ----- */
+const INITIAL_COLUMNS_CONFIG = [
+  { key: 'Nº', label: 'Nº', visible: true, isId: true, isFixed: true },
+  { key: 'Local', label: 'Local', visible: true },
+  { key: 'Descrição', label: 'Descrição', visible: true },
+  { key: 'Tipo Kg', label: 'Tipo/Kg', visible: true, isChartSource: true },
+  { key: 'MESMO TIPO DA PLANTA?', label: 'Mesmo Tipo?', visible: true, isChartSource: true },
+  { key: 'SUBSTITUTO', label: 'Substituto', visible: true },
+  { key: 'Kg', label: 'Kg', visible: true },
+  { key: 'SITUAÇÃO', label: 'Situação', visible: true, isStatus: true, isChartSource: true },
+  { key: 'Não conformidade', label: 'Não conformidade', visible: true },
+  { key: 'Observação', label: 'Observação', visible: true },
+  { key: '2º Nível', label: '2º Nível', visible: true, isDate: true, dateFormat: 'MM/YY' },
+  { key: '3º Nível', label: '3º Nível', visible: true, isDate: true, dateFormat: 'YYYY' },
+  { key: 'Equipe', label: 'Equipe', visible: true, isChartSource: true },
+  { key: 'Responsável', label: 'Responsável', visible: true, isChartSource: true },
+  { key: 'DATA/HORA', label: 'Data/Hora', visible: true },
+];
+
+const PANEL_BLOCKS_STRUCTURE = [
+  { name: 'Identificação', fields: ['Nº', 'Local', 'Descrição'] },
+  { name: 'Tipo e Peso', fields: ['Tipo Kg', 'Kg', 'MESMO TIPO DA PLANTA?'] },
+  { name: 'Situação', fields: ['SITUAÇÃO', 'Não conformidade', 'Observação'] },
+  { name: 'Datas de Inspeção', fields: ['2º Nível', '3º Nível'] },
+  { name: 'Responsabilidade', fields: ['Equipe', 'Responsável', 'DATA/HORA'] },
+];
+
+/* ---------- helpers de datas e status (copiados da lógica) ---------- */
+function parseDateMMYY(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  if (dateStr === '-' || dateStr.length !== 5) return null;
+  const parts = dateStr.split('/');
+  if (parts.length !== 2) return null;
+  const month = parseInt(parts[0], 10);
+  const year = 2000 + parseInt(parts[1], 10);
+  if (isNaN(month) || isNaN(year)) return null;
+  // Subtrair 1 do mês para ser 0-based
+  return new Date(year, month - 1, 1); 
+}
+function parseDateYYYY(yearStr) {
+  const year = parseInt(yearStr, 10);
+  if (isNaN(year) || year < 1900) return null;
+  return new Date(year, 11, 31);
+}
+function getDateStatus(key, value) {
+  if (value === '-' || !value) return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Indefinido' };
+  const now = new Date(); now.setHours(0,0,0,0);
+  let expireDate = null;
+  if (key === '2º Nível') {
+    expireDate = parseDateMMYY(String(value));
+    if (!expireDate) return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Inválido' };
+    
+    // Ajuste para considerar o último dia do mês para comparação precisa
+    const lastDayOfMonth = new Date(expireDate.getFullYear(), expireDate.getMonth() + 1, 0);
+
+    if (lastDayOfMonth < now) return { color: 'text-red-600', bgColor: 'bg-red-200/50', status: 'Vencido' };
+    const threeMonthsAhead = new Date(now); threeMonthsAhead.setMonth(now.getMonth() + 3);
+    if (lastDayOfMonth <= threeMonthsAhead) return { color: 'text-yellow-600', bgColor: 'bg-yellow-200/50', status: 'Próximo do Vencimento' };
+    return { color: 'text-green-600', bgColor: 'bg-green-200/50', status: 'Válido' };
+  } else if (key === '3º Nível') {
+    const year = parseInt(value, 10);
+    if (isNaN(year)) return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Inválido' };
+    if (year < now.getFullYear()) return { color: 'text-red-600', bgColor: 'bg-red-200/50', status: 'Vencido' };
+    if (year === now.getFullYear()) {
+      if (now.getMonth() >= 9) return { color: 'text-red-600', bgColor: 'bg-red-200/50', status: 'Vencido' };
+      return { color: 'text-yellow-600', bgColor: 'bg-yellow-200/50', status: 'No Ano Vigente' };
+    }
+    return { color: 'text-green-600', bgColor: 'bg-green-200/50', status: 'Válido' };
+  }
+  return { color: 'text-gray-500', bgColor: 'bg-gray-100', status: 'Indefinido' };
+}
+function getStatusColor(value) {
+  const normalized = String(value || '').toUpperCase().trim();
+  if (normalized === 'CONFORME') return { color: 'text-green-600', bgColor: 'bg-green-200/50' };
+  if (normalized === 'NÃO CONFORME' || normalized === 'NAO CONFORME') return { color: 'text-red-600', bgColor: 'bg-red-200/50' };
+  if (normalized === '-') return { color: 'text-blue-600', bgColor: 'bg-blue-200/50' };
+  return { color: 'text-gray-600', bgColor: 'bg-gray-200/50' };
+}
+
+/* ---------------- fetch + parse do Google Sheets (gviz) ---------------- */
+async function fetchData(sheetUrl) {
+  try {
+    const res = await fetch(sheetUrl);
+    const text = await res.text();
+    // remover prefix/sufix do gviz
+    const jsonText = text.substring(47, text.length - 2).trim();
+    const data = JSON.parse(jsonText);
+    if (!data.table || !data.table.rows) return [];
+    const colLabels = data.table.cols.map(c => c.label).filter(Boolean);
+    const parsed = data.table.rows.map((row, rowIndex) => {
+      const ext = { id: rowIndex };
+      row.c.forEach((cell, idx) => {
+        const colLabel = colLabels[idx];
+        if (!colLabel) return;
+        let value = (cell && cell.v !== undefined) ? cell.v : '-';
+        if (cell && cell.f !== undefined) value = cell.f;
+        if (value === null || value === '') value = '-';
+        if (value === 'null') value = '-'; // Ajuste para lidar com strings 'null'
+        ext[colLabel] = String(value);
+      });
+      return ext;
+    }).filter(e => e['Nº'] !== undefined && e['Nº'] !== '-' && e['Nº'] !== 'Nº');
+    return parsed;
+  } catch (err) {
+    console.error('Erro ao buscar dados do Google Sheets:', err);
+    return [];
+  }
+}
+
+/* ----------------- Estado da "app" ----------------- */
+const state = {
+  data: [],
+  loading: true,
+  lastSyncTime: '',
+  activeTab: 'Dashboard',
+  filterText: 'Todas as Opções',
+  filterColumn: 'Nº',
+  showModal: null,
+  selectedExtinguisher: null,
+  chartSourceKey: 'Equipe',
+  syncIntervalMs: 300000, 
+  config: {
+    dataRange: DEFAULT_RANGE,
+    allColumns: JSON.parse(JSON.stringify(INITIAL_COLUMNS_CONFIG)),
+    tableStyle: { fontSize: 'text-xs', rowHeight: 'py-2', columnWidths: {} }
+  },
+  isLoggedIn: false,
+  username: null,
+  FIXED_PASSWORD: "extintor2024",
+  // NOVO: Estado para controlar a visibilidade do filtro
+  showFilter: false, 
+};
+
+/* ----------------- LÓGICA DE AUTENTICAÇÃO SIMPLES ----------------- */
+const LS_USERNAME_KEY = 'ext_app_username';
+const LS_PASSWORD_KEY = 'ext_app_password'; 
+
+function checkAuthOnLoad() {
+  const storedUsername = localStorage.getItem(LS_USERNAME_KEY);
+  const storedPassword = localStorage.getItem(LS_PASSWORD_KEY);
+  
+  if (storedUsername && storedPassword === state.FIXED_PASSWORD) {
+    state.isLoggedIn = true;
+    state.username = storedUsername;
+  }
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  
+  const form = e.target;
+  const username = form.elements.username.value.trim();
+  const password = form.elements.password.value;
+  
+  const errorMessageEl = document.getElementById('login-error-message');
+  errorMessageEl.classList.add('hidden');
+
+  if (!username || !password) {
+    errorMessageEl.textContent = 'Por favor, preencha o nome e a senha.';
+    errorMessageEl.classList.remove('hidden');
+    return;
+  }
+  
+  if (password === state.FIXED_PASSWORD) {
+    state.isLoggedIn = true;
+    state.username = username;
+    
+    localStorage.setItem(LS_USERNAME_KEY, username);
+    localStorage.setItem(LS_PASSWORD_KEY, state.FIXED_PASSWORD);
+    
+    render();
+  } else {
+    errorMessageEl.textContent = 'Senha incorreta. Tente novamente.';
+    errorMessageEl.classList.remove('hidden');
+  }
+}
+
+function handleLogout() {
+  state.isLoggedIn = false;
+  state.username = null;
+  localStorage.removeItem(LS_USERNAME_KEY); 
+  localStorage.removeItem(LS_PASSWORD_KEY);
+
+  render();
+}
+
+/* ---------- util DOM ---------- */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+/* ---------------- UI Rendering ---------------- */
+function render() {
+  renderTabs();
+  renderMainContent();
+  renderModal();
+}
+
+function renderTabs() {
+  const tabs = [
+    { id: 'Dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'Visualização', label: 'Painéis', icon: '▦' }, 
+    { id: 'Tabela', label: 'Tabela', icon: '📋' },
+    { id: 'Inspecoes', label: 'Inspeções', icon: '📝' },
+    { id: 'User', label: state.username ? `👤 ${state.username}` : '👤 Usuário', icon: '', isRight: true }, 
+    { id: 'Configurações', label: '', icon: '⚙️', isRight: true },
+  ];
+  
+  const container = $('#tabs');
+  if (!container) return; 
+  
+  container.className = "flex justify-between border-b border-gray-300 mb-6 sticky top-0 bg-gray-100 z-20";
+  container.innerHTML = '';
+  
+  const leftNav = document.createElement('div');
+  leftNav.className = 'flex';
+  const rightNav = document.createElement('div');
+  rightNav.className = 'flex';
+
+  tabs.forEach(tab => {
+    const btn = document.createElement('button');
+    
+    const isIconOnly = tab.id === 'Configurações' && tab.label === '';
+    const userLoggedInClass = tab.id === 'User' && state.isLoggedIn ? 'bg-red-50 text-red-700' : 'text-gray-600 hover:text-red-500 hover:bg-gray-200';
+    const paddingClass = isIconOnly ? 'p-3' : 'px-4 py-3'; 
+    
+    btn.className = `flex items-center text-sm font-semibold transition-colors rounded-t-lg 
+        ${paddingClass}
+        ${state.activeTab === tab.id ? 'border-b-4 border-red-600 text-red-600 bg-white shadow-t-lg' : userLoggedInClass}`;
+    
+    let buttonContent = '';
+
+    if (tab.id === 'User' && state.isLoggedIn) {
+        buttonContent = `<span class="mr-2">👤</span> ${state.username}`;
+    } else if (isIconOnly) {
+        buttonContent = tab.icon;
+    } else {
+        const iconMargin = tab.label ? 'mr-2' : '';
+        buttonContent = `<span class="${iconMargin}">${tab.icon}</span>${tab.label}`;
+    }
+
+    btn.innerHTML = buttonContent;
+
+    btn.onclick = () => { 
+        state.activeTab = tab.id; 
+        state.filterText = 'Todas as Opções'; 
+        // NOVO: Fecha o filtro ao trocar de aba
+        state.showFilter = false; 
+        render(); 
+    };
+    
+    if (tab.isRight) {
+      rightNav.appendChild(btn);
+    } else {
+      leftNav.appendChild(btn);
+    }
+  });
+  
+  container.appendChild(leftNav);
+  container.appendChild(rightNav);
+}
+
+/* ---------- FilterBar (reutilizável, agora recolhível e com click-outside) ---------- */
+function createFilterBar() {
+  const columns = state.config.allColumns;
+  const uniqueValues = getUniqueValuesForFilter();
+  
+  // Wrapper principal com ID e classe 'relative'. REDUZIDO mt-4 para mt-2 e mb-4 para mb-2.
+  const wrapper = document.createElement('div');
+  wrapper.id = 'filter-wrapper';
+  wrapper.className = "space-y-4 my-2 relative flex justify-end"; 
+  
+  // Botão para mostrar/esconder o filtro. REDUZIDO py-2 para py-1.5 e aumentado px-4 para px-5.
+  const toggleBtn = document.createElement('button');
+  toggleBtn.id = 'filter-button';
+  toggleBtn.className = "flex items-center text-sm font-semibold text-red-600 bg-white border border-gray-300 hover:bg-gray-50 transition duration-150 py-1.5 px-5 rounded-lg shadow-sm";
+  toggleBtn.innerHTML = `Filtrar`;
+  
+  // Toggling state: Usa o estado global e renderiza
+  toggleBtn.onclick = (e) => { 
+      // É crucial impedir a propagação para evitar que o listener do document feche o menu imediatamente
+      e.stopPropagation(); 
+      state.showFilter = !state.showFilter; 
+      render(); 
+  };
+  wrapper.appendChild(toggleBtn);
+  
+  // Container do formulário de filtro (agora flutuante)
+  const filterFormContainer = document.createElement('div');
+  filterFormContainer.id = 'filter-form-container';
+  
+  // Visibilidade controlada pelas classes de transição do Tailwind
+  const isVisible = state.showFilter;
+  filterFormContainer.className = `absolute z-30 w-full md:w-auto right-0 mt-2 
+      transition-all duration-300 ease-in-out transform origin-top-right
+      ${isVisible ? 'visible opacity-100 scale-100' : 'invisible opacity-0 scale-95'}`;
+
+  // Conteúdo do formulário
+  const formContent = document.createElement('div');
+  formContent.className = "flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4 bg-white p-4 rounded-xl shadow-2xl border min-w-80";
+
+  // select coluna
+  const colDiv = document.createElement('div'); colDiv.className = "w-full md:w-56";
+  colDiv.innerHTML = `<label class="text-xs text-gray-500 block mb-1">Filtrar Base</label>`;
+  const selectCol = document.createElement('select');
+  selectCol.className = "w-full p-2 border border-gray-300 rounded-lg bg-white";
+  selectCol.value = state.filterColumn;
+  selectCol.onchange = (e) => { 
+    state.filterColumn = e.target.value; 
+    state.filterText = 'Todas as Opções'; 
+    render(); 
+  };
+  columns.filter(c => c.visible).forEach(col => {
+    const op = document.createElement('option'); op.value = col.key; op.textContent = col.label; selectCol.appendChild(op);
+  });
+  colDiv.appendChild(selectCol);
+  formContent.appendChild(colDiv);
+
+  // select valor
+  const valDiv = document.createElement('div'); valDiv.className = "flex-grow";
+  valDiv.innerHTML = `<label class="text-xs text-gray-500 block mb-1">Valor do Filtro</label>`;
+  const selectVal = document.createElement('select');
+  selectVal.className = "w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-red-500 focus:border-red-500";
+  selectVal.onchange = (e) => { 
+    state.filterText = e.target.value; 
+    render(); 
+  };
+  uniqueValues.forEach(v => {
+    const op = document.createElement('option'); op.value = v; op.textContent = (v === 'Todas as Opções' ? 'Todas as Opções' : (v === '-' ? '(Vazio/Indefinido)' : v)); selectVal.appendChild(op);
+  });
+  selectVal.value = state.filterText;
+  valDiv.appendChild(selectVal);
+  formContent.appendChild(valDiv);
+
+  filterFormContainer.appendChild(formContent);
+  wrapper.appendChild(filterFormContainer);
+
+  return wrapper;
+}
+
+/* ---------- Computed data (filtros / KPIs) ---------- */
+function getExtinguisherStatus(ext) {
+  const situacao = String(ext['SITUAÇÃO'] || '').toUpperCase().trim();
+  const isConforme = situacao === 'CONFORME';
+  const isNaoConforme = situacao === 'NÃO CONFORME' || situacao === 'NAO CONFORME';
+  let isAlert = false, alertDetails = [];
+  if (!isConforme && !isNaoConforme) { isAlert = true; alertDetails.push('Situação Indefinida / Não Vistoriado'); }
+  const s2 = getDateStatus('2º Nível', ext['2º Nível']);
+  if (s2.status === 'Vencido' || s2.status === 'Próximo do Vencimento') { isAlert = true; alertDetails.push(`2º Nível: ${s2.status}`); }
+  const s3 = getDateStatus('3º Nível', ext['3º Nível']);
+  if (s3.status === 'Vencido' || s3.status === 'Próximo do Vencimento') { isAlert = true; alertDetails.push(`3º Nível: ${s3.status}`); }
+  return { isConforme, isNaoConforme, isAlert, alertDetails };
+}
+function computeFiltered() {
+  const data = state.data || [];
+  let conf=0, naoConf=0, alerts=0;
+  const naoConfList = [], alertsList = [];
+  data.forEach(ext => {
+    const s = getExtinguisherStatus(ext);
+    if (s.isConforme) conf++;
+    if (s.isNaoConforme) {
+      naoConf++;
+      naoConfList.push({ id: ext.id, num: ext['Nº'], situacao: ext['SITUAÇÃO'], naoConformidade: ext['Não conformidade'], observacao: ext['Observação'] });
+    }
+    if (s.isAlert) { alerts++; alertsList.push({ id: ext.id, num: ext['Nº'], local: ext['Local'], details: s.alertDetails }); }
+  });
+
+  const uniqueVals = ['Todas as Opções'];
+  if (data.length > 0) {
+    const raw = Array.from(new Set(data.map(e => String(e[state.filterColumn] || '-'))));
+    const unique = raw.filter(v => v !== 'Todas as Opções').sort();
+    uniqueVals.push(...unique);
+  }
+
+  const filtered = data.filter(ext => {
+    if (!state.filterText || state.filterText === 'Todas as Opções') return true;
+    return String(ext[state.filterColumn] || '-') === String(state.filterText);
+  });
+
+  return { filteredData: filtered, conformingCount: conf, nonConformingCount: naoConf, alertCount: alerts, nonConformingList: naoConfList, activeAlertsList: alertsList, uniqueValuesForFilter: uniqueVals };
+}
+function getUniqueValuesForFilter() {
+  const uniq = ['Todas as Opções'];
+  if (state.data.length > 0) {
+    const raw = Array.from(new Set(state.data.map(e => String(e[state.filterColumn] || '-'))));
+    const unique = raw.filter(v => v !== 'Todas as Opções').sort();
+    uniq.push(...unique);
+  }
+  return uniq;
+}
+
+/* ---------- Render dashboard (KPIs + doughnut + não conformidades) ---------- */
+function renderDashboardSection(container) {
+  const { filteredData, conformingCount, nonConformingCount, alertCount, nonConformingList, activeAlertsList } = computeFiltered();
+
+  // KPIs
+  const kpiCards = [
+    { title: 'Total de Extintores', count: state.data.length, color: 'text-blue-600', icon: '🧯', kpi: 'Total' },
+    { title: 'Conformes', count: conformingCount, color: 'text-green-600', icon: '✅', kpi: 'Conformes' },
+    { title: 'Não conformes', count: nonConformingCount, color: 'text-red-600', icon: '❌', kpi: 'Não conformes' },
+    { title: 'Alertas Ativos', count: alertCount, color: 'text-yellow-600', icon: '⚠️', kpi: 'Alertas Ativos' },
+  ];
+
+  const kpiGrid = document.createElement('div'); kpiGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4';
+  kpiCards.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'bg-white rounded-xl p-5 shadow-lg flex items-center justify-between cursor-pointer hover:shadow-xl transition-shadow border-t-4 border-red-500';
+    el.onclick = () => {
+      if (card.kpi === 'Total') state.activeTab = 'Visualização';
+      else if (card.kpi === 'Conformes') { state.showModal = 'conforming'; render(); }
+      else if (card.kpi === 'Não conformes') { state.activeTab = 'Dashboard'; render(); setTimeout(()=>{ document.getElementById('non-conformity-list')?.scrollIntoView({behavior:'smooth'}); },100); }
+      else if (card.kpi === 'Alertas Ativos') { state.showModal = 'alerts'; render(); }
+    };
+    el.innerHTML = `<div><p class="text-sm font-medium text-gray-500">${card.title}</p><h2 class="text-3xl font-bold mt-1 ${card.color}">${card.count}</h2></div><div class="text-4xl opacity-20">${card.icon}</div>`;
+    kpiGrid.appendChild(el);
+  });
+  container.appendChild(kpiGrid);
+
+  // Chart area (doughnut)
+  const chartWrap = document.createElement('div'); chartWrap.className = 'bg-white p-6 rounded-xl shadow-lg mt-6';
+  const chartHeader = document.createElement('div'); chartHeader.className = 'flex items-center justify-between mb-4';
+  chartHeader.innerHTML = `<h3 class="text-xl font-bold text-gray-800">Gráfico de Distribuição</h3>`;
+  const selector = document.createElement('div'); selector.className = 'flex items-center space-x-2';
+  selector.innerHTML = `<label class="text-sm text-gray-600">Base:</label>`;
+  const selectChart = document.createElement('select'); selectChart.className = 'p-2 border rounded-lg text-sm';
+  selectChart.onchange = (e) => { state.chartSourceKey = e.target.value; render(); };
+  state.config.allColumns.filter(c => c.isChartSource).forEach(col => {
+    const opt = document.createElement('option'); opt.value = col.key; opt.text = col.label; if (state.chartSourceKey === col.key) opt.selected = true; selectChart.appendChild(opt);
+  });
+  selector.appendChild(selectChart);
+  chartHeader.appendChild(selector);
+  chartWrap.appendChild(chartHeader);
+
+  // compute chart data
+  const chartData = {};
+  state.data.filter(ext => ext[state.chartSourceKey] && ext[state.chartSourceKey] !== '-').forEach(ext => {
+    const key = String(ext[state.chartSourceKey]);
+    chartData[key] = (chartData[key] || 0) + 1;
+  });
+  const total = Object.values(chartData).reduce((s,c)=>s+c,0);
+  // create chart area
+  const chartArea = document.createElement('div'); chartArea.className = 'flex flex-col md:flex-row items-start justify-center';
+  if (total === 0) {
+    chartArea.innerHTML = '<p class="text-center text-gray-500">Sem dados para o gráfico.</p>';
+  } else {
+    // convert to values
+    let currentAngle = 0;
+    const entries = Object.entries(chartData).map(([name,count], idx) => {
+      const percent = (count / total) * 100;
+      const color = `hsl(${(idx*45)%360} 70% 50%)`;
+      const startAngle = currentAngle;
+      const endAngle = currentAngle + percent*3.6;
+      currentAngle = endAngle;
+      return { name, value: count, percent: percent.toFixed(1), color, startAngle, endAngle };
+    }).filter(i => i.value>0);
+    // svg
+    const svgWrap = document.createElement('div'); svgWrap.className = 'w-full md:w-1/2 p-4 flex justify-center';
+    const svgSize = 200; const center = 70; const radius = 60;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS,'svg');
+    svg.setAttribute('width', svgSize); svg.setAttribute('height', svgSize); svg.setAttribute('viewBox', `0 0 ${center*2} ${center*2}`);
+    
+    entries.forEach(item => {
+      const startRad = (item.startAngle-90) * Math.PI/180;
+      const endRad = (item.endAngle-90) * Math.PI/180;
+      const startX = center + radius * Math.cos(startRad);
+      const startY = center + radius * Math.sin(endRad); 
+      const endX = center + radius * Math.cos(endRad);
+      const endY = center + radius * Math.sin(endRad);
+      
+      const largeArc = (item.percent > 50) ? 1 : 0;
+      const path = document.createElementNS(svgNS,'path');
+      path.setAttribute('d', `M ${center},${center} L ${startX},${startY} A ${radius},${radius} 0 ${largeArc},1 ${endX},${endY} Z`);
+      path.setAttribute('fill', item.color);
+      svg.appendChild(path);
+    });
+    const hole = document.createElementNS(svgNS,'circle'); hole.setAttribute('cx', center); hole.setAttribute('cy', center); hole.setAttribute('r', radius*0.6); hole.classList.add('shadow-inner');
+    hole.setAttribute('fill','white'); 
+    svg.appendChild(hole);
+    const text1 = document.createElementNS(svgNS,'text'); text1.setAttribute('x', center); text1.setAttribute('y', center-5); text1.setAttribute('text-anchor','middle'); text1.setAttribute('alignment-baseline','central'); text1.setAttribute('font-size','18'); text1.setAttribute('fill','#333'); text1.setAttribute('class','font-bold'); text1.textContent = total;
+    svg.appendChild(text1);
+    const text2 = document.createElementNS(svgNS,'text'); text2.setAttribute('x', center); text2.setAttribute('y', center+15); text2.setAttribute('text-anchor','middle'); text2.setAttribute('alignment-baseline','central'); text2.setAttribute('font-size','10'); text2.setAttribute('fill','#666'); text2.setAttribute('class','font-semibold'); text2.textContent = 'Total';
+    svg.appendChild(text2);
+
+    svgWrap.appendChild(svg);
+    chartArea.appendChild(svgWrap);
+
+    // legend
+    const legend = document.createElement('div'); legend.className = 'w-full md:w-1/2 p-4';
+    legend.innerHTML = `<h5 class="font-semibold text-gray-700 mb-3">Legenda (${state.config.allColumns.find(c=>c.key===state.chartSourceKey)?.label || state.chartSourceKey})</h5>`;
+    const ul = document.createElement('ul'); ul.className = 'space-y-2 max-h-48 overflow-y-auto';
+    entries.forEach(item => {
+      const li = document.createElement('li'); li.className = 'flex justify-between items-center text-sm cursor-pointer hover:bg-gray-100 p-1 rounded transition';
+      li.innerHTML = `<div class="flex items-center"><span class="w-3 h-3 rounded-full mr-2 shadow" style="background:${item.color}"></span>${item.name}</div><span class="font-semibold">${item.percent}% (${item.value})</span>`;
+      ul.appendChild(li);
+    });
+    legend.appendChild(ul);
+    chartArea.appendChild(legend);
+  }
+
+  chartWrap.appendChild(chartArea);
+  container.appendChild(chartWrap);
+
+  // Non-conformities list
+  const nonConfWrap = document.createElement('div'); nonConfWrap.id = 'non-conformity-list'; nonConfWrap.className = 'bg-white p-6 rounded-xl shadow-lg mt-6';
+  nonConfWrap.innerHTML = `<h3 class="text-xl font-bold text-red-600 mb-4 flex items-center">❌ Extintores Não Conformes (${nonConformingList.length})</h3>`;
+  const listWrap = document.createElement('div'); listWrap.className = 'space-y-3';
+  if (nonConformingList.length === 0) {
+    listWrap.innerHTML = '<p class="text-gray-500">Nenhuma não conformidade ativa.</p>';
+  } else {
+    nonConformingList.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'p-4 border border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition';
+      card.onclick = () => { state.selectedExtinguisher = state.data.find(e=>e.id===item.id); state.showModal = 'panel'; render(); };
+      card.innerHTML = `<p class="font-bold text-lg text-red-800">Nº ${item.num}</p>
+        <p class="text-sm mt-1"><span class="font-semibold">Situação:</span> <span class="text-red-600">${item.situacao}</span></p>
+        <p class="text-sm"><span class="font-semibold">Não conformidade:</span> ${item.naoConformidade || '-'}</p>
+        <p class="text-xs text-gray-600 mt-1"><span class="font-semibold">Observação:</span> ${item.observacao || '-'}</p>`;
+      listWrap.appendChild(card);
+    });
+  }
+  nonConfWrap.appendChild(listWrap);
+  container.appendChild(nonConfWrap);
+}
+
+/* ---------- Render Visualização (painéis) ---------- */
+function renderVisualizacaoSection(container) {
+  // Renderiza o filtro. O estado de visibilidade é controlado por state.showFilter
+  const filterBar = createFilterBar(); 
+  container.appendChild(filterBar);
+
+  const grid = document.createElement('div'); grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 mt-4';
+  const { filteredData } = computeFiltered();
+  const allColumns = state.config.allColumns;
+  if (filteredData.length === 0) {
+    const p = document.createElement('p'); p.className = 'text-gray-500 col-span-full text-center py-10'; p.textContent = 'Nenhum extintor encontrado com o filtro atual.';
+    grid.appendChild(p);
+  } else {
+    filteredData.forEach(ext => {
+      const wrapper = document.createElement('div'); wrapper.className = 'cursor-pointer hover:shadow-xl transition-shadow duration-300';
+      wrapper.onclick = () => { state.selectedExtinguisher = ext; state.showModal = 'panel'; render(); };
+      wrapper.appendChild(renderExtinguisherPanel(ext, allColumns));
+      grid.appendChild(wrapper);
+    });
+  }
+  container.appendChild(grid);
+}
+
+/* ---------- Extinguisher Panel (card) ---------- */
+function renderExtinguisherPanel(extinguisher, allColumns) {
+  const root = document.createElement('div'); root.className = 'relative bg-white rounded-xl shadow-lg overflow-hidden';
+  
+  const header = document.createElement('div'); header.className = 'flex items-center justify-between p-2 bg-red-600 text-white';
+  header.innerHTML = `<h4 class="text-base font-extrabold flex items-center">🧯 Extintor Nº ${extinguisher['Nº']}</h4><span class="text-xs font-semibold bg-white text-red-600 px-2 py-0.5 rounded-full">${extinguisher['Local'] || '-'}</span>`;
+  root.appendChild(header);
+
+  const content = document.createElement('div'); content.className = 'p-2';
+  PANEL_BLOCKS_STRUCTURE.forEach(block => {
+    const hasVisible = block.fields.some(k => allColumns.find(c=>c.key===k && c.visible));
+    if (!hasVisible) return;
+    
+    const blockDiv = document.createElement('div'); blockDiv.className = 'mb-2 last:mb-0 border rounded-lg p-1.5 bg-gray-50';
+    blockDiv.innerHTML = `<p class="text-xs font-bold text-gray-600 border-b pb-0.5 mb-1">${block.name}</p>`;
+    
+    const grid = document.createElement('div'); grid.className = 'grid grid-cols-2 gap-x-3';
+    block.fields.forEach(key => {
+      const colConfig = allColumns.find(c=>c.key===key);
+      if (!colConfig || !colConfig.visible) return;
+      const value = extinguisher[key] || '-';
+      let colorClass = 'text-gray-800', bgClass = 'bg-white', statusText = '', isBig=false;
+      if (key==='Nº') isBig=true;
+      if (key==='SITUAÇÃO') { const s = getStatusColor(value); colorClass = s.color; bgClass = s.bgColor; isBig=true; }
+      else if (key==='2º Nível' || key==='3º Nível') { const s = getDateStatus(key, value); colorClass = s.color; statusText = s.status; }
+      
+      const fontClass = isBig ? 'text-base font-extrabold' : 'text-xs font-medium';
+      
+      const cell = document.createElement('div'); cell.className = `p-1 ${isBig?'col-span-2':'col-span-1'} border-b border-gray-100 ${bgClass}`;
+      cell.innerHTML = `<p class="text-xs text-gray-500 mb-0">${colConfig.label || key}</p><div class="flex items-center space-x-1"><span class="${fontClass} ${colorClass}">${value}</span>${statusText?` <span class="text-xs ml-1 px-1 py-0.5 rounded-full bg-white text-gray-600 border border-gray-300">${statusText}</span>`:''}</div>`;
+      grid.appendChild(cell);
+    });
+    blockDiv.appendChild(grid);
+    content.appendChild(blockDiv);
+  });
+  root.appendChild(content);
+  return root;
+}
+
+/* ---------- Render Tabela ---------- */
+function renderTabelaSection(container) {
+  // Renderiza o filtro. O estado de visibilidade é controlado por state.showFilter
+  const filterBar = createFilterBar();
+  container.appendChild(filterBar);
+
+  const tableWrap = document.createElement('div'); tableWrap.className = 'overflow-x-auto bg-white rounded-xl shadow-lg mt-6';
+  const table = document.createElement('table'); table.className = 'min-w-full divide-y divide-gray-200';
+  const thead = document.createElement('thead'); thead.className = 'bg-gray-50 sticky top-0 z-10 shadow-md';
+  const trh = document.createElement('tr');
+  const visibleCols = state.config.allColumns.filter(c=>c.visible);
+  visibleCols.forEach(col => {
+    const isObs = col.key === 'Observação';
+    const widthClasses = isObs ? 'min-w-200' : 'w-fit-content';
+    const th = document.createElement('th'); th.className = `px-3 ${state.config.tableStyle.rowHeight} text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap ${widthClasses}`; th.textContent = col.label; trh.appendChild(th);
+  });
+  thead.appendChild(trh);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody'); tbody.className = 'divide-y divide-gray-200';
+  const { filteredData } = computeFiltered();
+  if (filteredData.length === 0) {
+    const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = visibleCols.length; td.className = 'text-center py-10 text-gray-500'; td.textContent = 'Nenhum extintor encontrado.'; tr.appendChild(td); tbody.appendChild(tr);
+  } else {
+    filteredData.forEach(ext => {
+      const tr = document.createElement('tr'); tr.className = 'hover:bg-gray-50 transition duration-150';
+      visibleCols.forEach(col => {
+        const value = ext[col.key] || '-';
+        let bgColorClass = '';
+        let statusText = '';
+        if (col.key === 'SITUAÇÃO') { bgColorClass = getStatusColor(value).bgColor; }
+        else if (col.key === '2º Nível' || col.key === '3º Nível') { const ds = getDateStatus(col.key, value); bgColorClass = ds.bgColor; statusText = ds.status; }
+
+        const isObs = col.key === 'Observação';
+        const whitespaceClass = isObs ? 'whitespace-normal' : 'whitespace-nowrap';
+        const widthClasses = isObs ? 'min-w-200' : 'w-fit-content'; 
+
+        const td = document.createElement('td'); 
+        td.className = `px-3 ${state.config.tableStyle.rowHeight} ${state.config.tableStyle.fontSize} border border-gray-200 bg-white align-top ${bgColorClass} ${whitespaceClass} ${widthClasses}`;
+        
+        td.innerHTML = `<div class="${col.isId ? 'font-bold text-red-700' : 'text-gray-800'}">${value}${statusText?` <span class="text-xs ml-2 px-1 py-0.5 rounded-full bg-white text-gray-600 border border-gray-300">${statusText}</span>`:''}</div>`;
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  container.appendChild(tableWrap);
+}
+
+/* ---------- Render Seção de Inspeções (Formulário) ---------- */
+function renderInspecoesSection(container) {
+  const wrap = document.createElement('div'); 
+  wrap.className = 'max-w-6xl mx-auto space-y-6 bg-white p-6 rounded-xl shadow-lg border-t-4 border-red-500';
+  
+  if (!state.isLoggedIn) {
+      wrap.innerHTML = `
+          <div class="text-center py-10">
+              <h3 class="text-2xl font-bold text-red-600 mb-2">Acesso Negado 🔒</h3>
+              <p class="text-gray-600 mb-6">Você precisa estar logado como vistoriador para registrar uma nova inspeção.</p>
+              <button onclick="(() => { state.activeTab = 'User'; render(); })()" 
+                      class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition">
+                  Ir para Login
+              </button>
+          </div>
+      `;
+  } else {
+      // Codifica o nome de usuário para usar em um URL
+      const encodedUsername = encodeURIComponent(state.username || '');
+      
+      // URL base do formulário de inspeção. ATUALIZADO conforme a solicitação do usuário.
+      const baseIframeUrl = 'https://sescincjoi.github.io/Central-SCI-JOI/extintoresinspecao.html'; 
+      // Usando '?' para adicionar o primeiro parâmetro de consulta ao URL.
+      const iframeUrl = `${baseIframeUrl}?nomeUsuario=${encodedUsername}`;
+      
+      wrap.innerHTML = `
+          <h3 class="text-2xl font-bold text-red-700 mb-4 flex items-center">
+            📝 Formulário de Inspeção Online 
+            <span class="text-base text-gray-500 font-normal ml-3">Vistoriador: ${state.username}</span>
+          </h3>
+          
+          <div class="p-4 border border-blue-200 rounded-lg bg-blue-50 text-blue-800 mb-6">
+            <p class="font-semibold">Instrução:</p>
+            <p class="text-sm">O campo de nome de usuário/vistoriador no formulário abaixo foi pré-preenchido com: <span class="font-bold text-blue-900">${state.username}</span>. O formulário deve ler o parâmetro <code class="font-mono text-xs px-1 bg-blue-100 rounded">nomeUsuario</code> do URL.</p>
+          </div>
+          
+          <!-- Iframe Container para Responsividade -->
+          <div class="relative w-full" style="height: 80vh;">
+            <iframe 
+              src="${iframeUrl}" 
+              frameborder="0" 
+              class="w-full h-full rounded-lg shadow-inner border border-gray-300"
+              title="Formulário de Registro de Inspeção">
+            </iframe>
+          </div>
+      `;
+  }
+  
+  container.appendChild(wrap);
+}
+
+/* ---------- Render Configurações ---------- */
+function renderConfiguracoesSection(container) {
+  const wrap = document.createElement('div'); wrap.className = 'space-y-8 bg-white p-6 rounded-xl shadow-lg';
+  wrap.innerHTML = `<h3 class="text-2xl font-bold text-red-600 border-b pb-3 mb-4">⚙️ Configurações do Sistema</h3>`;
+  // Fonte + sync
+  const section = document.createElement('section');
+  const sectionHtml = `
+    <h4 class="text-xl font-semibold text-gray-800 mb-2">Fonte de Dados e Sincronização</h4>
+    <div class="p-4 border rounded-lg bg-gray-50 space-y-4">
+      <div class="space-y-2">
+        <label class="block text-sm font-medium text-gray-700">Alcance de Dados (Ex: A:P, A1:H50)</label>
+        <div class="flex space-x-2">
+          <input id="data-range-input" type="text" class="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" value="${state.config.dataRange}" />
+          <button id="refresh-btn" class="flex items-center bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+            🔄 Atualizar Dados Manualmente
+          </button>
+        </div>
+      </div>
+      <div class="pt-4 border-t border-gray-200 space-y-2">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Intervalo de Sincronização Automática (segundos)</label>
+        <input id="sync-interval-input" type="number" min="5" placeholder="Mínimo 5 segundos" class="w-full md:w-40 p-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" value="${state.syncIntervalMs===0?'':(state.syncIntervalMs/1000)}" />
+        <p class="text-xs text-gray-600 mt-1">Defina 5 segundos ou mais. Deixe o campo vazio para desativar a sincronização.</p>
+      </div>
+      <div class="text-sm text-gray-600 pt-3 mt-3 border-t border-gray-200">
+        <p class="flex items-center">🔁 Sincronização Automática: <span id="sync-status" class="font-semibold ml-1 ${state.syncIntervalMs>0?'text-green-700':'text-red-700'}">${state.syncIntervalMs>0?`Ativa (${state.syncIntervalMs/1000}s)`:'Desativada'}</span></p>
+        <p class="mt-1">Última atualização: <span id="last-sync-time" class="font-semibold text-gray-700 ml-1">${state.lastSyncTime || 'N/A'}</span></p>
+      </div>
+    </div>
+  `;
+  section.innerHTML = sectionHtml;
+  wrap.appendChild(section);
+
+  // Colunas visíveis
+  const colsSection = document.createElement('section');
+  colsSection.innerHTML = `<h4 class="text-xl font-semibold text-gray-800 mb-2">Colunas Visíveis (Todo o Sistema)</h4>`;
+  const grid = document.createElement('div'); grid.className = 'grid grid-cols-2 md:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50';
+  state.config.allColumns.forEach(col => {
+    const item = document.createElement('div'); item.className = 'flex items-center';
+    const input = document.createElement('input'); input.type = 'checkbox'; input.checked = col.visible; input.disabled = !!col.isFixed; input.className = 'w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500';
+    input.onchange = () => { col.visible = !col.visible; render(); };
+    const label = document.createElement('label'); label.className = `ml-2 text-sm font-medium ${col.isFixed ? 'text-gray-400' : 'text-gray-700'}`; label.textContent = `${col.label} (${col.key})`;
+    item.appendChild(input); item.appendChild(label); grid.appendChild(item);
+  });
+  colsSection.appendChild(grid);
+  wrap.appendChild(colsSection);
+
+  container.appendChild(wrap);
+
+  // --- HANDLERS LOCAIS ---
+  const refreshBtn = section.querySelector('#refresh-btn');
+  const dataRangeInput = section.querySelector('#data-range-input');
+  const syncIntervalInput = section.querySelector('#sync-interval-input');
+
+  if (refreshBtn && dataRangeInput) {
+    refreshBtn.onclick = async () => {
+      const range = dataRangeInput.value.toUpperCase();
+      state.config.dataRange = range || DEFAULT_RANGE;
+      await manualLoadData();
+    };
+  }
+
+  if (syncIntervalInput) {
+    syncIntervalInput.onchange = (e) => {
+      const sec = parseInt(e.target.value, 10);
+      if (!isNaN(sec) && sec >= 5) { state.syncIntervalMs = sec * 1000; startAutoSync(); }
+      else if (e.target.value === '') { state.syncIntervalMs = 0; startAutoSync(); }
+      render(); // atualizar status display
+    };
+  }
+}
+
+/* ---------- Render Seção de Usuário (Login/Perfil) ---------- */
+function renderUserSection(container) {
+  const wrap = document.createElement('div'); wrap.className = 'max-w-xl mx-auto space-y-6 bg-white p-6 rounded-xl shadow-lg border-t-4 border-red-500';
+
+  if (state.isLoggedIn) {
+    // --- Perfil do Usuário Logado ---
+    wrap.innerHTML = `
+      <h3 class="text-2xl font-bold text-red-700 flex items-center">
+        Bem-vindo, ${state.username}! 👋
+      </h3>
+      <p class="text-gray-600">Você está logado como vistoriador. Seu nome será associado aos dados de inspeção enviados para a planilha.</p>
+      <div class="p-4 border border-red-200 rounded-lg bg-red-50 space-y-2">
+        <p class="text-sm font-semibold text-red-800">Seu Identificador de Vistoria:</p>
+        <p class="text-xl font-mono">${state.username}</p>
+      </div>
+      <button id="logout-btn" class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-500 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition duration-150">
+        Sair / Trocar Vistoriador
+      </button>
+    `;
+    wrap.querySelector('#logout-btn').onclick = handleLogout;
+    
+  } else {
+    // --- Formulário de Login ---
+    wrap.innerHTML = `
+      <h3 class="text-2xl font-bold text-red-700 flex items-center">
+        Login do Vistoriador 👤
+      </h3>
+      <p class="text-sm text-gray-600">Por favor, insira seu nome e a senha única para iniciar a sessão e registrar o vistoriador.</p>
+      
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Seu Nome / Identificador</label>
+          <input type="text" id="username" name="username" required autocomplete="username"
+                 class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500" 
+                 placeholder="Ex: João Silva" 
+                 value="${localStorage.getItem(LS_USERNAME_KEY) || ''}">
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Senha Única (Extintor)</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password"
+                 class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500" 
+                 placeholder="Digite a senha fixa"
+                 value="${localStorage.getItem(LS_PASSWORD_KEY) || ''}">
+        </div>
+
+        <div id="login-error-message" class="hidden p-3 bg-red-100 text-red-800 rounded-md text-sm font-medium"></div>
+
+        <button type="submit" id="login-btn"
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150">
+          Entrar e Salvar Nome
+        </button>
+        <p class="text-xs text-gray-500 text-center">A senha será salva no seu navegador para preenchimento automático.</p>
+      </form>
+    `;
+    wrap.querySelector('#login-form').onsubmit = handleLogin;
+    
+  }
+  container.appendChild(wrap);
+}
+
+
+/* ---------- Modal rendering ---------- */
+function closeModal() { state.showModal = null; state.selectedExtinguisher = null; render(); }
+function renderModal() {
+  const root = $('#modal-root');
+  if (!root) return;
+  root.innerHTML = '';
+  if (!state.showModal) return;
+  const overlay = document.createElement('div'); overlay.className = 'fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-75 flex items-center justify-center p-4';
+  overlay.onclick = closeModal;
+  const sizeClasses = { sm: 'max-w-sm', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' };
+  const modal = document.createElement('div'); modal.className = `bg-white rounded-xl shadow-2xl p-6 transform transition-all w-full ${sizeClasses['lg']}`;
+  modal.onclick = (e) => e.stopPropagation();
+  const header = document.createElement('div'); header.className = 'flex justify-between items-center border-b pb-3 mb-4';
+  const title = document.createElement('h3'); title.className = 'text-xl font-bold text-gray-800';
+  const closeBtn = document.createElement('button'); closeBtn.className = 'text-gray-400 hover:text-gray-600'; closeBtn.textContent = '✖'; closeBtn.onclick = closeModal;
+  header.appendChild(title); header.appendChild(closeBtn);
+  modal.appendChild(header);
+
+  if (state.showModal === 'conforming') {
+    const conforming = state.data.filter(ext => getExtinguisherStatus(ext).isConforme);
+    title.textContent = `Extintores Conformes (${conforming.length})`;
+    const p = document.createElement('p'); p.className='mb-3 text-gray-600'; p.textContent = "Lista de Nº de extintores que estão com status 'Conforme'.";
+    modal.appendChild(p);
+    const grid = document.createElement('div'); grid.className = 'grid grid-cols-5 gap-3 max-h-80 overflow-y-auto p-2 border rounded-lg bg-green-50';
+    conforming.forEach(ext => {
+      const d = document.createElement('div'); d.className = 'p-2 bg-green-200 text-green-800 text-center text-sm font-bold rounded-lg shadow-sm cursor-pointer hover:bg-green-300 transition';
+      d.textContent = ext['Nº']; d.onclick = ()=>{ state.selectedExtinguisher = ext; state.showModal = 'panel'; render(); };
+      grid.appendChild(d);
+    });
+    modal.appendChild(grid);
+  } else if (state.showModal === 'alerts') {
+    const alerts = computeFiltered().activeAlertsList;
+    title.textContent = `Alertas Ativos (${alerts.length})`;
+    const p = document.createElement('p'); p.className='mb-3 text-gray-600'; p.textContent = "Extintores com datas de inspeção próximas ao vencimento ou vencidas, ou com situação indefinida.";
+    modal.appendChild(p);
+    const wrap = document.createElement('div'); wrap.className = 'space-y-3 max-h-96 overflow-y-auto p-3 border rounded-lg bg-yellow-50';
+    if (alerts.length === 0) wrap.innerHTML = '<p class="text-gray-500">Nenhum alerta ativo no momento.</p>';
+    else {
+      alerts.forEach(item => {
+        const card = document.createElement('div'); card.className = 'p-4 border border-yellow-300 rounded-lg cursor-pointer hover:bg-yellow-100 transition';
+        card.onclick = ()=>{ state.selectedExtinguisher = state.data.find(e=>e.id===item.id); state.showModal='panel'; render(); };
+        card.innerHTML = `<p class="font-bold text-lg text-yellow-800 flex justify-between items-center">Nº ${item.num} - ${item.local} <span>⚠️</span></p>`;
+        const ul = document.createElement('ul'); ul.className='list-disc list-inside text-sm mt-1 text-gray-700';
+        item.details.forEach(d=>{ const li=document.createElement('li'); li.textContent=d; ul.appendChild(li); });
+        card.appendChild(ul);
+        wrap.appendChild(card);
+      });
+    }
+    modal.appendChild(wrap);
+  } else if (state.showModal === 'panel' && state.selectedExtinguisher) {
+    title.textContent = `Detalhes do Extintor Nº ${state.selectedExtinguisher['Nº']}`;
+    const panel = renderExtinguisherPanel(state.selectedExtinguisher, state.config.allColumns);
+    modal.appendChild(panel);
+  }
+
+  overlay.appendChild(modal);
+  root.appendChild(overlay);
+}
+
+/* ---------- Render principal ---------- */
+function renderMainContent() {
+  const main = $('#main-content'); 
+  if (!main) return; 
+  main.innerHTML = '';
+  if (state.loading) {
+    const tpl = document.getElementById('loading-template'); 
+    if (tpl) main.appendChild(tpl.content.cloneNode(true));
+    return;
+  }
+  if (state.activeTab === 'Dashboard') {
+    // FECHA O FILTRO AO SAIR DA ABA
+    state.showFilter = false;
+    const container = document.createElement('div'); container.className = 'space-y-8';
+    renderDashboardSection(container);
+    main.appendChild(container);
+  } else if (state.activeTab === 'Visualização') {
+    const container = document.createElement('div'); container.className = 'space-y-6';
+    renderVisualizacaoSection(container);
+    main.appendChild(container);
+  } else if (state.activeTab === 'Tabela') {
+    const container = document.createElement('div'); container.className = 'space-y-6';
+    renderTabelaSection(container);
+    main.appendChild(container);
+  } else if (state.activeTab === 'Inspecoes') { 
+    // FECHA O FILTRO AO SAIR DA ABA
+    state.showFilter = false;
+    const container = document.createElement('div');
+    renderInspecoesSection(container);
+    main.appendChild(container);
+  } else if (state.activeTab === 'Configurações') {
+    // FECHA O FILTRO AO SAIR DA ABA
+    state.showFilter = false;
+    const container = document.createElement('div');
+    renderConfiguracoesSection(container);
+    main.appendChild(container);
+  } else if (state.activeTab === 'User') { 
+    // FECHA O FILTRO AO SAIR DA ABA
+    state.showFilter = false;
+    const container = document.createElement('div');
+    renderUserSection(container);
+    main.appendChild(container);
+  }
+}
+
+/* ---------- Data loading (manual + auto sync) ---------- */
+async function manualLoadData() {
+  state.loading = true; render();
+  const url = GOOGLE_SHEET_BASE_URL + (state.config.dataRange || DEFAULT_RANGE);
+  const dt = await fetchData(url);
+  state.data = dt;
+  state.loading = false;
+  state.lastSyncTime = new Date().toLocaleTimeString();
+  render();
+}
+let autoSyncTimer = null;
+function startAutoSync() {
+  if (autoSyncTimer) { clearInterval(autoSyncTimer); autoSyncTimer = null; }
+  if (state.syncIntervalMs > 0) {
+    autoSyncTimer = setInterval(() => { manualLoadData(); }, state.syncIntervalMs);
+  }
+}
+
+/* ---------- Inicialização ---------- */
+async function init() {
+  checkAuthOnLoad(); 
+
+  // --- NOVO: LÓGICA CLICK-OUTSIDE PARA FILTRO ---
+  document.addEventListener('click', (event) => {
+    // Só age se o filtro estiver aberto
+    if (state.showFilter) {
+      const filterWrapper = document.getElementById('filter-wrapper');
+      // Verifica se o clique ocorreu fora do container do filtro (botão + menu)
+      if (filterWrapper && !filterWrapper.contains(event.target)) {
+        state.showFilter = false;
+        render(); // Renderiza para fechar o filtro
+      }
+    }
+  });
+  // ---------------------------------------------
+  
+  await manualLoadData();
+  startAutoSync();
+  
+  // set up periodic render (to update timers/status colors)
+  setInterval(()=>{ render(); }, 1000*60); 
+}
+
+// Inicia a aplicação após a definição de todas as funções
+init();
+
+/* cleanup on unload */
+window.addEventListener('beforeunload', () => { if (autoSyncTimer) clearInterval(autoSyncTimer); });
+
+</script>
+</body>
+</html>
