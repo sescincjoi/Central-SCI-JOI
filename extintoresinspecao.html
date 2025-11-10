@@ -618,7 +618,7 @@
    <h1><img class="logoSCI">SCI AEROPORTO DE JOINVILLE<br>Controle de Inspeção dos Extintores</h1>
    <div class="usuario">
     <label for="nomeUsuario">Seu nome:</label>
-    <input type="text" id="nomeUsuario" placeholder="Digite seu nome">
+    <input type="text" id="nomeUsuario" placeholder="Digite seu nome de BA">
    </div>
    <div class="edificacoes">
     <label for="edificacao">Edificação:</label>
@@ -1340,6 +1340,18 @@ function mostrarNaoConforme(valor) {
     }
     
   </style>
+<!-- CARREGAMENTO DO NOME DE USUÁRIO -->
+<script>
+  // 🔹 Captura o parâmetro 'nomeUsuario' da URL
+  const params = new URLSearchParams(window.location.search);
+  const nomeUsuario = params.get('nomeUsuario');
 
+  // 🔹 Preenche o campo de vistoriador automaticamente (caso exista)
+  if (nomeUsuario) {
+    const campo = document.getElementById('nomeUsuario');
+    if (campo) campo.value = decodeURIComponent(nomeUsuario);
+  }
+</script>
+  
 </body>
 </html>
