@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Painel de Controle de Extintores (HTML)</title>
+  <title>Página10</title>
 
   <!-- Tailwind (Play CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -529,8 +529,11 @@ function renderDashboardSection(container) {
     entries.forEach(item => {
       const startRad = (item.startAngle-90) * Math.PI/180;
       const endRad = (item.endAngle-90) * Math.PI/180;
+      
       const startX = center + radius * Math.cos(startRad);
-      const startY = center + radius * Math.sin(endRad); 
+      // CORREÇÃO: Usar startRad para calcular o ponto Y de início (o que define o raio inicial)
+      const startY = center + radius * Math.sin(startRad); 
+      
       const endX = center + radius * Math.cos(endRad);
       const endY = center + radius * Math.sin(endRad);
       
