@@ -24,19 +24,19 @@
 
     /* DASHBOARD */
     .space-y-8 {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
     }
     .bg-white.p-6.rounded-xl.shadow-lg.mt-6 {
-      width: 48%;
+      width: 98%;
       height: 21.4rem;
-      margin: 1%;
+      margin: 2% 1%;
       overflow: auto;
     }
     .bg-white.p-6.rounded-xl.shadow-lg.mt-6 {
-      width: 48%;
+      width: 98%;
       height: 21.4rem;
-      margin: 1%;
+      margin: 2% 1%;
       overflow: auto;
     }
 
@@ -215,7 +215,7 @@ const state = {
   showModal: null,
   selectedExtinguisher: null,
   chartSourceKey: 'Equipe',
-  syncIntervalMs: 300000, 
+  syncIntervalMs: 30000000, 
   config: {
     dataRange: DEFAULT_RANGE,
     allColumns: JSON.parse(JSON.stringify(INITIAL_COLUMNS_CONFIG)),
