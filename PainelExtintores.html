@@ -22,6 +22,24 @@
     .w-fit-content { width: fit-content; }
     .min-w-200 { min-width: 200px; }
 
+    /* DASHBOARD */
+    .space-y-8 {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .bg-white.p-6.rounded-xl.shadow-lg.mt-6 {
+      width: 48%;
+      height: 21.4rem;
+      margin: 1%;
+      overflow: auto;
+    }
+    .bg-white.p-6.rounded-xl.shadow-lg.mt-6 {
+      width: 48%;
+      height: 21.4rem;
+      margin: 1%;
+      overflow: auto;
+    }
+
     /* CONTAINER IFRAME */
     .div-inspecoes {
       width: 100%;
@@ -495,7 +513,7 @@ function renderDashboardSection(container) {
   container.appendChild(kpiGrid);
 
   // Chart area (doughnut)
-  const chartWrap = document.createElement('div'); chartWrap.className = 'bg-white p-6 rounded-xl shadow-lg mt-6';
+  const chartWrap = document.createElement('div'); chartWrap.className = 'painel-grafico bg-white p-6 rounded-xl shadow-lg mt-6';
   const chartHeader = document.createElement('div'); chartHeader.className = 'flex items-center justify-between mb-4';
   chartHeader.innerHTML = `<h3 class="text-xl font-bold text-gray-800">Gráfico de Distribuição</h3>`;
   const selector = document.createElement('div'); selector.className = 'flex items-center space-x-2';
