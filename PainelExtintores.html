@@ -93,7 +93,7 @@
     }
     .painel-grafico, #non-conformity-list {
       width: 98%;
-      height: 21.4rem;
+      height: 25rem;
       overflow: auto;
       margin-left: 1%;
     }
@@ -747,7 +747,7 @@ function renderDashboardSection(container) {
     // legend
     const legend = document.createElement('div'); legend.className = 'w-full md:w-1/2 p-4';
     legend.innerHTML = `<h5 class="font-semibold text-gray-700 mb-3">Legenda (${state.config.allColumns.find(c=>c.key===state.chartSourceKey)?.label || state.chartSourceKey})</h5>`;
-    const ul = document.createElement('ul'); ul.className = 'space-y-2 max-h-48 overflow-y-auto';
+    const ul = document.createElement('ul'); ul.className = 'space-y-2 max-h-48';
     entries.forEach(item => {
       const li = document.createElement('li'); li.className = 'flex justify-between items-center text-sm cursor-pointer hover:bg-gray-100 p-1 rounded transition';
       li.innerHTML = `<div class="flex items-center"><span class="w-3 h-3 rounded-full mr-2 shadow" style="background:${item.color}"></span>${item.name}</div><span class="font-semibold">${item.percent}% (${item.value})</span>`;
