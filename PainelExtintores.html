@@ -437,8 +437,8 @@ function renderTabsMobile() {
     { id: 'Visualização', label: 'Painéis', icon: '▦' },
     { id: 'Tabela', label: 'Tabela', icon: '📋' },
     { id: 'Inspecoes', label: 'Inspeções', icon: '📝' },
-    { id: 'User', label: state.username ? `👤 ${state.username}` : '👤 Usuário', isRight: true },
-    { id: 'Configurações', label: 'Configurações', icon: '⚙️' }, // <- texto adicionado no mobile
+    { id: 'User', label: state.username ? `👤 ${state.username}` : '👤 Usuário' },
+    { id: 'Configurações', label: 'Configurações', icon: '⚙️' }, 
   ];
 
   const container = $('#tabs');
@@ -459,13 +459,13 @@ function renderTabsMobile() {
 
   // Overlay
   const overlay = document.createElement("div");
-    overlay.id = "mobile-menu-overlay";
-    overlay.className = `
-      fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm 
-      flex items-start justify-center 
-      transition-opacity duration-300 opacity-0 pointer-events-none z-50
-    `;
-    overlay.style.paddingTop = "7rem";
+  overlay.id = "mobile-menu-overlay";
+  overlay.className = `
+    fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm 
+    flex items-start justify-center 
+    transition-opacity duration-300 opacity-0 pointer-events-none z-50
+  `;
+  overlay.style.paddingTop = "7rem";
   document.body.appendChild(overlay);
 
   // Caixa das opções
@@ -483,12 +483,12 @@ function renderTabsMobile() {
       w-full text-left px-4 py-3 rounded-lg mb-2
       ${state.activeTab === tab.id ? 'bg-red-100 text-red-700' : 'bg-gray-100'}
     `;
-    opt.innerHTML = `<span class="mr-2">${tab.icon}</span>${tab.label}`;
-    
+    opt.innerHTML = `<span class="mr-2">${tab.icon ?? ''}</span>${tab.label}`;
+
     opt.onclick = () => {
-    state.activeTab = tab.id;
-    fecharMenu();
-    setTimeout(render, 250); // evita recriar overlay muito cedo
+      state.activeTab = tab.id;
+      fecharMenu();
+      setTimeout(render, 250);
     };
 
     box.appendChild(opt);
@@ -505,18 +505,18 @@ function renderTabsMobile() {
     if (e.target === overlay) {
       fecharMenu();
     }
-    });
+  });
 
-    function fecharMenu() {
-  overlay.classList.remove("opacity-100");
-  overlay.classList.add("opacity-0", "pointer-events-none");
+  function fecharMenu() {
+    overlay.classList.remove("opacity-100");
+    overlay.classList.add("opacity-0", "pointer-events-none");
 
-  // remove do DOM após a transição
-  setTimeout(() => {
-    if (overlay.parentNode) overlay.remove();
-  }, 300);
+    setTimeout(() => {
+      if (overlay.parentNode) overlay.remove();
+    }, 300);
   }
 }
+
 
 
 
