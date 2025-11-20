@@ -104,13 +104,17 @@
     }
     .painel-grafico, #non-conformity-list {
       width: 98%;
-      height: 25rem;
       overflow: auto;
       margin-left: 1%;
     }
     @media (max-width: 768px) { .painel-grafico {
       height: fit-content;
-    }}
+    }
+    .painel-grafico.space-y-2.max-h-48 {
+      max-height: none;
+    }
+                              
+                              }
     @media (max-width: 1024px) { .painel-grafico, #non-conformity-list {
       grid-column: 1 / 3;
     }}
