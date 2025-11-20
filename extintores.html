@@ -622,17 +622,21 @@
 <body>
   
  <div class="corpo-container">
-   <h1><img class="logoSCI">SCI AEROPORTO DE JOINVILLE<br>Controle de Inspeção dos Extintores</h1>
-   <div class="usuario">
-    <label for="nomeUsuario">Seu nome:</label>
-    <input type="text" id="nomeUsuario" placeholder="Digite seu nome">
-   </div>
-   <div class="edificacoes">
-    <label for="edificacao">Edificação:</label>
-    <select id="edificacao" onchange="trocarEdificacao(this.value)"></select>
-   </div>
-    <div id="descricao-edificacao"></div>
-    <div id="extintores" style="margin-top:20px;"></div>
+     <h1>
+       <a href="./">
+         <img class="logoSCI">SCI AEROPORTO DE JOINVILLE<br>Controle de Inspeção dos Extintores
+       </a>
+     </h1>
+     <div class="usuario">
+        <label for="nomeUsuario">Seu nome:</label>
+        <input type="text" id="nomeUsuario" placeholder="Digite seu nome">
+     </div>
+     <div class="edificacoes">
+        <label for="edificacao">Edificação:</label>
+        <select id="edificacao" onchange="trocarEdificacao(this.value)"></select>
+     </div>
+        <div id="descricao-edificacao"></div>
+        <div id="extintores" style="margin-top:20px;"></div>
  </div>
 
   <div id="mensagem"></div>
