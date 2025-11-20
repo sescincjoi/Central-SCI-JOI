@@ -33,7 +33,7 @@
     
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: Inter, sans-serif;
       margin: 0;
       width: 100vw;
       height: 100dvh;
@@ -51,10 +51,10 @@
       overflow: hidden;
       margin-bottom: -1vh;
     }
-    h1 {
+    .corpo-container > h1 {
       width: 100%;
       display: flex;
-      font-size: 2.7em;
+      font-size: clamp(15px, calc(((2.4vw + 3vh) / 2) * 1), 2.7rem);
       font-family: Inter;
       color: #fffffffc;
       background: var(--cor-primaria);
@@ -75,17 +75,29 @@
     }
     .links-container {
       height: -webkit-fill-available;
-      padding-top: 4em;
+      padding-top: 2em;
     }
-    .lista-links {
+    .links-container ul.lista-links {
       display: flex;
-      width: 100vw;
-      height: fit-content;
-      margin: 0;
-      padding: 0;
-      flex-wrap: wrap;
       justify-content: center;
       align-items: center;
+      flex-direction: row;
+      flex-wrap: wrap;
+      height: fit-content;
+      padding: 1rem;
+      width: 90%;
+      background: rgb(255 255 255 / 70%);
+      border: 1px solid rgb(0 0 0 / 10%);
+      border-radius: 1rem;
+      margin: 2rem auto;
+      box-shadow: inset 0 29px 69px -55px rgb(0 0 0 / 25%);
+    }
+    .lista-links h1 {
+      width: 100%;
+      text-align: center;
+      font-size: 3rem;
+      font-weight: 600;
+      margin: 1.3rem 0 0.6rem 0;
     }
     .lista-links li {
       display: flex;
@@ -93,7 +105,7 @@
       align-items: center;
       justify-content: flex-start;
       width: calc(((2.4vw + 3vh) / 2) * 6);
-      margin: calc(((2.4vw + 3vh) / 2) * 0.6);
+      margin: calc(((2.4vw + 3vh) / 2) * 0.5);
       padding: calc(((2.4vw + 3vh) / 2) * 0);
       border-radius: 1em;
       flex-direction: column;
@@ -115,21 +127,15 @@
       height: calc(((2.4vw + 3vh) / 2) * 3.5);
       margin-bottom: calc(((2.4vw + 3vh) / 2) * 0.5);
     }
+    .app-extintores a:before {
+      background: url(https://img.icons8.com/?size=192&id=g77tYSUST8KO&format=png);
+      background-size: cover;
+    }
     .painel-extintores a:before {
-      content: "";
       background: url(https://img.icons8.com/?size=100&id=x3vq5PSQmf6h&format=png);
       background-size: 91%;
       background-position: center;
       background-repeat: no-repeat;
-    }
-    .app-extintores a:before {
-      display: block;
-      content: "";
-      width: calc(((2.4vw + 3vh) / 2) * 3.5);
-      height: calc(((2.4vw + 3vh) / 2) * 3.5);
-      background: url(https://img.icons8.com/?size=192&id=g77tYSUST8KO&format=png);
-      background-size: cover;
-      margin-bottom: calc(((2.4vw + 3vh) / 2) * 0.6);
     }
     .app-hidrantes a:before {
       background: url(https://img.icons8.com/?size=96&id=20734&format=png);
@@ -138,13 +144,8 @@
       filter: drop-shadow(2px 4px 5px rgb(0 0 0 / 40%));
     }
     .planilha a:before {
-      display: block;
-      content: "";
-      width: calc(((2.4vw + 3vh) / 2) * 3.5);
-      height: calc(((2.4vw + 3vh) / 2) * 3.5);
       background: url(https://img.icons8.com/?size=256&id=30461&format=png);
       background-size: cover;
-      margin-bottom: calc(((2.4vw + 3vh) / 2) * 0.5);
     }
     
 
@@ -224,7 +225,7 @@
       border-radius: 0 0 0.3em 0.3em;
       filter: drop-shadow(2px 0px 3px black);
     }*/
-    h1 {
+    .corpo-container > h1 {
       width: 100%;
       display: flex;
       font-size: clamp(15px, calc(((2.4vw + 3vh) / 2) * 1), 21px);
@@ -278,6 +279,9 @@
       text-decoration: none;
       color: rgb(15 15 15);
     }*/
+    .lista-links h1 {
+      font-size: clamp(18px, calc(((2.4vw + 3vh) / 2) * 1.1), 24px);
+    }
     .lista-links li a {
       display: flex;
       flex-direction: column;
