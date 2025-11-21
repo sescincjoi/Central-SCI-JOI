@@ -115,9 +115,14 @@
     }
                               
                               }
-    @media (max-width: 1024px) { .painel-grafico, #non-conformity-list {
+    @media (max-width: 1024px) {
+    .painel-grafico, #non-conformity-list {
       grid-column: 1 / 3;
-    }}
+    }
+    .painel-grafico .max-h-48 {
+      max-height: none;
+    }
+                               }
 
     /* CONFIGURAÇÕES */
     .space-y-8.bg-white.p-6.rounded-xl.shadow-lg {
