@@ -738,7 +738,7 @@
   "ELOS": "ELOS.",
   "APOC": "Área APOC.",
   "PORTÃO 1": "Portão 1.",
-  "KF": "Setor KF.",
+  "KF CHILLER": "Setor KF/CHILLER.",
   "PAA": "Área PAA.",
   "MANUTENÇÃO": "Setor de manutenção.",
   "GSE GOL AZUL RP": "Área GSE GOL/AZUL/RP.",
@@ -787,7 +787,7 @@
     "6": { descricao: "Central de alarme", tipo: "PQS ABC", kg: 6 },
     "7": { descricao: "Central de alarme", tipo: "CO²", kg: 6 },
     "8": { descricao: "Central de alarme", tipo: "CO²", kg: 4 },
-    "9": { descricao: "Andar 4/Equipamentos", tipo: "CO²", kg: 6 },
+    "9": { descricao: "Andar 5/Equipamentos", tipo: "CO²", kg: 6 },
     "10": { descricao: "Máquina do Elevador", tipo: "CO²", kg: 6 },
     "84": { descricao: "Sala TEC VHF", tipo: "CO²", kg: 6 }
   },
@@ -834,7 +834,7 @@
   "PORTÃO 1": {
     "57": { descricao: "Guarita", tipo: "PQS ABC", kg: 6 }
   },
-  "KF": {
+  "KF CHILLER": {
     "58": { descricao: "Ao lado do P1", tipo: "CO²", kg: 6 },
     "59": { descricao: "Interna da KF", tipo: "CO²", kg: 6 },
     "60": { descricao: "Interna da KF", tipo: "PQS ABC", kg: 6 },
@@ -1012,7 +1012,7 @@ function seedExtintores() {
     </div>
 
     <div class="pergunta 4">
-      <label>4- Resultado da inspeção:<br><p>Verifique: Pressão, Lacre, Validade, Sinalização, Integridade.</p></label>
+      <label>4- Resultado da inspeção:<br><p>Verifique: Pressão, Lacre, Validade, Sinalização, Integridade e se há Capacidade extintora reduzida (caso haja substituto com menor Classe de fogo/Capacidade Extintora)</p></label>
         <div>
           <input type="radio" name="p4" value="Conforme" onchange="mostrarNaoConforme(this.value)" required> Conforme
           <input type="radio" name="p4" value="Não conforme" onchange="mostrarNaoConforme(this.value)" required> Não conforme
@@ -1023,11 +1023,12 @@ function seedExtintores() {
       <label>4.1- Selecione a não conformidade:</label>
       <select name="p4_1">
         <option value="">--</option> <!-- 🔹 default vazio -->
-        <option>Pressão</option>
-        <option>Lacre</option>
+        <option>Pressão Baixa</option>
+        <option>Lacre Rompido</option>
         <option>Validade</option>
         <option>Sinalização</option>
         <option>Integridade</option>
+        <option>Capacidade Extintora Reduzida</option>
         <option>Outros</option>
       </select>
     </div>
@@ -1143,7 +1144,7 @@ function mostrarNaoConforme(valor) {
   "DESEMBARQUE", "TPS TÉRREO", "TPS SUPERIOR",
   "RÁDIO", "ADM", "CASA DE BOMBAS", "CAMPO DE ANTENAS",
   "RAIO X", "EMBARQUE", "ELOS", "APOC",
-  "PORTÃO 1", "KF", "PAA", "MANUTENÇÃO", "GSE GOL AZUL RP", "SCI"
+  "PORTÃO 1", "KF CHILLER", "PAA", "MANUTENÇÃO", "GSE GOL AZUL RP", "SCI"
 ];
 
     const select = document.getElementById("edificacao");
