@@ -683,7 +683,7 @@ function computeFiltered() {
     if (s.isConforme) conf++;
     if (s.isNaoConforme) {
       naoConf++;
-      naoConfList.push({ id: ext.id, num: ext['Nº'], situacao: ext['SITUAÇÃO'], naoConformidade: ext['Não conformidade'], observacao: ext['Observação'] });
+      naoConfList.push({ id: ext.id, num: ext['Nº'], Tipokg: ext['Tipo Kg'], Local: ext['Local'], Descricao: ext['Descrição'], situacao: ext['SITUAÇÃO'], naoConformidade: ext['Não conformidade'], observacao: ext['Observação'] });
     }
     if (s.isAlert) { alerts++; alertsList.push({ id: ext.id, num: ext['Nº'], local: ext['Local'], details: s.alertDetails }); }
   });
@@ -838,10 +838,13 @@ function renderDashboardSection(container) {
       const card = document.createElement('div');
       card.className = 'p-4 border border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition';
       card.onclick = () => { state.selectedExtinguisher = state.data.find(e=>e.id===item.id); state.showModal = 'panel'; render(); };
-      card.innerHTML = `<p class="font-bold text-lg text-red-800">Nº ${item.num}</p>
-        <p class="text-sm mt-1"><span class="font-semibold">Situação:</span> <span class="text-red-600">${item.situacao}</span></p>
-        <p class="text-sm"><span class="font-semibold">Não conformidade:</span> ${item.naoConformidade || '-'}</p>
-        <p class="text-xs text-gray-600 mt-1"><span class="font-semibold">Observação:</span> ${item.observacao || '-'}</p>`;
+      card.innerHTML = `<div><p class="card-naoconform font-bold text-lg text-red-800">Nº ${item.num}</p>
+        <p class="tipokg text-sm mt-1"><span class="font-semibold">Tipo/Kg: </span>${item.Tipokg}</p>
+        <p class="edific text-sm mt-1"><span class="font-semibold">Edificação: </span>${item.Local}</p>
+        <p class="descr text-sm mt-1"><span class="font-semibold">Descrição: </span>${item.Descricao}</p></div>
+        <p class="situac text-sm mt-1"><span class="font-semibold">Situação:</span> <span class="text-red-600">${item.situacao}</span></p>
+        <p class="naoconfomr text-sm"><span class="font-semibold">Não conformidade:</span> ${item.naoConformidade || '-'}</p>
+        <p class="observac text-xs text-gray-600 mt-1"><span class="font-semibold">Observação:</span> ${item.observacao || '-'}</p>`;
       listWrap.appendChild(card);
     });
   }
