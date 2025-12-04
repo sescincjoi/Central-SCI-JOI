@@ -33,6 +33,17 @@
         position: absolute;
         width: 90%;
       }
+      .p-6 { padding: 1rem; }
+    
+      .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(1rem * calc(1.1 - var(--tw-space-y-reverse))); }
+
+    /* Quadros Alertas */
+        #main-content .p-5 {
+          padding: 0.8rem 1rem;
+        }
+        #main-content .text-sm {
+          line-height: 1.25rem;
+        }
       
     /* Cores Gráfico */
         #main-content .painel-grafico svg > path:nth-child(1)  { fill: #29bc01; }
@@ -853,7 +864,7 @@ function renderVisualizacaoSection(container) {
   } else {
     filteredData.forEach(ext => {
       const wrapper = document.createElement('div'); wrapper.className = 'cursor-pointer hover:shadow-xl transition-shadow duration-300';
-      wrapper.onclick = () => { state.selectedExtinguisher = ext; state.showModal = 'panel'; render(); };
+      wrapper.onclick = null/*() => { state.selectedExtinguisher = ext; state.showModal = 'panel'; render(); }*/;
       wrapper.appendChild(renderExtinguisherPanel(ext, allColumns));
       grid.appendChild(wrapper);
     });
