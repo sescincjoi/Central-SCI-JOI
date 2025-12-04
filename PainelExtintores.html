@@ -37,6 +37,8 @@
     
       .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: calc(1rem * calc(1.1 - var(--tw-space-y-reverse))) !important; }
 
+      .box-filtro { margin-top: -1.5rem; } //caixa filtro
+
     /* Quadros Alertas */
         #main-content .p-5 {
           padding: 0.8rem 1rem;
@@ -655,7 +657,8 @@ function createFilterBar() {
   const selectVal = document.createElement('select');
   selectVal.className = "w-full p-2 border border-gray-300 rounded-lg bg-white focus:ring-red-500 focus:border-red-500";
   selectVal.onchange = (e) => { 
-    state.filterText = e.target.value; 
+    state.filterText = e.target.value;
+    state.showFilter = false
     render(); 
   };
   uniqueValues.forEach(v => {
