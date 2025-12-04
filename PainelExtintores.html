@@ -839,9 +839,8 @@ function renderDashboardSection(container) {
       card.className = 'card-naoconform p-4 border border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition';
       card.onclick = () => { state.selectedExtinguisher = state.data.find(e=>e.id===item.id); state.showModal = 'panel'; render(); };
       card.innerHTML = `<div><p class="num font-bold text-lg text-red-800">Nº ${item.num}</p>
-        <p class="tipokg text-sm mt-1"><span class="font-semibold">Tipo/Kg: </span>${item.Tipokg}</p>
-        <p class="edific text-sm mt-1"><span class="font-semibold">Edificação: </span>${item.Local}</p>
-        <p class="descr text-sm mt-1"><span class="font-semibold">Descrição: </span>${item.Descricao}</p></div>
+        <p class="tipokg text-sm mt-1"><span class="font-semibold">Tipo/Kg: </span>${item.Tipokg}</p></div>
+        <p class="edific text-sm mt-1"><span class="font-semibold">Edificação: </span>${item.Local}<span class="font-semibold"> - </span>${item.Descricao}</p>
         <p class="situac text-sm mt-1"><span class="font-semibold">Situação:</span> <span class="text-red-600">${item.situacao}</span></p>
         <p class="naoconfomr text-sm"><span class="font-semibold">Não conformidade:</span> ${item.naoConformidade || '-'}</p>
         <p class="observac text-xs text-gray-600 mt-1"><span class="font-semibold">Observação:</span> ${item.observacao || '-'}</p>`;
