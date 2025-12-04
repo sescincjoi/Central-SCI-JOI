@@ -636,7 +636,7 @@ function createFilterBar() {
   colDiv.innerHTML = `<label class="text-xs text-gray-500 block mb-1">Filtrar Base</label>`;
   const selectCol = document.createElement('select');
   selectCol.className = "w-full p-2 border border-gray-300 rounded-lg bg-white";
-  selectCol.value = state.filterColumn;
+  
   selectCol.onchange = (e) => { 
     state.filterColumn = e.target.value; 
     state.filterText = 'Todas as Opções'; 
@@ -645,6 +645,7 @@ function createFilterBar() {
   columns.filter(c => c.visible).forEach(col => {
     const op = document.createElement('option'); op.value = col.key; op.textContent = col.label; selectCol.appendChild(op);
   });
+  selectCol.value = state.filterColumn;
   colDiv.appendChild(selectCol);
   formContent.appendChild(colDiv);
 
