@@ -836,9 +836,9 @@ function renderDashboardSection(container) {
   } else {
     nonConformingList.forEach(item => {
       const card = document.createElement('div');
-      card.className = 'p-4 border border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition';
+      card.className = 'card-naoconform p-4 border border-red-200 rounded-lg cursor-pointer hover:bg-red-50 transition';
       card.onclick = () => { state.selectedExtinguisher = state.data.find(e=>e.id===item.id); state.showModal = 'panel'; render(); };
-      card.innerHTML = `<div><p class="card-naoconform font-bold text-lg text-red-800">Nº ${item.num}</p>
+      card.innerHTML = `<div><p class="num font-bold text-lg text-red-800">Nº ${item.num}</p>
         <p class="tipokg text-sm mt-1"><span class="font-semibold">Tipo/Kg: </span>${item.Tipokg}</p>
         <p class="edific text-sm mt-1"><span class="font-semibold">Edificação: </span>${item.Local}</p>
         <p class="descr text-sm mt-1"><span class="font-semibold">Descrição: </span>${item.Descricao}</p></div>
