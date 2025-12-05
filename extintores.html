@@ -979,7 +979,7 @@ function seedExtintores() {
     </div>
 
     <div class="pergunta 1-1" id="p1_1" style="display:none;">
-      <label>1.1- Então, qual o tipo do extintor?<br><p>Em caso de Capacidade Extintora estiver reduzida, declare como não conformidade.</p></label>
+      <label>1.1- Então, qual o tipo do extintor?<br><p>Em caso de <strong>Capacidade Extintora Reduzida</strong>, declare como <strong>não conformidade</strong>.</p></label>
       <select name="p1_1">
         <option value="">--</option> <!-- 🔹 default vazio -->
         <option>PQS ABC</option>
@@ -992,7 +992,7 @@ function seedExtintores() {
     </div>
 
     <div class="pergunta 1-2" id="p1_2" style="display:none;">
-      <label>1.2- Quantos Kg?<br><p>Em caso de Capacidade Extintora estiver reduzida, declare como não conformidade.</p></label>
+      <label>1.2- Quantos Kg?<br><p>Em caso de <strong>Capacidade Extintora Reduzida</strong>, declare como <strong>não conformidade</strong>.</p></label>
       <select name="p1_2">
         <option value="">--</option> <!-- 🔹 default vazio -->
         <option>4</option>
@@ -1002,17 +1002,17 @@ function seedExtintores() {
     </div>
 
     <div class="pergunta 2">
-      <label>2- Inspeção de Nível 2:<br><p>Caso esteja ilegível, deixe em branco e declare como não conformidade.</p></label>
+      <label>2- Inspeção de Nível 2:<br><p>Em caso de <strong>Etiqueta Ilegível</strong>, deixe em branco e declare como <strong>não conformidade</strong>.</p></label>
       <input type="month" name="p2">
     </div>
 
     <div class="pergunta 3">
-      <label>3- Inspeção de Nível 3:<br><p>Caso esteja ilegível, deixe em branco e declare como não conformidade.</p></label>
+      <label>3- Inspeção de Nível 3:<br><p>Em caso de <strong>Etiqueta Ilegível</strong>, deixe em branco e declare como <strong>não conformidade</strong>.</p></label>
       <input type="number" name="p3" min="2023" max="2100" placeholder="Ano">
     </div>
 
     <div class="pergunta 4">
-      <label>4- Resultado da inspeção:<br><p>Verifique: Pressão, Lacre, Validade, Sinalização, Integridade e se há Capacidade extintora reduzida (caso haja substituto com menor Classe de fogo/Capacidade Extintora)</p></label>
+      <label>4- Resultado da inspeção:<br><p>Verifique: Pressão, Lacre, Validade, Sinalização, Integridade e se há Capacidade Extintora Reduzida (caso haja substituto com menor Classe de incêndio/Capacidade Extintora)</p></label>
         <div>
           <input type="radio" name="p4" value="Conforme" onchange="mostrarNaoConforme(this.value)" required> Conforme
           <input type="radio" name="p4" value="Não conforme" onchange="mostrarNaoConforme(this.value)" required> Não conforme
