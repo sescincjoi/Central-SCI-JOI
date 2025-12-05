@@ -243,7 +243,7 @@
     }
     .pergunta {
       font-size: 1.1rem;
-      margin-bottom: 2em;
+      margin-bottom: 1rem;
       background: rgb(0 0 0 / 5%);
       padding-bottom: 1em;
       border-radius: 0 0 0.5em 0.5em;*/
@@ -256,6 +256,56 @@
       margin-bottom: 0.6em;
       border-radius: 0.5em 0.5em 0 0;
       border-top: 4px solid #00000017;
+    }
+    label.opcoes-nc {
+      display: flex;
+      padding: 0 0 0 0.5rem;
+      background: none;
+      font-size: 1.05rem;
+      margin-bottom: 0;
+      border-radius: 0;
+      border-top: none;
+      align-items: center;
+    }
+    .custom-checkbox input {
+      display: none;
+    }
+
+    .custom-checkbox span {
+      width: 1.1rem;
+      height: 1.1rem;
+      border: 2px solid #555;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.3rem;
+      vertical-align: middle;
+      transition: all .2s ease;
+    }
+
+    .custom-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .custom-checkbox input:checked + span {
+      background: #575757;
+      border-color: #323232;
+      box-shadow: 0 0 4px #3b3b3b77;
+    }
+
+    .custom-checkbox input:checked + span::after {
+      display: flex;
+      content: "✖";
+      color: white;
+      font-size: 0.9rem;
+      position: relative;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      margin-top: -0.1rem;
     }
     .pergunta label p {
       font-size: 0.8em;
@@ -918,6 +968,46 @@ function seedExtintores() {
           container.innerHTML = "<p>Nenhum extintor cadastrado.</p>";
           return;
         }
+
+        /*Object.keys(dados).forEach(numero => {
+          const ext = dados[numero];
+          const btn = document.createElement("button");
+          btn.id = `ext-${edificacao}-${numero}`;
+          
+          btn.innerHTML = ""; // limpa antes
+          
+          const spanNumero = document.createElement("span");
+          spanNumero.classList.add("ext-numero");
+          spanNumero.textContent = numero;
+          btn.appendChild(spanNumero);
+          
+          // 🔹 ADICIONA TIPO E KG
+          const info = extintoresInfo[edificacao] && extintoresInfo[edificacao][numero];
+          if (info) {
+            const spanTipo = document.createElement("span");
+            spanTipo.classList.add("ext-tipo");
+            spanTipo.textContent = `${info.tipo} ${info.kg}Kg`;
+            btn.appendChild(spanTipo);
+            
+            // 🔹 ADICIONA DESCRIÇÃO
+            const spanDescricao = document.createElement("span");
+            spanDescricao.classList.add("ext-descricao");
+            spanDescricao.textContent = info.descricao;
+            btn.appendChild(spanDescricao);
+          }
+          
+          if (ext.vistoriado) {
+            const spanPor = document.createElement("span");
+            spanPor.classList.add("ext-por");
+            spanPor.textContent = ext.por;
+            btn.appendChild(spanPor);
+          }
+
+          btn.className = ext.vistoriado ? "vistoriado" : "nao-vistoriado";
+          btn.onclick = () => abrirModal(edificacao, numero);
+          container.appendChild(btn);
+        });*/
+
         Object.keys(dados).forEach(numero => {
           const ext = dados[numero];
           const btn = document.createElement("button");
@@ -1021,17 +1111,55 @@ function seedExtintores() {
 
     <div class="pergunta 4-1" id="p4_1" style="display:none;">
       <label>4.1- Selecione a(s) não conformidade(s):</label>
-      <select name="p4_1" multiple>
-        <option value="">--</option> <!-- 🔹 default vazio -->
-        <option>Despressurização</option>
-        <option>Lacre Rompido</option>
-        <option>Vencido</option>
-        <option>Sinalização</option>
-        <option>Integridade</option>
-        <option>Capacidade Extintora reduzida</option>
-        <option>Etiqueta ilegível ou ausente</option>
-        <option>Outros</option>
-      </select>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Despressurização">
+          <span></span>
+          Despressurização
+        </label><br>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Lacre Rompido">
+          <span></span>
+          Lacre Rompido
+        </label><br>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Vencido">
+          <span></span>
+          Vencido
+        </label><br>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Sinalização">
+          <span></span>
+          Sinalização
+        </label><br>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Integridade">
+          <span></span>
+          Integridade
+        </label><br>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Capacidade Extintora reduzida">
+          <span></span>
+          Capacidade Extintora reduzida
+        </label><br>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Etiqueta ilegível ou ausente">
+          <span></span>
+          Etiqueta ilegível ou ausente
+        </label><br>
+
+        <label class="custom-checkbox opcoes-nc">
+          <input type="checkbox" name="p4_1" value="Outros">
+          <span></span>
+          Outros
+        </label>
+      
     </div>
 
     <div class="pergunta 5">
@@ -1115,10 +1243,11 @@ function mostrarNaoConforme(valor) {
     pergunta2: form.p2.value || "-",
     pergunta3: form.p3.value || "-",
     pergunta4: form.p4.value,
-    /*pergunta4_1: form.p4_1 ? (form.p4_1.value || "-") : "-",*/
-    pergunta4_1: form.p4_1
-      ? Array.from(form.p4_1.selectedOptions).map(opt => opt.value).join(", ")
-      : "-",
+    pergunta4_1: (() => {
+      const selecionados = Array.from(document.querySelectorAll('input[name="p4_1"]:checked'))
+        .map(cb => cb.value);
+      return selecionados.length > 0 ? selecionados.join(", ") : "-";
+    })(),
     pergunta5: form.p5.value || "-",
     pergunta6: form.p6.value
   };
