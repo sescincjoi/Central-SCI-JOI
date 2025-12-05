@@ -1116,7 +1116,10 @@ function mostrarNaoConforme(valor) {
     pergunta2: form.p2.value || "-",
     pergunta3: form.p3.value || "-",
     pergunta4: form.p4.value,
-    pergunta4_1: form.p4_1 ? (form.p4_1.value || "-") : "-",
+    /*pergunta4_1: form.p4_1 ? (form.p4_1.value || "-") : "-",*/
+    pergunta4_1: form.p4_1
+      ? Array.from(form.p4_1.selectedOptions).map(opt => opt.value).join(", ")
+      : "-",
     pergunta5: form.p5.value || "-",
     pergunta6: form.p6.value
   };
