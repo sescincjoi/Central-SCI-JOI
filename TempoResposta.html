@@ -46,6 +46,55 @@
             padding-right: 2.5rem;
         }
 
+        /* Dropdown customizado para seleção múltipla - CORREÇÃO DE Z-INDEX */
+        .multi-select-container {
+            position: relative;
+            min-width: 200px;
+            z-index: 60; /* Garantir que fique acima dos cards */
+        }
+        .multi-select-trigger {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .multi-select-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 100; /* Z-index alto para sobrepor tudo */
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            margin-top: 0.5rem;
+            max-height: 280px;
+            overflow-y: auto;
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .multi-select-options.active {
+            display: block;
+        }
+        .option-item {
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .option-item:hover {
+            background-color: #f1f5f9;
+        }
+        .option-item input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            accent-color: #2563eb;
+        }
+
         .header-studio {
             background: radial-gradient(circle at center, #2c2c2c 0%, #111111 100%);
             position: relative;
@@ -169,7 +218,8 @@
 
     <main class="max-w-[1600px] mx-auto px-2 md:px-4">
         
-        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8">
+        <!-- Filtros superiores com z-index reforçado via tailwind -->
+        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 relative z-[60]">
             <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
                 <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -178,11 +228,16 @@
             </a>
 
             <div class="flex flex-col md:flex-row gap-4">
-                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1">
-                    <label for="localFilter" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Localização</label>
-                    <select id="localFilter" onchange="drawCharts()" class="bg-transparent font-semibold text-slate-700 p-1 text-sm focus:outline-none min-w-[180px] cursor-pointer">
-                        <option value="Todos">Todos os Locais</option>
-                    </select>
+                <!-- Filtro de Localização com Seleção Múltipla -->
+                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 multi-select-container">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Localização</label>
+                    <div id="localMultiSelect" class="multi-select-trigger font-semibold text-slate-700 p-1 text-sm min-w-[180px]">
+                        <span id="localLabel" class="truncate">Todos os Locais</span>
+                        <svg class="w-4 h-4 text-slate-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="localOptions" class="multi-select-options">
+                        <!-- Options populated via JS -->
+                    </div>
                 </div>
 
                 <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1">
@@ -199,7 +254,8 @@
 
         <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <!-- Grid de indicadores (z-index padrão) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 relative z-10">
             <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-emerald-50 rounded-xl">
@@ -288,6 +344,7 @@
     <script type="text/javascript">
         const SHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
         let fullData = [];
+        let selectedLocais = [];
         const colorPalette = ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed', '#0891b2', '#db2777', '#4b5563', '#ea580c', '#1e293b'];
 
         window.onload = function() {
@@ -295,6 +352,13 @@
                 google.charts.load('current', {'packages':['corechart'], 'language': 'pt-br'});
                 google.charts.setOnLoadCallback(fetchData);
             }
+
+            window.addEventListener('click', (e) => {
+                const container = document.querySelector('.multi-select-container');
+                if (!container.contains(e.target)) {
+                    document.getElementById('localOptions').classList.remove('active');
+                }
+            });
         };
 
         async function fetchData() {
@@ -351,24 +415,93 @@
 
             fullData.sort((a, b) => a.dataObj - b.dataObj);
 
+            initLocalMultiSelect();
+            drawCharts();
+        }
+
+        function initLocalMultiSelect() {
             const locais = [...new Set(fullData.map(d => d.local))].sort();
-            const select = document.getElementById('localFilter');
-            locais.forEach(l => {
-                const opt = document.createElement('option');
-                opt.value = l; opt.innerHTML = l; select.appendChild(opt);
+            const trigger = document.getElementById('localMultiSelect');
+            const optionsContainer = document.getElementById('localOptions');
+            const label = document.getElementById('localLabel');
+
+            trigger.onclick = (e) => {
+                e.stopPropagation();
+                optionsContainer.classList.toggle('active');
+            };
+
+            optionsContainer.innerHTML = '';
+            
+            const allItem = document.createElement('div');
+            allItem.className = 'option-item border-b border-slate-100 font-bold text-blue-600 hover:bg-blue-50';
+            allItem.innerHTML = '<span>Selecionar Todos</span>';
+            allItem.onclick = (e) => {
+                e.stopPropagation();
+                selectedLocais = [...locais];
+                updateLocalCheckboxes();
+                drawCharts();
+            };
+            optionsContainer.appendChild(allItem);
+
+            const noneItem = document.createElement('div');
+            noneItem.className = 'option-item border-b border-slate-100 font-bold text-slate-400 hover:bg-slate-50';
+            noneItem.innerHTML = '<span>Limpar Seleção</span>';
+            noneItem.onclick = (e) => {
+                e.stopPropagation();
+                selectedLocais = [];
+                updateLocalCheckboxes();
+                drawCharts();
+            };
+            optionsContainer.appendChild(noneItem);
+
+            locais.forEach(local => {
+                const div = document.createElement('div');
+                div.className = 'option-item';
+                div.innerHTML = `
+                    <input type="checkbox" value="${local}" id="chk_${local}">
+                    <label for="chk_${local}" class="flex-grow cursor-pointer truncate text-slate-700 font-medium">${local}</label>
+                `;
+                
+                div.onclick = (e) => {
+                    e.stopPropagation();
+                    const chk = div.querySelector('input');
+                    if (e.target !== chk) chk.checked = !chk.checked;
+                    
+                    if (chk.checked) {
+                        if (!selectedLocais.includes(local)) selectedLocais.push(local);
+                    } else {
+                        selectedLocais = selectedLocais.filter(l => l !== local);
+                    }
+                    updateLabel();
+                    drawCharts();
+                };
+                optionsContainer.appendChild(div);
             });
 
-            drawCharts();
+            selectedLocais = [...locais];
+            updateLocalCheckboxes();
+
+            function updateLabel() {
+                if (selectedLocais.length === 0) label.innerText = "Nenhum Local";
+                else if (selectedLocais.length === locais.length) label.innerText = "Todos os Locais";
+                else if (selectedLocais.length === 1) label.innerText = selectedLocais[0];
+                else label.innerText = `${selectedLocais.length} Locais`;
+            }
+
+            function updateLocalCheckboxes() {
+                const checks = optionsContainer.querySelectorAll('input[type="checkbox"]');
+                checks.forEach(c => {
+                    c.checked = selectedLocais.includes(c.value);
+                });
+                updateLabel();
+            }
         }
 
         function drawCharts() {
             if (!google.visualization || fullData.length === 0) return;
 
-            const isMobile = window.innerWidth < 768;
-            const localFilter = document.getElementById('localFilter').value;
             const periodFilter = document.getElementById('periodFilter').value;
-            
-            let filtered = localFilter === 'Todos' ? fullData : fullData.filter(d => d.local === localFilter);
+            let filtered = fullData.filter(d => selectedLocais.includes(d.local));
             
             if (periodFilter === 'year') {
                 const year = new Date().getFullYear();
@@ -399,7 +532,12 @@
 
             document.getElementById('totalTests').innerText = filtered.length;
 
-            // Bar Chart
+            if (filtered.length === 0) {
+                document.getElementById('avgTime').innerText = "--:--";
+                document.getElementById('bestTeam').innerText = "-";
+                return;
+            }
+
             const barData = [['Equipe', 'Segundos', {role: 'style'}, {role: 'annotation'}]];
             let bestAvg = Infinity, bestTeam = '-', sum = 0;
             
@@ -422,15 +560,12 @@
                 { 
                     legend: 'none', 
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
-                    allowContainerBoundaryTextCufoff: false,
                     vAxis: {
                         ticks: barTicks, 
-                        gridlines: {color: '#f1f5f9'},
-                        textStyle: {fontSize: 10, noWrap: true}
+                        gridlines: {color: '#f1f5f9'}
                     },
                     hAxis: {
-                        slantedText: true, 
-                        textStyle: {fontSize: 11, noWrap: true},
+                        slantedText: true,
                         maxAlternation: 1,
                         showTextEvery: 1
                     },
@@ -439,7 +574,6 @@
                 }
             );
 
-            // Line Chart
             const dates = [...new Set(filtered.map(d => d.dataObj.getTime()))].sort((a,b) => a-b);
             const lineData = [['Data', ...currentEquipes]];
             dates.forEach(t => {
@@ -459,16 +593,13 @@
                         legend: {position: 'bottom', textStyle: {fontSize: 11}},
                         colors: currentEquipes.map(e => colorMap[e]),
                         chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
-                        allowContainerBoundaryTextCufoff: false,
                         vAxis: {
                             ticks: barTicks, 
                             viewWindow: {min: 60}, 
-                            gridlines: {color: '#f1f5f9'},
-                            textStyle: {fontSize: 10, noWrap: true}
+                            gridlines: {color: '#f1f5f9'}
                         },
                         hAxis: {
-                            format: "MMM/yy",
-                            textStyle: {fontSize: 11, noWrap: true}
+                            format: "MMM/yy"
                         },
                         backgroundColor: 'transparent'
                     }
