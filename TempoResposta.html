@@ -421,13 +421,19 @@
                 google.visualization.arrayToDataTable(barData),
                 { 
                     legend: 'none', 
-                    chartArea: {width: '92%', height: '75%', left: '6%', right: '2%'},
+                    chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                    allowContainerBoundaryTextCufoff: false,
                     vAxis: {
                         ticks: barTicks, 
                         gridlines: {color: '#f1f5f9'},
-                        textStyle: {fontSize: 10}
+                        textStyle: {fontSize: 10, noWrap: true}
                     },
-                    hAxis: {slantedText: true, textStyle: {fontSize: 11}},
+                    hAxis: {
+                        slantedText: true, 
+                        textStyle: {fontSize: 11, noWrap: true},
+                        maxAlternation: 1,
+                        showTextEvery: 1
+                    },
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 12, bold: true}},
                     backgroundColor: 'transparent'
                 }
@@ -452,17 +458,17 @@
                         curveType: 'function', pointSize: 8, lineWidth: 3, interpolateNulls: true,
                         legend: {position: 'bottom', textStyle: {fontSize: 11}},
                         colors: currentEquipes.map(e => colorMap[e]),
-                        chartArea: {width: '92%', height: '75%', left: '6%', right: '2%'},
+                        chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                        allowContainerBoundaryTextCufoff: false,
                         vAxis: {
                             ticks: barTicks, 
                             viewWindow: {min: 60}, 
                             gridlines: {color: '#f1f5f9'},
-                            textStyle: {fontSize: 10}
+                            textStyle: {fontSize: 10, noWrap: true}
                         },
                         hAxis: {
-                            // Formatação das datas no eixo horizontal: jan/25, fev/25, etc.
                             format: "MMM/yy",
-                            textStyle: {fontSize: 11}
+                            textStyle: {fontSize: 11, noWrap: true}
                         },
                         backgroundColor: 'transparent'
                     }
