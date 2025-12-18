@@ -46,16 +46,31 @@
             padding-right: 2.5rem;
         }
 
-        .header-dark {
-            background-color: #222222;
+        /* Estilo Studio Dark com iluminação leve */
+        .header-studio {
+            background: radial-gradient(circle at center, #2c2c2c 0%, #111111 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Brilho sutil no topo para profundidade */
+        .header-studio::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
         }
 
         .logo-border {
-            border: 2px solid #cbd5e1; 
+            border: 2px solid rgba(255,255,255,0.1); 
             border-radius: 50%; 
             padding: 0; 
             overflow: hidden; 
             background-color: #ffffff; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         html, body {
@@ -75,7 +90,6 @@
             background-color: #f1f5f9;
         }
 
-        /* Estilos para a Tabela */
         .data-table-container {
             overflow-x: auto;
         }
@@ -107,28 +121,48 @@
         .data-table tr:hover {
             background-color: #f8fafc;
         }
+
+        /* Aviso de rotação para mobile */
+        @media screen and (max-width: 767px) and (orientation: portrait) {
+            #rotationWarning {
+                display: flex !important;
+            }
+        }
     </style>
 </head>
 <body class="text-slate-900 antialiased">
 
-    <!-- Cabeçalho Full Width Centralizado -->
-    <header class="header-dark w-full shadow-xl mb-8">
-        <div class="max-w-7xl mx-auto px-4 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center">
+    <!-- Aviso de Rotação (Visível apenas em Mobile Vertical) -->
+    <div id="rotationWarning" class="hidden fixed top-4 left-4 right-4 z-[100] bg-blue-600 text-white p-4 rounded-2xl shadow-2xl items-center justify-between animate-bounce">
+        <div class="flex items-center gap-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <p class="text-xs font-bold leading-tight">Vire o celular para a horizontal para visualizar os gráficos melhor.</p>
+        </div>
+        <button onclick="this.parentElement.style.display='none'" class="p-1 hover:bg-blue-700 rounded-lg">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+
+    <!-- Cabeçalho Full Width com Estilo Studio -->
+    <header class="header-studio w-full shadow-2xl mb-8">
+        <div class="max-w-7xl mx-auto px-4 py-10 md:py-16 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center relative z-10">
             
             <div class="flex-shrink-0">
                 <img 
                     src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
                     alt="Logótipo SCI" 
-                    class="h-20 md:h-28 aspect-square object-cover logo-border"
+                    class="h-20 md:h-32 aspect-square object-cover logo-border"
                     onerror="this.src='https://via.placeholder.com/150x150?text=SCI+Logo'; this.classList.remove('logo-border');"
                 >
             </div>
             
             <div class="flex flex-col items-center md:items-start overflow-hidden">
-                <h1 class="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white whitespace-nowrap">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white whitespace-nowrap drop-shadow-lg">
                     Exercício de Tempo Resposta
                 </h1>
-                <p class="text-slate-300 text-sm sm:text-base md:text-xl font-semibold mt-1 whitespace-nowrap">
+                <p class="text-slate-400 text-sm sm:text-base md:text-xl font-medium mt-2 whitespace-nowrap opacity-90">
                     SCI Aeroporto de Joinville
                 </p>
             </div>
@@ -139,8 +173,6 @@
         
         <!-- Controles: Botão Planilha e Filtros -->
         <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8">
-            
-            <!-- Botão Acessar Planilha (Lado Esquerdo) -->
             <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
                 <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -148,7 +180,6 @@
                 Acessar Planilha
             </a>
 
-            <!-- Grupo de Filtros (Lado Direito) -->
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 flex-1 md:flex-none">
                     <label for="localFilter" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Localização</label>
@@ -223,6 +254,10 @@
                 </div>
                 <div id="lineChart" class="chart-container-line flex items-center justify-center">
                     <div class="loader"></div>
+                </div>
+                <!-- Legenda instrucional adicionada aqui -->
+                <div class="text-center mt-2">
+                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Clique na equipe para destacar a linha</span>
                 </div>
             </div>
         </div>
@@ -389,14 +424,12 @@
             let filtered = localFilter === 'Todos' ? fullData : fullData.filter(d => d.local === localFilter);
             filtered = filterByPeriod(filtered);
 
-            // Mapeamento de cores por equipe (baseado na ordem alfabética que o gráfico usa)
             const todasEquipesSorted = [...new Set(fullData.map(d => d.equipe))].sort();
             const equipeColorMap = {};
             todasEquipesSorted.forEach((eq, idx) => {
                 equipeColorMap[eq] = colorPalette[idx % colorPalette.length];
             });
 
-            // Atualizar Tabela de Dados (Ordenada do mais recente para o mais antigo)
             const tableBody = document.getElementById('dataTableBody');
             tableBody.innerHTML = '';
             
@@ -421,7 +454,7 @@
             const equipes = [...new Set(filtered.map(d => d.equipe))].sort();
             document.getElementById('totalTests').innerText = filtered.length;
 
-            // Gráfico de Barras
+            // Bar Chart
             const barDataArray = [['Equipe', 'Segundos', { role: 'style' }, { role: 'annotation' }]];
             let totalSecs = 0, bestAvg = Infinity, bestTeam = '-';
             let maxTempo = 0;
@@ -463,7 +496,7 @@
                 }
             );
 
-            // Gráfico de Linhas
+            // Line Chart
             const distinctDates = [...new Set(filtered.map(d => d.dataObj.getTime()))].sort((a, b) => a - b);
             const lineDataArray = [['Data', ...equipes]];
             
@@ -493,6 +526,7 @@
                     lineDataTable, 
                     {
                         curveType: 'function',
+                        selectionMode: 'multiple', // Habilita a seleção para destacar as linhas
                         legend: { 
                             position: 'bottom', 
                             alignment: 'center',
@@ -503,7 +537,7 @@
                         chartArea: { 
                             width: isMobile ? '85%' : '85%', 
                             height: isMobile ? '55%' : '75%',
-                            bottom: isMobile ? 120 : 80,
+                            bottom: isMobile ? 100 : 80,
                             top: 40 
                         },
                         pointSize: isMobile ? 6 : 10,
