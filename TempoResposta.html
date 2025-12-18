@@ -20,11 +20,11 @@
             border: 1px solid rgba(226, 232, 240, 0.8);
         }
         .chart-container-bar { min-height: 300px; }
-        .chart-container-line { min-height: 400px; }
+        .chart-container-line { min-height: 450px; }
         
         @media (min-width: 768px) {
             .chart-container-bar { min-height: 400px; }
-            .chart-container-line { min-height: 500px; }
+            .chart-container-line { min-height: 600px; }
         }
 
         .loader {
@@ -66,8 +66,10 @@
 </head>
 <body class="text-slate-900 antialiased">
 
+    <!-- Cabeçalho Full Width Centralizado -->
     <header class="header-dark w-full shadow-xl mb-8">
         <div class="max-w-7xl mx-auto px-4 py-8 md:py-12 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center">
+            
             <div class="flex-shrink-0">
                 <img 
                     src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
@@ -76,6 +78,7 @@
                     onerror="this.src='https://via.placeholder.com/150x150?text=SCI+Logo'; this.classList.remove('logo-border');"
                 >
             </div>
+            
             <div class="flex flex-col items-center md:items-start overflow-hidden">
                 <h1 class="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white whitespace-nowrap">
                     Exercício de Tempo Resposta
@@ -88,6 +91,7 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 md:px-6">
+        
         <!-- Filtros -->
         <div class="flex flex-col md:flex-row justify-end items-stretch md:items-center gap-4 mb-8">
             <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 flex-1 md:flex-none">
@@ -110,9 +114,9 @@
 
         <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
 
-        <!-- KPIs -->
+        <!-- Cartões de KPI -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-emerald-50 rounded-xl">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -122,7 +126,7 @@
                 <div id="bestTeam" class="text-2xl md:text-3xl font-bold text-slate-900 truncate">...</div>
             </div>
 
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-blue-50 rounded-xl">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -132,7 +136,7 @@
                 <div id="avgTime" class="text-2xl md:text-3xl font-bold text-slate-900">--:--</div>
             </div>
 
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm sm:col-span-2 lg:col-span-1">
+            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-slate-50 rounded-xl">
                         <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -178,14 +182,18 @@
     <script type="text/javascript">
         const SHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
         let fullData = [];
+        
         const colorPalette = ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed', '#0891b2', '#db2777', '#4b5563', '#ea580c', '#1e293b'];
 
         window.onload = function() {
             if (typeof google !== 'undefined') {
-                google.charts.load('current', {'packages':['corechart'], 'language': 'pt-br'});
+                google.charts.load('current', {
+                    'packages':['corechart'], 
+                    'language': 'pt-br'
+                });
                 google.charts.setOnLoadCallback(fetchData);
             } else {
-                showError("Erro: Biblioteca de gráficos não carregada. Verifique sua conexão com a internet.");
+                showError("Erro: Biblioteca Google Charts indisponível.");
             }
         };
 
@@ -197,28 +205,28 @@
         }
 
         async function fetchData() {
-            // Se estiver rodando via file://, alguns navegadores bloqueiam o fetch.
             const query = encodeURIComponent('Select B, C, D, G offset 2'); 
             const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tq=${query}&headers=0`;
-            
+
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('Falha na requisição');
                 const text = await response.text();
-                // O Google Sheets retorna uma string que precisa ser limpa para virar JSON
                 const json = JSON.parse(text.substring(47, text.length - 2));
                 processData(json.table);
                 document.getElementById('syncStatus').innerText = "Sincronizado";
             } catch (error) {
-                console.error("Erro detalhado:", error);
-                showError("Erro ao carregar dados. Se estiver abrindo o arquivo localmente, tente usar um servidor local (como a extensão Live Server do VS Code) ou hospede o arquivo online.");
+                console.error(error);
+                showError("Erro ao carregar dados.");
             }
         }
 
         function parseGoogleDate(dateStr) {
             if (!dateStr) return null;
             const parts = dateStr.split('/');
-            return parts.length === 3 ? new Date(parts[2], parts[1] - 1, parts[0], 12, 0, 0) : new Date(dateStr);
+            if (parts.length === 3) {
+                return new Date(parts[2], parts[1] - 1, parts[0], 12, 0, 0);
+            }
+            return new Date(dateStr);
         }
 
         function parseDuration(cell) {
@@ -228,15 +236,18 @@
                 if (parts.length === 3) return (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2]);
                 if (parts.length === 2) return (+parts[0]) * 60 + (+parts[1]);
             }
-            return typeof cell.v === 'number' ? (cell.v < 1 ? Math.round(cell.v * 86400) : Math.round(cell.v)) : 0;
+            if (typeof cell.v === 'number') return cell.v < 1 ? Math.round(cell.v * 86400) : Math.round(cell.v);
+            return 0;
         }
 
         function processData(table) {
             if (!table || !table.rows) return;
+
             fullData = table.rows.map((row, index) => {
                 const rawDate = row.c[0] ? (row.c[0].f || row.c[0].v) : null;
                 return {
                     id: index,
+                    dataStr: rawDate,
                     dataObj: parseGoogleDate(rawDate),
                     equipe: row.c[1] ? row.c[1].v : null,
                     local: row.c[2] ? row.c[2].v : 'N/A',
@@ -245,20 +256,17 @@
             }).filter(d => d.tempo > 0 && d.equipe !== null && d.dataObj !== null);
 
             fullData.sort((a, b) => a.dataObj - b.dataObj);
-            
-            // Popular filtro de locais
+
             const locais = [...new Set(fullData.map(d => d.local))].sort();
             const select = document.getElementById('localFilter');
-            
-            // Limpa opções anteriores (exceto a primeira)
             while (select.options.length > 1) select.remove(1);
-            
             locais.forEach(l => {
-                if(l && l !== 'N/A') {
+                if(l) {
                     const opt = document.createElement('option');
                     opt.value = l; opt.innerHTML = l; select.appendChild(opt);
                 }
             });
+
             drawCharts();
         }
 
@@ -269,82 +277,128 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
+        function filterByPeriod(data) {
+            const period = document.getElementById('periodFilter').value;
+            if (period === 'all') return data;
+            const now = new Date();
+            if (period === 'last') {
+                const lastPerTeam = {};
+                data.forEach(d => {
+                    if (!lastPerTeam[d.equipe] || d.dataObj > lastPerTeam[d.equipe].dataObj) {
+                        lastPerTeam[d.equipe] = d;
+                    }
+                });
+                return Object.values(lastPerTeam);
+            }
+            return data.filter(d => {
+                if (period === 'year') return d.dataObj.getFullYear() === now.getFullYear();
+                if (period === '6months') {
+                    const sixMonthsAgo = new Date();
+                    sixMonthsAgo.setMonth(now.getMonth() - 6);
+                    return d.dataObj >= sixMonthsAgo;
+                }
+                return true;
+            });
+        }
+
         function drawCharts() {
             if (!google.visualization || fullData.length === 0) return;
 
             const isMobile = window.innerWidth < 768;
             const localFilter = document.getElementById('localFilter').value;
-            const period = document.getElementById('periodFilter').value;
-            
             let filtered = localFilter === 'Todos' ? fullData : fullData.filter(d => d.local === localFilter);
-            
-            if (period !== 'all') {
-                const now = new Date();
-                if (period === 'last') {
-                    const lastMap = {};
-                    filtered.forEach(d => { if(!lastMap[d.equipe] || d.dataObj > lastMap[d.equipe].dataObj) lastMap[d.equipe] = d; });
-                    filtered = Object.values(lastMap);
-                } else if (period === 'year') {
-                    filtered = filtered.filter(d => d.dataObj.getFullYear() === now.getFullYear());
-                } else if (period === '6months') {
-                    const limit = new Date(); limit.setMonth(now.getMonth() - 6);
-                    filtered = filtered.filter(d => d.dataObj >= limit);
-                }
-            }
+            filtered = filterByPeriod(filtered);
 
             const equipes = [...new Set(filtered.map(d => d.equipe))].sort();
             document.getElementById('totalTests').innerText = filtered.length;
 
+            // Gráfico de Barras
             const barDataArray = [['Equipe', 'Segundos', { role: 'style' }, { role: 'annotation' }]];
             let totalSecs = 0, bestAvg = Infinity, bestTeam = '-';
+            let maxTempo = 0;
 
             equipes.forEach((eq, idx) => {
                 const eqEntries = filtered.filter(d => d.equipe === eq);
                 const avg = eqEntries.reduce((s, e) => s + e.tempo, 0) / eqEntries.length;
-                barDataArray.push([eq, avg, colorPalette[idx % colorPalette.length], formatDisplayTime(avg)]);
+                const color = colorPalette[idx % colorPalette.length];
+                barDataArray.push([eq, avg, color, formatDisplayTime(avg)]);
                 totalSecs += avg;
                 if(avg < bestAvg) { bestAvg = avg; bestTeam = eq; }
+                if(avg > maxTempo) maxTempo = avg;
             });
 
             document.getElementById('bestTeam').innerText = bestTeam;
             document.getElementById('avgTime').innerText = formatDisplayTime(totalSecs / (equipes.length || 1));
 
+            const barTicks = [];
+            const barMaxLimit = Math.max(240, Math.ceil(maxTempo / 30) * 30 + 30);
+            for (let i = 0; i <= barMaxLimit; i += 30) barTicks.push({v: i, f: formatDisplayTime(i)});
+
             new google.visualization.ColumnChart(document.getElementById('barChart')).draw(
                 google.visualization.arrayToDataTable(barDataArray), 
                 { 
-                    legend: 'none', chartArea: { width: '85%', height: '70%' },
-                    vAxis: { textStyle: { color: '#94a3b8', fontSize: isMobile ? 11 : 13 } },
+                    legend: 'none', 
+                    chartArea: { width: isMobile ? '80%' : '85%', height: '70%' }, 
+                    vAxis: { ticks: barTicks, textStyle: { color: '#94a3b8', fontSize: isMobile ? 11 : 13 }, gridlines: { color: '#f1f5f9' } }, 
                     hAxis: { slantedText: true, textStyle: { color: '#64748b', fontSize: isMobile ? 11 : 13 } },
-                    backgroundColor: 'transparent',
-                    annotations: { alwaysOutside: true, textStyle: { fontSize: isMobile ? 12 : 14, bold: true } }
+                    bar: { groupWidth: '60%' },
+                    annotations: { alwaysOutside: true, textStyle: { fontSize: isMobile ? 12 : 15, bold: true, color: '#334155' } },
+                    backgroundColor: 'transparent'
                 }
             );
 
+            // Gráfico de Linhas
             const distinctDates = [...new Set(filtered.map(d => d.dataObj.getTime()))].sort((a, b) => a - b);
             const lineDataArray = [['Data', ...equipes]];
-            distinctDates.forEach(ts => {
-                const row = [new Date(ts)];
+            
+            distinctDates.forEach(timestamp => {
+                const d = new Date(timestamp);
+                const row = [d];
                 equipes.forEach(eq => {
-                    const found = filtered.find(item => item.dataObj.getTime() === ts && item.equipe === eq);
-                    row.push(found ? found.tempo : null);
+                    const entries = filtered.filter(item => item.dataObj.getTime() === timestamp && item.equipe === eq);
+                    row.push(entries.length > 0 ? entries[0].tempo : null);
                 });
                 lineDataArray.push(row);
             });
 
             if (lineDataArray.length > 1) {
+                const vTicks = [];
+                for (let i = 60; i <= 240; i += 30) vTicks.push({v: i, f: formatDisplayTime(i)});
+
                 new google.visualization.LineChart(document.getElementById('lineChart')).draw(
                     google.visualization.arrayToDataTable(lineDataArray), 
                     {
                         curveType: 'function',
-                        legend: { position: 'bottom', textStyle: { color: '#64748b', fontSize: isMobile ? 11 : 13 } },
-                        colors: colorPalette,
-                        chartArea: { width: '85%', height: '70%' },
-                        pointSize: isMobile ? 5 : 8,
-                        lineWidth: isMobile ? 2 : 3,
+                        legend: { 
+                            position: 'bottom', 
+                            alignment: 'center',
+                            textStyle: { color: '#64748b', fontSize: isMobile ? 10 : 13, bold: true }, 
+                            maxLines: 10 // Força a exibição de várias linhas para evitar o carrossel (paginação)
+                        },
+                        colors: colorPalette.slice(0, equipes.length),
+                        // Aumentamos o "bottom" da área do gráfico para dar espaço às legendas sem paginar
+                        chartArea: { 
+                            width: isMobile ? '85%' : '85%', 
+                            height: isMobile ? '55%' : '75%',
+                            bottom: isMobile ? 120 : 80,
+                            top: 40 
+                        },
+                        pointSize: isMobile ? 6 : 10,
+                        lineWidth: isMobile ? 2 : 4,
                         interpolateNulls: true,
                         backgroundColor: 'transparent',
-                        vAxis: { textStyle: { fontSize: 11 }, gridlines: { color: '#f1f5f9' }, viewWindow: { min: 60 } },
-                        hAxis: { format: 'MMM/yy', textStyle: { fontSize: 10 } }
+                        vAxis: {
+                            ticks: vTicks,
+                            viewWindow: { min: 60, max: 240 },
+                            textStyle: { color: '#94a3b8', fontSize: isMobile ? 11 : 13 },
+                            gridlines: { color: '#f1f5f9' }
+                        },
+                        hAxis: { 
+                            format: isMobile ? 'MM/yy' : 'MMM/yy', 
+                            textStyle: { color: '#64748b', fontSize: isMobile ? 10 : 12 },
+                            gridlines: { color: '#e2e8f0', lineDashStyle: [4, 4] }
+                        },
+                        focusTarget: 'category'
                     }
                 );
             }
