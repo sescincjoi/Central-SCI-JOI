@@ -197,6 +197,21 @@
             background-color: #f8fafc;
         }
 
+        /* Animação suave para a legenda */
+        #customLineLegend > div {
+            transition: all 0.2s ease;
+        }
+        #customLineLegend > div:hover {
+            transform: translateY(-2px);
+        }
+        .legend-active {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+        .legend-inactive {
+            opacity: 0.4;
+        }
+
         @media screen and (max-width: 767px) and (orientation: portrait) {
             #rotationWarning:not(.user-closed) {
                 display: flex !important;
@@ -328,8 +343,11 @@
                 <div id="lineChart" class="chart-container-line flex items-center justify-center">
                     <div class="loader"></div>
                 </div>
-                <div class="text-center mt-2">
-                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Clique no ponto para manter a informação fixa</span>
+                <!-- Legenda Customizada para o Gráfico de Linhas -->
+                <div id="customLineLegend" class="flex flex-wrap justify-center gap-x-6 gap-y-4 mt-6 px-4"></div>
+                
+                <div class="text-center mt-6">
+                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Clique na equipe para evidenciar sua linha</span>
                 </div>
             </div>
         </div>
@@ -367,8 +385,10 @@
         const SHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
         let fullData = [];
         let selectedLocais = [];
+        let highlightedTeam = null; // Estado para controlar o destaque da equipe
         const colorPalette = ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed', '#0891b2', '#db2777', '#4b5563', '#ea580c', '#1e293b'];
         let lineChartInstance = null;
+        let barChartInstance = null;
         
         const TIME_LIMIT = 180;
 
@@ -385,10 +405,14 @@
                     document.getElementById('localOptions').classList.remove('active');
                 }
 
-                // Limpar seleção do gráfico de linhas se clicar fora do container dele
+                // Limpar seleções dos gráficos se clicar fora
                 const lineChartDiv = document.getElementById('lineChart');
                 if (lineChartInstance && lineChartDiv && !lineChartDiv.contains(e.target)) {
                     lineChartInstance.setSelection([]);
+                }
+                const barChartDiv = document.getElementById('barChart');
+                if (barChartInstance && barChartDiv && !barChartDiv.contains(e.target)) {
+                    barChartInstance.setSelection([]);
                 }
             });
         };
@@ -433,6 +457,7 @@
         }
 
         function createCustomTooltip(equipe, cor, tempo, dataStr = null, local = null) {
+            // "TEMPO MÉDIO" para as tooltips
             return `
                 <div class="custom-tooltip">
                     <div class="tooltip-header">
@@ -441,7 +466,7 @@
                     </div>
                     <div style="line-height: 1.6;">
                         ${dataStr ? `<div style="color: #64748b; font-size: 10px;">DATA: <b style="color: #334155">${dataStr}</b></div>` : ''}
-                        <div style="color: #64748b; font-size: 10px;">TEMPO: <b style="color: #1e293b; font-size: 12px;">${tempo}</b></div>
+                        <div style="color: #64748b; font-size: 10px;">TEMPO MÉDIO: <b style="color: #1e293b; font-size: 12px;">${tempo}</b></div>
                         ${local ? `<div style="color: #64748b; font-size: 10px; margin-top: 4px; border-top: 1px dashed #e2e8f0; padding-top: 4px;">LOCAL: <b style="color: #334155">${local}</b></div>` : ''}
                     </div>
                 </div>
@@ -603,8 +628,12 @@
             document.getElementById('bestTeam').innerText = bestTeam;
             document.getElementById('avgTime').innerText = formatDisplayTime(sum / (currentEquipes.length || 1));
             const barTicks = []; for(let i=0; i<=240; i+=30) barTicks.push({v: i, f: formatDisplayTime(i)});
-            new google.visualization.ComboChart(document.getElementById('barChart')).draw(google.visualization.arrayToDataTable(barData), { 
-                seriesType: 'bars', tooltip: { isHtml: true }, series: { 0: { color: '#475569' }, 1: { type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true } },
+            
+            barChartInstance = new google.visualization.ComboChart(document.getElementById('barChart'));
+            barChartInstance.draw(google.visualization.arrayToDataTable(barData), { 
+                seriesType: 'bars', 
+                tooltip: { isHtml: true, trigger: 'both' }, // Ativado 'both' para clique e hover
+                series: { 0: { color: '#475569' }, 1: { type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true } },
                 legend: { position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'} }, chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'}, vAxis: { ticks: barTicks, gridlines: {color: '#f1f5f9'} },
                 hAxis: { slantedText: false, maxAlternation: 1, textStyle: {fontSize: 10} }, annotations: {alwaysOutside: true, textStyle: {fontSize: 11, bold: true}}, backgroundColor: 'transparent'
             });
@@ -637,20 +666,76 @@
             });
 
             if(dates.length > 0) {
-                const lineColors = currentEquipes.map(e => colorMap[e]);
-                lineColors.push('#000000');
+                // Lógica de cores para o destaque
+                const seriesOptions = {};
+                currentEquipes.forEach((eq, index) => {
+                    const baseColor = colorMap[eq];
+                    if (highlightedTeam) {
+                        if (highlightedTeam === eq) {
+                            // Equipe destacada: cor original, linha mais grossa
+                            seriesOptions[index] = { color: baseColor, lineWidth: 4, areaOpacity: 0.1 };
+                        } else {
+                            // Outras equipes: cinza claro, linha fina, menor opacidade
+                            seriesOptions[index] = { color: '#e2e8f0', lineWidth: 1, areaOpacity: 0 };
+                        }
+                    } else {
+                        // Sem destaque: normal
+                        seriesOptions[index] = { color: baseColor, lineWidth: 3 };
+                    }
+                });
+                // Série limite (sempre última)
+                seriesOptions[currentEquipes.length] = { color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2 };
                 
                 lineChartInstance = new google.visualization.LineChart(document.getElementById('lineChart'));
                 lineChartInstance.draw(lineDataTable, {
-                    curveType: 'function', pointSize: 10, lineWidth: 3, interpolateNulls: true,
-                    // O trigger 'both' permite passar o mouse para ver e clicar para manter
+                    curveType: 'function', pointSize: 10, interpolateNulls: true,
                     tooltip: { isHtml: true, trigger: 'both' }, 
-                    legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
-                    series: { [currentEquipes.length]: { color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2 } },
-                    colors: lineColors, chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                    legend: { position: 'none' }, // Desativa legenda padrão
+                    series: seriesOptions,
+                    chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
                     vAxis: { ticks: barTicks, viewWindow: {min: 60}, gridlines: {color: '#f1f5f9'} },
                     hAxis: { format: "MMM/yy" }, backgroundColor: 'transparent'
                 });
+
+                // GERAR LEGENDA CUSTOMIZADA
+                const customLegend = document.getElementById('customLineLegend');
+                customLegend.innerHTML = '';
+
+                // Equipes
+                currentEquipes.forEach(eq => {
+                    const color = colorMap[eq];
+                    const isActive = highlightedTeam === eq;
+                    const isFaded = highlightedTeam && !isActive;
+
+                    const item = document.createElement('div');
+                    item.className = `flex flex-col items-center gap-1 min-w-[60px] cursor-pointer ${isActive ? 'legend-active' : ''} ${isFaded ? 'legend-inactive' : ''}`;
+                    item.onclick = (e) => {
+                        e.stopPropagation(); // Evita o clique fora limpar o destaque
+                        highlightedTeam = (highlightedTeam === eq) ? null : eq;
+                        drawCharts();
+                    };
+
+                    item.innerHTML = `
+                        <div class="flex items-center justify-center h-4 w-full">
+                            <div class="h-[3px] w-8 rounded-full relative flex items-center justify-center" style="background-color: ${color}">
+                                <div class="w-2.5 h-2.5 rounded-full border-2 border-white absolute" style="background-color: ${color}"></div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight ${isActive ? 'text-slate-900' : ''}">${eq}</span>
+                    `;
+                    customLegend.appendChild(item);
+                });
+
+                // Linha de Limite
+                const limitItem = document.createElement('div');
+                limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
+                limitItem.innerHTML = `
+                    <div class="flex items-center justify-center h-4 w-full">
+                        <div class="h-[2px] w-8 border-t-2 border-dashed border-slate-900"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-900 uppercase tracking-tight text-center leading-tight">Limite (3min)</span>
+                `;
+                customLegend.appendChild(limitItem);
             }
         }
 
