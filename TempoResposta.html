@@ -74,6 +74,39 @@
             transform: translateY(-1px);
             background-color: #f1f5f9;
         }
+
+        /* Estilos para a Tabela */
+        .data-table-container {
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .data-table th {
+            background-color: #f1f5f9;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-table td {
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tr:hover {
+            background-color: #f8fafc;
+        }
     </style>
 </head>
 <body class="text-slate-900 antialiased">
@@ -191,6 +224,29 @@
                 <div id="lineChart" class="chart-container-line flex items-center justify-center">
                     <div class="loader"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Lista de Dados -->
+        <div class="glass-card p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden mb-12">
+            <div class="mb-6 md:mb-8">
+                <h3 class="text-xl md:text-2xl font-bold text-slate-800">Histórico de Exercícios</h3>
+                <p class="text-slate-400 text-xs md:text-sm">Listagem detalhada dos registos utilizados.</p>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Equipe</th>
+                            <th>Tempo</th>
+                            <th>Local</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Conteúdo gerado via JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -333,6 +389,35 @@
             let filtered = localFilter === 'Todos' ? fullData : fullData.filter(d => d.local === localFilter);
             filtered = filterByPeriod(filtered);
 
+            // Mapeamento de cores por equipe (baseado na ordem alfabética que o gráfico usa)
+            const todasEquipesSorted = [...new Set(fullData.map(d => d.equipe))].sort();
+            const equipeColorMap = {};
+            todasEquipesSorted.forEach((eq, idx) => {
+                equipeColorMap[eq] = colorPalette[idx % colorPalette.length];
+            });
+
+            // Atualizar Tabela de Dados (Ordenada do mais recente para o mais antigo)
+            const tableBody = document.getElementById('dataTableBody');
+            tableBody.innerHTML = '';
+            
+            const sortedForTable = [...filtered].sort((a, b) => b.dataObj - a.dataObj);
+            
+            sortedForTable.forEach(row => {
+                const color = equipeColorMap[row.equipe] || '#64748b';
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-medium text-slate-600">${row.dataStr}</td>
+                    <td>
+                        <span class="px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight" style="background-color: ${color}15; color: ${color}; border: 1px solid ${color}30">
+                            ${row.equipe}
+                        </span>
+                    </td>
+                    <td class="font-mono font-bold text-slate-800">${formatDisplayTime(row.tempo)}</td>
+                    <td class="text-slate-500 italic text-xs">${row.local}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
             const equipes = [...new Set(filtered.map(d => d.equipe))].sort();
             document.getElementById('totalTests').innerText = filtered.length;
 
@@ -341,10 +426,10 @@
             let totalSecs = 0, bestAvg = Infinity, bestTeam = '-';
             let maxTempo = 0;
 
-            equipes.forEach((eq, idx) => {
+            equipes.forEach((eq) => {
                 const eqEntries = filtered.filter(d => d.equipe === eq);
                 const avg = eqEntries.reduce((s, e) => s + e.tempo, 0) / eqEntries.length;
-                const color = colorPalette[idx % colorPalette.length];
+                const color = equipeColorMap[eq];
                 barDataArray.push([eq, avg, color, formatDisplayTime(avg)]);
                 totalSecs += avg;
                 if(avg < bestAvg) { bestAvg = avg; bestTeam = eq; }
@@ -414,7 +499,7 @@
                             textStyle: { color: '#64748b', fontSize: isMobile ? 10 : 13, bold: true }, 
                             maxLines: 10 
                         },
-                        colors: colorPalette.slice(0, equipes.length),
+                        colors: equipes.map(eq => equipeColorMap[eq]),
                         chartArea: { 
                             width: isMobile ? '85%' : '85%', 
                             height: isMobile ? '55%' : '75%',
