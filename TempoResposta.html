@@ -37,6 +37,34 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
+        /* Estilo para a Tooltip Customizada */
+        .custom-tooltip {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            font-size: 12px;
+            pointer-events: none;
+            min-width: 140px;
+        }
+        .tooltip-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 4px;
+        }
+        .color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -46,11 +74,10 @@
             padding-right: 2.5rem;
         }
 
-        /* Dropdown customizado para seleção múltipla - CORREÇÃO DE Z-INDEX */
         .multi-select-container {
             position: relative;
             min-width: 200px;
-            z-index: 60; /* Garantir que fique acima dos cards */
+            z-index: 60;
         }
         .multi-select-trigger {
             cursor: pointer;
@@ -64,7 +91,7 @@
             top: 100%;
             left: 0;
             right: 0;
-            z-index: 100; /* Z-index alto para sobrepor tudo */
+            z-index: 100;
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
@@ -218,7 +245,6 @@
 
     <main class="max-w-[1600px] mx-auto px-2 md:px-4">
         
-        <!-- Filtros superiores com z-index reforçado via tailwind -->
         <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 relative z-[60]">
             <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
                 <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,16 +254,13 @@
             </a>
 
             <div class="flex flex-col md:flex-row gap-4">
-                <!-- Filtro de Localização com Seleção Múltipla -->
                 <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 multi-select-container">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Localização</label>
                     <div id="localMultiSelect" class="multi-select-trigger font-semibold text-slate-700 p-1 text-sm min-w-[180px]">
                         <span id="localLabel" class="truncate">Todos os Locais</span>
                         <svg class="w-4 h-4 text-slate-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
                     </div>
-                    <div id="localOptions" class="multi-select-options">
-                        <!-- Options populated via JS -->
-                    </div>
+                    <div id="localOptions" class="multi-select-options"></div>
                 </div>
 
                 <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1">
@@ -254,7 +277,6 @@
 
         <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
 
-        <!-- Grid de indicadores (z-index padrão) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 relative z-10">
             <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
@@ -289,7 +311,7 @@
 
         <div class="space-y-8 md:space-y-12 mb-12">
             <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
-                <div class="mb-4 md:mb-6 px-2">
+                <div class="mb-4 md:mb-6 px-2 text-center md:text-left">
                     <h3 class="text-xl md:text-2xl font-bold text-slate-800">Desempenho por Equipe</h3>
                     <p class="text-slate-400 text-xs md:text-sm">Média de tempo atingida por grupo.</p>
                 </div>
@@ -299,7 +321,7 @@
             </div>
 
             <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
-                <div class="mb-4 md:mb-6 px-2">
+                <div class="mb-4 md:mb-6 px-2 text-center md:text-left">
                     <h3 class="text-xl md:text-2xl font-bold text-slate-800">Evolução dos Tempos</h3>
                     <p class="text-slate-400 text-xs md:text-sm">Análise histórica Mensal.</p>
                 </div>
@@ -307,7 +329,7 @@
                     <div class="loader"></div>
                 </div>
                 <div class="text-center mt-2">
-                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Clique na equipe para destacar a linha</span>
+                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Clique no ponto para manter a informação fixa</span>
                 </div>
             </div>
         </div>
@@ -346,6 +368,9 @@
         let fullData = [];
         let selectedLocais = [];
         const colorPalette = ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed', '#0891b2', '#db2777', '#4b5563', '#ea580c', '#1e293b'];
+        let lineChartInstance = null;
+        
+        const TIME_LIMIT = 180;
 
         window.onload = function() {
             if (typeof google !== 'undefined') {
@@ -354,9 +379,16 @@
             }
 
             window.addEventListener('click', (e) => {
+                // Fechar multi-select se clicar fora
                 const container = document.querySelector('.multi-select-container');
-                if (!container.contains(e.target)) {
+                if (container && !container.contains(e.target)) {
                     document.getElementById('localOptions').classList.remove('active');
+                }
+
+                // Limpar seleção do gráfico de linhas se clicar fora do container dele
+                const lineChartDiv = document.getElementById('lineChart');
+                if (lineChartInstance && lineChartDiv && !lineChartDiv.contains(e.target)) {
+                    lineChartInstance.setSelection([]);
                 }
             });
         };
@@ -400,6 +432,22 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
+        function createCustomTooltip(equipe, cor, tempo, dataStr = null, local = null) {
+            return `
+                <div class="custom-tooltip">
+                    <div class="tooltip-header">
+                        <div class="color-indicator" style="background-color: ${cor}"></div>
+                        <span>${equipe}</span>
+                    </div>
+                    <div style="line-height: 1.6;">
+                        ${dataStr ? `<div style="color: #64748b; font-size: 10px;">DATA: <b style="color: #334155">${dataStr}</b></div>` : ''}
+                        <div style="color: #64748b; font-size: 10px;">TEMPO: <b style="color: #1e293b; font-size: 12px;">${tempo}</b></div>
+                        ${local ? `<div style="color: #64748b; font-size: 10px; margin-top: 4px; border-top: 1px dashed #e2e8f0; padding-top: 4px;">LOCAL: <b style="color: #334155">${local}</b></div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
         function processData(table) {
             fullData = table.rows.map((row, index) => {
                 const rawDate = row.c[0] ? (row.c[0].f || row.c[0].v) : null;
@@ -424,6 +472,8 @@
             const trigger = document.getElementById('localMultiSelect');
             const optionsContainer = document.getElementById('localOptions');
             const label = document.getElementById('localLabel');
+
+            if(!trigger) return;
 
             trigger.onclick = (e) => {
                 e.stopPropagation();
@@ -538,72 +588,69 @@
                 return;
             }
 
-            const barData = [['Equipe', 'Segundos', {role: 'style'}, {role: 'annotation'}]];
+            // BARRAS
+            const barData = [['Equipe', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, 'Tempo Limite (3min)']];
             let bestAvg = Infinity, bestTeam = '-', sum = 0;
-            
             const currentEquipes = [...new Set(filtered.map(d => d.equipe))].sort();
             currentEquipes.forEach(eq => {
                 const items = filtered.filter(f => f.equipe === eq);
                 const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
-                barData.push([eq, avg, colorMap[eq], formatDisplayTime(avg)]);
+                const tempoFormatado = formatDisplayTime(avg);
+                barData.push([eq, {v: avg, f: tempoFormatado}, colorMap[eq], tempoFormatado, createCustomTooltip(eq, colorMap[eq], tempoFormatado), {v: TIME_LIMIT, f: formatDisplayTime(TIME_LIMIT)}]);
                 sum += avg;
                 if(avg < bestAvg) { bestAvg = avg; bestTeam = eq; }
             });
-
             document.getElementById('bestTeam').innerText = bestTeam;
             document.getElementById('avgTime').innerText = formatDisplayTime(sum / (currentEquipes.length || 1));
-
             const barTicks = []; for(let i=0; i<=240; i+=30) barTicks.push({v: i, f: formatDisplayTime(i)});
-            
-            new google.visualization.ColumnChart(document.getElementById('barChart')).draw(
-                google.visualization.arrayToDataTable(barData),
-                { 
-                    legend: 'none', 
-                    chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
-                    vAxis: {
-                        ticks: barTicks, 
-                        gridlines: {color: '#f1f5f9'}
-                    },
-                    hAxis: {
-                        slantedText: true,
-                        maxAlternation: 1,
-                        showTextEvery: 1
-                    },
-                    annotations: {alwaysOutside: true, textStyle: {fontSize: 12, bold: true}},
-                    backgroundColor: 'transparent'
-                }
-            );
-
-            const dates = [...new Set(filtered.map(d => d.dataObj.getTime()))].sort((a,b) => a-b);
-            const lineData = [['Data', ...currentEquipes]];
-            dates.forEach(t => {
-                const row = [new Date(t)];
-                currentEquipes.forEach(eq => {
-                    const found = filtered.find(f => f.dataObj.getTime() === t && f.equipe === eq);
-                    row.push(found ? {v: found.tempo, f: formatDisplayTime(found.tempo)} : null);
-                });
-                lineData.push(row);
+            new google.visualization.ComboChart(document.getElementById('barChart')).draw(google.visualization.arrayToDataTable(barData), { 
+                seriesType: 'bars', tooltip: { isHtml: true }, series: { 0: { color: '#475569' }, 1: { type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true } },
+                legend: { position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'} }, chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'}, vAxis: { ticks: barTicks, gridlines: {color: '#f1f5f9'} },
+                hAxis: { slantedText: false, maxAlternation: 1, textStyle: {fontSize: 10} }, annotations: {alwaysOutside: true, textStyle: {fontSize: 11, bold: true}}, backgroundColor: 'transparent'
             });
 
-            if(lineData.length > 1) {
-                new google.visualization.LineChart(document.getElementById('lineChart')).draw(
-                    google.visualization.arrayToDataTable(lineData),
-                    {
-                        curveType: 'function', pointSize: 8, lineWidth: 3, interpolateNulls: true,
-                        legend: {position: 'bottom', textStyle: {fontSize: 11}},
-                        colors: currentEquipes.map(e => colorMap[e]),
-                        chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
-                        vAxis: {
-                            ticks: barTicks, 
-                            viewWindow: {min: 60}, 
-                            gridlines: {color: '#f1f5f9'}
-                        },
-                        hAxis: {
-                            format: "MMM/yy"
-                        },
-                        backgroundColor: 'transparent'
+            // LINHAS
+            const dates = [...new Set(filtered.map(d => d.dataObj.getTime()))].sort((a,b) => a-b);
+            const lineDataTable = new google.visualization.DataTable();
+            lineDataTable.addColumn('date', 'Data');
+            currentEquipes.forEach(eq => {
+                lineDataTable.addColumn('number', eq);
+                lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
+            });
+            lineDataTable.addColumn('number', 'Tempo Limite (3min)');
+
+            dates.forEach(t => {
+                const dataAtual = new Date(t);
+                const row = [dataAtual];
+                currentEquipes.forEach(eq => {
+                    const found = filtered.find(f => f.dataObj.getTime() === t && f.equipe === eq);
+                    if (found) {
+                        const tempoFormatado = formatDisplayTime(found.tempo);
+                        row.push({v: found.tempo, f: tempoFormatado});
+                        row.push(createCustomTooltip(eq, colorMap[eq], tempoFormatado, found.dataStr, found.local));
+                    } else {
+                        row.push(null); row.push(null);
                     }
-                );
+                });
+                row.push({v: TIME_LIMIT, f: formatDisplayTime(TIME_LIMIT)});
+                lineDataTable.addRow(row);
+            });
+
+            if(dates.length > 0) {
+                const lineColors = currentEquipes.map(e => colorMap[e]);
+                lineColors.push('#000000');
+                
+                lineChartInstance = new google.visualization.LineChart(document.getElementById('lineChart'));
+                lineChartInstance.draw(lineDataTable, {
+                    curveType: 'function', pointSize: 10, lineWidth: 3, interpolateNulls: true,
+                    // O trigger 'both' permite passar o mouse para ver e clicar para manter
+                    tooltip: { isHtml: true, trigger: 'both' }, 
+                    legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
+                    series: { [currentEquipes.length]: { color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2 } },
+                    colors: lineColors, chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                    vAxis: { ticks: barTicks, viewWindow: {min: 60}, gridlines: {color: '#f1f5f9'} },
+                    hAxis: { format: "MMM/yy" }, backgroundColor: 'transparent'
+                });
             }
         }
 
