@@ -46,7 +46,6 @@
             padding-right: 2.5rem;
         }
 
-        /* Estilo Studio Dark com iluminação leve */
         .header-studio {
             background: radial-gradient(circle at center, #2c2c2c 0%, #111111 100%);
             position: relative;
@@ -91,13 +90,13 @@
 
         .data-table-container {
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* Melhora o scroll no iOS */
+            -webkit-overflow-scrolling: touch;
             width: 100%;
         }
         
         .data-table {
             width: 100%;
-            min-width: 600px; /* Garante que a tabela não esprema demais os dados no mobile */
+            min-width: 600px;
             border-collapse: separate;
             border-spacing: 0;
         }
@@ -122,7 +121,6 @@
             background-color: #f8fafc;
         }
 
-        /* Aviso de rotação para mobile - Corrigido para fechar */
         @media screen and (max-width: 767px) and (orientation: portrait) {
             #rotationWarning:not(.user-closed) {
                 display: flex !important;
@@ -132,7 +130,6 @@
 </head>
 <body class="text-slate-900 antialiased">
 
-    <!-- Aviso de Rotação (Visível apenas em Mobile Vertical) -->
     <div id="rotationWarning" class="hidden fixed top-4 left-4 right-4 z-[100] bg-blue-600 text-white p-4 rounded-2xl shadow-2xl items-center justify-between animate-bounce">
         <div class="flex items-center gap-3">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,10 +142,8 @@
         </button>
     </div>
 
-    <!-- Cabeçalho Full Width com Link Home -->
     <header class="header-studio w-full shadow-2xl mb-8">
-        <div class="max-w-7xl mx-auto px-4 py-10 md:py-16 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center relative z-10">
-            
+        <div class="max-w-[1600px] mx-auto px-4 py-10 md:py-16 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center relative z-10">
             <div class="flex-shrink-0">
                 <a href="./">
                     <img 
@@ -159,7 +154,6 @@
                     >
                 </a>
             </div>
-            
             <div class="flex flex-col items-center md:items-start overflow-hidden">
                 <a href="./" class="group">
                     <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white whitespace-nowrap drop-shadow-lg group-hover:text-blue-200 transition-colors">
@@ -173,9 +167,8 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 md:px-6">
+    <main class="max-w-[1600px] mx-auto px-2 md:px-4">
         
-        <!-- Controles -->
         <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8">
             <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
                 <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,9 +199,8 @@
 
         <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
 
-        <!-- KPI Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+            <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-emerald-50 rounded-xl">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -218,7 +210,7 @@
                 <div id="bestTeam" class="text-2xl md:text-3xl font-bold text-slate-900 truncate">...</div>
             </div>
 
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+            <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-blue-50 rounded-xl">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -228,7 +220,7 @@
                 <div id="avgTime" class="text-2xl md:text-3xl font-bold text-slate-900">--:--</div>
             </div>
 
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+            <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-slate-50 rounded-xl">
                         <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -239,10 +231,9 @@
             </div>
         </div>
 
-        <!-- Gráficos -->
         <div class="space-y-8 md:space-y-12 mb-12">
-            <div class="glass-card p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
-                <div class="mb-6 md:mb-8">
+            <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
+                <div class="mb-4 md:mb-6 px-2">
                     <h3 class="text-xl md:text-2xl font-bold text-slate-800">Desempenho por Equipe</h3>
                     <p class="text-slate-400 text-xs md:text-sm">Média de tempo atingida por grupo.</p>
                 </div>
@@ -251,8 +242,8 @@
                 </div>
             </div>
 
-            <div class="glass-card p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
-                <div class="mb-6 md:mb-8">
+            <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
+                <div class="mb-4 md:mb-6 px-2">
                     <h3 class="text-xl md:text-2xl font-bold text-slate-800">Evolução dos Tempos</h3>
                     <p class="text-slate-400 text-xs md:text-sm">Análise histórica Mensal.</p>
                 </div>
@@ -265,9 +256,8 @@
             </div>
         </div>
 
-        <!-- Tabela -->
-        <div class="glass-card p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden mb-12">
-            <div class="mb-6 md:mb-8">
+        <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden mb-12">
+            <div class="mb-4 md:mb-6 px-2">
                 <h3 class="text-xl md:text-2xl font-bold text-slate-800">Histórico de Exercícios</h3>
                 <p class="text-slate-400 text-xs md:text-sm">Listagem detalhada dos registos utilizados.</p>
             </div>
@@ -286,7 +276,7 @@
             </div>
         </div>
 
-        <footer class="mb-10 flex flex-col md:flex-row items-center justify-between text-slate-400 text-[10px] md:text-xs border-t border-slate-200 pt-8 gap-4">
+        <footer class="mb-10 px-2 flex flex-col md:flex-row items-center justify-between text-slate-400 text-[10px] md:text-xs border-t border-slate-200 pt-8 gap-4">
             <p class="text-center md:text-left">&copy; 2025 SCI Aeroporto de Joinville - Central SCI JOI</p>
             <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -395,7 +385,6 @@
             const equipes = [...new Set(fullData.map(d => d.equipe))].sort();
             const colorMap = {}; equipes.forEach((e, i) => colorMap[e] = colorPalette[i % colorPalette.length]);
 
-            // Table update
             const tableBody = document.getElementById('dataTableBody');
             tableBody.innerHTML = '';
             [...filtered].sort((a,b) => b.dataObj - a.dataObj).forEach(row => {
@@ -427,14 +416,16 @@
             document.getElementById('avgTime').innerText = formatDisplayTime(sum / (currentEquipes.length || 1));
 
             const barTicks = []; for(let i=0; i<=240; i+=30) barTicks.push({v: i, f: formatDisplayTime(i)});
+            
             new google.visualization.ColumnChart(document.getElementById('barChart')).draw(
                 google.visualization.arrayToDataTable(barData),
                 { 
-                    legend: 'none', chartArea: {width: '85%', height: '70%'},
+                    legend: 'none', 
+                    chartArea: {width: '92%', height: '75%', left: '6%', right: '2%'},
                     vAxis: {
                         ticks: barTicks, 
                         gridlines: {color: '#f1f5f9'},
-                        textStyle: {fontSize: 10} // Reduz ligeiramente o tamanho para evitar quebras
+                        textStyle: {fontSize: 10}
                     },
                     hAxis: {slantedText: true, textStyle: {fontSize: 11}},
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 12, bold: true}},
@@ -461,12 +452,17 @@
                         curveType: 'function', pointSize: 8, lineWidth: 3, interpolateNulls: true,
                         legend: {position: 'bottom', textStyle: {fontSize: 11}},
                         colors: currentEquipes.map(e => colorMap[e]),
-                        chartArea: {width: '85%', height: '70%'},
+                        chartArea: {width: '92%', height: '75%', left: '6%', right: '2%'},
                         vAxis: {
                             ticks: barTicks, 
                             viewWindow: {min: 60}, 
                             gridlines: {color: '#f1f5f9'},
-                            textStyle: {fontSize: 10} // Reduz ligeiramente o tamanho para evitar quebras
+                            textStyle: {fontSize: 10}
+                        },
+                        hAxis: {
+                            // Formatação das datas no eixo horizontal: jan/25, fev/25, etc.
+                            format: "MMM/yy",
+                            textStyle: {fontSize: 11}
                         },
                         backgroundColor: 'transparent'
                     }
