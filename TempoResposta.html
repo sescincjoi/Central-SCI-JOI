@@ -37,7 +37,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Estilo para a Tooltip Customizada */
         .custom-tooltip {
             background: white;
             border: 1px solid #e2e8f0;
@@ -197,7 +196,6 @@
             background-color: #f8fafc;
         }
 
-        /* Animação suave para a legenda */
         #customLineLegend > div {
             transition: all 0.2s ease;
         }
@@ -234,13 +232,13 @@
     </div>
 
     <header class="header-studio w-full shadow-2xl mb-8">
-        <div class="max-w-[1600px] mx-auto px-4 py-10 md:py-16 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center relative z-10">
+        <div class="max-w-[1600px] mx-auto px-4 py-6 md:py-8 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center relative z-10">
             <div class="flex-shrink-0">
                 <a href="./">
                     <img 
                         src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
                         alt="Logótipo SCI" 
-                        class="h-20 md:h-32 aspect-square object-cover logo-border transition-transform hover:scale-105"
+                        class="h-20 md:h-24 aspect-square object-cover logo-border transition-transform hover:scale-105"
                         onerror="this.src='https://via.placeholder.com/150x150?text=SCI+Logo'; this.classList.remove('logo-border');"
                     >
                 </a>
@@ -251,7 +249,7 @@
                         Exercício de Tempo Resposta
                     </h1>
                 </a>
-                <p class="text-slate-400 text-sm sm:text-base md:text-xl font-medium mt-2 whitespace-nowrap opacity-90">
+                <p class="text-slate-400 text-sm sm:text-base md:text-xl font-medium mt-1 whitespace-nowrap opacity-90">
                     SCI Aeroporto de Joinville
                 </p>
             </div>
@@ -260,7 +258,8 @@
 
     <main class="max-w-[1600px] mx-auto px-2 md:px-4">
         
-        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 relative z-[60]">
+        <!-- Ajustei o padding lateral desta seção de px-0 para px-4 ou px-8 (usando mx-auto e max-w na div interna ou simplesmente adicionando padding) -->
+        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 relative z-[60] px-4 md:px-8">
             <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
                 <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -293,34 +292,34 @@
         <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 relative z-10">
-            <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="p-3 bg-emerald-50 rounded-xl">
-                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="glass-card py-4 px-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="p-2 bg-emerald-50 rounded-xl">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <p class="text-xs md:text-sm text-slate-500 font-semibold uppercase tracking-wider">Melhor Tempo</p>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Melhor Tempo</p>
                 </div>
-                <div id="bestTeam" class="text-2xl md:text-3xl font-bold text-slate-900 truncate">...</div>
+                <div id="bestTeam" class="text-xl md:text-2xl font-bold text-slate-900 truncate">...</div>
             </div>
 
-            <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="p-3 bg-blue-50 rounded-xl">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div class="glass-card py-4 px-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="p-2 bg-blue-50 rounded-xl">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <p class="text-xs md:text-sm text-slate-500 font-semibold uppercase tracking-wider">Média Geral</p>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Média Geral</p>
                 </div>
-                <div id="avgTime" class="text-2xl md:text-3xl font-bold text-slate-900">--:--</div>
+                <div id="avgTime" class="text-xl md:text-2xl font-bold text-slate-900">--:--</div>
             </div>
 
-            <div class="glass-card p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
-                <div class="flex items-center gap-4 mb-4">
-                    <div class="p-3 bg-slate-50 rounded-xl">
-                        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <div class="glass-card py-4 px-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="p-2 bg-slate-50 rounded-xl">
+                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                     </div>
-                    <p class="text-xs md:text-sm text-slate-500 font-semibold uppercase tracking-wider">Total Exercícios</p>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Exercícios</p>
                 </div>
-                <div id="totalTests" class="text-2xl md:text-3xl font-bold text-slate-900">0</div>
+                <div id="totalTests" class="text-xl md:text-2xl font-bold text-slate-900">0</div>
             </div>
         </div>
 
@@ -343,7 +342,6 @@
                 <div id="lineChart" class="chart-container-line flex items-center justify-center">
                     <div class="loader"></div>
                 </div>
-                <!-- Legenda Customizada para o Gráfico de Linhas -->
                 <div id="customLineLegend" class="flex flex-wrap justify-center gap-x-6 gap-y-4 mt-6 px-4"></div>
                 
                 <div class="text-center mt-6">
@@ -385,7 +383,7 @@
         const SHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
         let fullData = [];
         let selectedLocais = [];
-        let highlightedTeam = null; // Estado para controlar o destaque da equipe
+        let highlightedTeam = null; 
         const colorPalette = ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed', '#0891b2', '#db2777', '#4b5563', '#ea580c', '#1e293b'];
         let lineChartInstance = null;
         let barChartInstance = null;
@@ -399,13 +397,10 @@
             }
 
             window.addEventListener('click', (e) => {
-                // Fechar multi-select se clicar fora
                 const container = document.querySelector('.multi-select-container');
                 if (container && !container.contains(e.target)) {
                     document.getElementById('localOptions').classList.remove('active');
                 }
-
-                // Limpar seleções dos gráficos se clicar fora
                 const lineChartDiv = document.getElementById('lineChart');
                 if (lineChartInstance && lineChartDiv && !lineChartDiv.contains(e.target)) {
                     lineChartInstance.setSelection([]);
@@ -457,7 +452,6 @@
         }
 
         function createCustomTooltip(equipe, cor, tempo, dataStr = null, local = null) {
-            // "TEMPO MÉDIO" para as tooltips
             return `
                 <div class="custom-tooltip">
                     <div class="tooltip-header">
@@ -632,7 +626,7 @@
             barChartInstance = new google.visualization.ComboChart(document.getElementById('barChart'));
             barChartInstance.draw(google.visualization.arrayToDataTable(barData), { 
                 seriesType: 'bars', 
-                tooltip: { isHtml: true, trigger: 'both' }, // Ativado 'both' para clique e hover
+                tooltip: { isHtml: true, trigger: 'both' },
                 series: { 0: { color: '#475569' }, 1: { type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true } },
                 legend: { position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'} }, chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'}, vAxis: { ticks: barTicks, gridlines: {color: '#f1f5f9'} },
                 hAxis: { slantedText: false, maxAlternation: 1, textStyle: {fontSize: 10} }, annotations: {alwaysOutside: true, textStyle: {fontSize: 11, bold: true}}, backgroundColor: 'transparent'
@@ -666,42 +660,40 @@
             });
 
             if(dates.length > 0) {
-                // Lógica de cores para o destaque
                 const seriesOptions = {};
                 currentEquipes.forEach((eq, index) => {
                     const baseColor = colorMap[eq];
                     if (highlightedTeam) {
                         if (highlightedTeam === eq) {
-                            // Equipe destacada: cor original, linha mais grossa
                             seriesOptions[index] = { color: baseColor, lineWidth: 4, areaOpacity: 0.1 };
                         } else {
-                            // Outras equipes: cinza claro, linha fina, menor opacidade
                             seriesOptions[index] = { color: '#e2e8f0', lineWidth: 1, areaOpacity: 0 };
                         }
                     } else {
-                        // Sem destaque: normal
                         seriesOptions[index] = { color: baseColor, lineWidth: 3 };
                     }
                 });
-                // Série limite (sempre última)
                 seriesOptions[currentEquipes.length] = { color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2 };
                 
                 lineChartInstance = new google.visualization.LineChart(document.getElementById('lineChart'));
                 lineChartInstance.draw(lineDataTable, {
                     curveType: 'function', pointSize: 10, interpolateNulls: true,
                     tooltip: { isHtml: true, trigger: 'both' }, 
-                    legend: { position: 'none' }, // Desativa legenda padrão
+                    legend: { position: 'none' },
                     series: seriesOptions,
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
                     vAxis: { ticks: barTicks, viewWindow: {min: 60}, gridlines: {color: '#f1f5f9'} },
-                    hAxis: { format: "MMM/yy" }, backgroundColor: 'transparent'
+                    hAxis: { 
+                        format: "MMM/yy",
+                        gridlines: { count: -1, units: { months: { format: ['MMM/yy'] } } },
+                        minorGridlines: { count: 0 }
+                    }, 
+                    backgroundColor: 'transparent'
                 });
 
-                // GERAR LEGENDA CUSTOMIZADA
                 const customLegend = document.getElementById('customLineLegend');
                 customLegend.innerHTML = '';
 
-                // Equipes
                 currentEquipes.forEach(eq => {
                     const color = colorMap[eq];
                     const isActive = highlightedTeam === eq;
@@ -710,7 +702,7 @@
                     const item = document.createElement('div');
                     item.className = `flex flex-col items-center gap-1 min-w-[60px] cursor-pointer ${isActive ? 'legend-active' : ''} ${isFaded ? 'legend-inactive' : ''}`;
                     item.onclick = (e) => {
-                        e.stopPropagation(); // Evita o clique fora limpar o destaque
+                        e.stopPropagation(); 
                         highlightedTeam = (highlightedTeam === eq) ? null : eq;
                         drawCharts();
                     };
@@ -726,7 +718,6 @@
                     customLegend.appendChild(item);
                 });
 
-                // Linha de Limite
                 const limitItem = document.createElement('div');
                 limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
                 limitItem.innerHTML = `
