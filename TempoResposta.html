@@ -431,7 +431,11 @@
                 google.visualization.arrayToDataTable(barData),
                 { 
                     legend: 'none', chartArea: {width: '85%', height: '70%'},
-                    vAxis: {ticks: barTicks, gridlines: {color: '#f1f5f9'}},
+                    vAxis: {
+                        ticks: barTicks, 
+                        gridlines: {color: '#f1f5f9'},
+                        textStyle: {fontSize: 10} // Reduz ligeiramente o tamanho para evitar quebras
+                    },
                     hAxis: {slantedText: true, textStyle: {fontSize: 11}},
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 12, bold: true}},
                     backgroundColor: 'transparent'
@@ -458,7 +462,12 @@
                         legend: {position: 'bottom', textStyle: {fontSize: 11}},
                         colors: currentEquipes.map(e => colorMap[e]),
                         chartArea: {width: '85%', height: '70%'},
-                        vAxis: {ticks: barTicks, viewWindow: {min: 60}, gridlines: {color: '#f1f5f9'}},
+                        vAxis: {
+                            ticks: barTicks, 
+                            viewWindow: {min: 60}, 
+                            gridlines: {color: '#f1f5f9'},
+                            textStyle: {fontSize: 10} // Reduz ligeiramente o tamanho para evitar quebras
+                        },
                         backgroundColor: 'transparent'
                     }
                 );
