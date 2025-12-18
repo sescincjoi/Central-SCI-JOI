@@ -53,7 +53,6 @@
             overflow: hidden;
         }
         
-        /* Brilho sutil no topo para profundidade */
         .header-studio::after {
             content: '';
             position: absolute;
@@ -115,9 +114,6 @@
             color: #334155;
             border-bottom: 1px solid #f1f5f9;
         }
-        .data-table tr:last-child td {
-            border-bottom: none;
-        }
         .data-table tr:hover {
             background-color: #f8fafc;
         }
@@ -145,23 +141,27 @@
         </button>
     </div>
 
-    <!-- Cabeçalho Full Width com Estilo Studio -->
+    <!-- Cabeçalho Full Width com Link Home -->
     <header class="header-studio w-full shadow-2xl mb-8">
         <div class="max-w-7xl mx-auto px-4 py-10 md:py-16 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 text-center relative z-10">
             
             <div class="flex-shrink-0">
-                <img 
-                    src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
-                    alt="Logótipo SCI" 
-                    class="h-20 md:h-32 aspect-square object-cover logo-border"
-                    onerror="this.src='https://via.placeholder.com/150x150?text=SCI+Logo'; this.classList.remove('logo-border');"
-                >
+                <a href="./">
+                    <img 
+                        src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
+                        alt="Logótipo SCI" 
+                        class="h-20 md:h-32 aspect-square object-cover logo-border transition-transform hover:scale-105"
+                        onerror="this.src='https://via.placeholder.com/150x150?text=SCI+Logo'; this.classList.remove('logo-border');"
+                    >
+                </a>
             </div>
             
             <div class="flex flex-col items-center md:items-start overflow-hidden">
-                <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white whitespace-nowrap drop-shadow-lg">
-                    Exercício de Tempo Resposta
-                </h1>
+                <a href="./" class="group">
+                    <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-white whitespace-nowrap drop-shadow-lg group-hover:text-blue-200 transition-colors">
+                        Exercício de Tempo Resposta
+                    </h1>
+                </a>
                 <p class="text-slate-400 text-sm sm:text-base md:text-xl font-medium mt-2 whitespace-nowrap opacity-90">
                     SCI Aeroporto de Joinville
                 </p>
@@ -171,7 +171,7 @@
 
     <main class="max-w-7xl mx-auto px-4 md:px-6">
         
-        <!-- Controles: Botão Planilha e Filtros -->
+        <!-- Controles -->
         <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8">
             <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
                 <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,16 +181,16 @@
             </a>
 
             <div class="flex flex-col md:flex-row gap-4">
-                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 flex-1 md:flex-none">
+                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1">
                     <label for="localFilter" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Localização</label>
-                    <select id="localFilter" onchange="drawCharts()" class="bg-transparent font-semibold text-slate-700 p-1 text-sm focus:outline-none min-w-full md:min-w-[180px] cursor-pointer">
+                    <select id="localFilter" onchange="drawCharts()" class="bg-transparent font-semibold text-slate-700 p-1 text-sm focus:outline-none min-w-[180px] cursor-pointer">
                         <option value="Todos">Todos os Locais</option>
                     </select>
                 </div>
 
-                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 flex-1 md:flex-none">
+                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1">
                     <label for="periodFilter" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Período Analisado</label>
-                    <select id="periodFilter" onchange="drawCharts()" class="bg-transparent font-semibold text-slate-700 p-1 text-sm focus:outline-none min-w-full md:min-w-[180px] cursor-pointer">
+                    <select id="periodFilter" onchange="drawCharts()" class="bg-transparent font-semibold text-slate-700 p-1 text-sm focus:outline-none min-w-[180px] cursor-pointer">
                         <option value="all">Todo o Histórico</option>
                         <option value="year">Ano Atual</option>
                         <option value="6months">Últimos 6 meses</option>
@@ -202,9 +202,9 @@
 
         <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
 
-        <!-- Cartões de KPI -->
+        <!-- KPI Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
+            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-emerald-50 rounded-xl">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -214,7 +214,7 @@
                 <div id="bestTeam" class="text-2xl md:text-3xl font-bold text-slate-900 truncate">...</div>
             </div>
 
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
+            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-blue-50 rounded-xl">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -224,7 +224,7 @@
                 <div id="avgTime" class="text-2xl md:text-3xl font-bold text-slate-900">--:--</div>
             </div>
 
-            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
+            <div class="glass-card p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] shadow-sm">
                 <div class="flex items-center gap-4 mb-4">
                     <div class="p-3 bg-slate-50 rounded-xl">
                         <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -255,14 +255,13 @@
                 <div id="lineChart" class="chart-container-line flex items-center justify-center">
                     <div class="loader"></div>
                 </div>
-                <!-- Legenda instrucional adicionada aqui -->
                 <div class="text-center mt-2">
                     <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Clique na equipe para destacar a linha</span>
                 </div>
             </div>
         </div>
 
-        <!-- Lista de Dados -->
+        <!-- Tabela -->
         <div class="glass-card p-5 md:p-10 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden mb-12">
             <div class="mb-6 md:mb-8">
                 <h3 class="text-xl md:text-2xl font-bold text-slate-800">Histórico de Exercícios</h3>
@@ -278,18 +277,16 @@
                             <th>Local</th>
                         </tr>
                     </thead>
-                    <tbody id="dataTableBody">
-                        <!-- Conteúdo gerado via JS -->
-                    </tbody>
+                    <tbody id="dataTableBody"></tbody>
                 </table>
             </div>
         </div>
 
         <footer class="mb-10 flex flex-col md:flex-row items-center justify-between text-slate-400 text-[10px] md:text-xs border-t border-slate-200 pt-8 gap-4">
-            <p class="text-center md:text-left">&copy; 2024 Aeroporto de Joinville - Sistema Integrado de Monitoramento</p>
+            <p class="text-center md:text-left">&copy; 2025 SCI Aeroporto de Joinville - Central SCI JOI</p>
             <div class="flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                Status: <span id="syncStatus" class="font-bold uppercase tracking-widest text-[9px] md:text-[10px]">Aguardando Dados...</span>
+                Status: <span id="syncStatus" class="font-bold uppercase tracking-widest text-[9px] md:text-[10px]">Sincronizado</span>
             </div>
         </footer>
     </main>
@@ -297,51 +294,34 @@
     <script type="text/javascript">
         const SHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
         let fullData = [];
-        
         const colorPalette = ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed', '#0891b2', '#db2777', '#4b5563', '#ea580c', '#1e293b'];
 
         window.onload = function() {
             if (typeof google !== 'undefined') {
-                google.charts.load('current', {
-                    'packages':['corechart'], 
-                    'language': 'pt-br'
-                });
+                google.charts.load('current', {'packages':['corechart'], 'language': 'pt-br'});
                 google.charts.setOnLoadCallback(fetchData);
-            } else {
-                showError("Erro: Biblioteca Google Charts indisponível.");
             }
         };
-
-        function showError(msg) {
-            const errDiv = document.getElementById('errorMessage');
-            errDiv.innerText = msg;
-            errDiv.classList.remove('hidden');
-            document.querySelectorAll('.loader').forEach(l => l.style.display = 'none');
-        }
 
         async function fetchData() {
             const query = encodeURIComponent('Select B, C, D, G offset 2'); 
             const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tq=${query}&headers=0`;
-
             try {
                 const response = await fetch(url);
                 const text = await response.text();
                 const json = JSON.parse(text.substring(47, text.length - 2));
                 processData(json.table);
-                document.getElementById('syncStatus').innerText = "Sincronizado";
             } catch (error) {
                 console.error(error);
-                showError("Erro ao carregar dados.");
+                document.getElementById('errorMessage').classList.remove('hidden');
+                document.getElementById('errorMessage').innerText = "Erro ao carregar dados.";
             }
         }
 
         function parseGoogleDate(dateStr) {
             if (!dateStr) return null;
             const parts = dateStr.split('/');
-            if (parts.length === 3) {
-                return new Date(parts[2], parts[1] - 1, parts[0], 12, 0, 0);
-            }
-            return new Date(dateStr);
+            return parts.length === 3 ? new Date(parts[2], parts[1] - 1, parts[0], 12, 0, 0) : new Date(dateStr);
         }
 
         function parseDuration(cell) {
@@ -355,9 +335,14 @@
             return 0;
         }
 
-        function processData(table) {
-            if (!table || !table.rows) return;
+        function formatDisplayTime(totalSeconds) {
+            if (isNaN(totalSeconds) || totalSeconds <= 0) return "0:00";
+            const m = Math.floor(totalSeconds / 60);
+            const s = Math.round(totalSeconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
 
+        function processData(table) {
             fullData = table.rows.map((row, index) => {
                 const rawDate = row.c[0] ? (row.c[0].f || row.c[0].v) : null;
                 return {
@@ -374,46 +359,12 @@
 
             const locais = [...new Set(fullData.map(d => d.local))].sort();
             const select = document.getElementById('localFilter');
-            while (select.options.length > 1) select.remove(1);
             locais.forEach(l => {
-                if(l) {
-                    const opt = document.createElement('option');
-                    opt.value = l; opt.innerHTML = l; select.appendChild(opt);
-                }
+                const opt = document.createElement('option');
+                opt.value = l; opt.innerHTML = l; select.appendChild(opt);
             });
 
             drawCharts();
-        }
-
-        function formatDisplayTime(totalSeconds) {
-            if (isNaN(totalSeconds) || totalSeconds <= 0) return "0:00";
-            const m = Math.floor(totalSeconds / 60);
-            const s = Math.round(totalSeconds % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        function filterByPeriod(data) {
-            const period = document.getElementById('periodFilter').value;
-            if (period === 'all') return data;
-            const now = new Date();
-            if (period === 'last') {
-                const lastPerTeam = {};
-                data.forEach(d => {
-                    if (!lastPerTeam[d.equipe] || d.dataObj > lastPerTeam[d.equipe].dataObj) {
-                        lastPerTeam[d.equipe] = d;
-                    }
-                });
-                return Object.values(lastPerTeam);
-            }
-            return data.filter(d => {
-                if (period === 'year') return d.dataObj.getFullYear() === now.getFullYear();
-                if (period === '6months') {
-                    const sixMonthsAgo = new Date();
-                    sixMonthsAgo.setMonth(now.getMonth() - 6);
-                    return d.dataObj >= sixMonthsAgo;
-                }
-                return true;
-            });
         }
 
         function drawCharts() {
@@ -421,142 +372,90 @@
 
             const isMobile = window.innerWidth < 768;
             const localFilter = document.getElementById('localFilter').value;
+            const periodFilter = document.getElementById('periodFilter').value;
+            
             let filtered = localFilter === 'Todos' ? fullData : fullData.filter(d => d.local === localFilter);
-            filtered = filterByPeriod(filtered);
+            
+            if (periodFilter === 'year') {
+                const year = new Date().getFullYear();
+                filtered = filtered.filter(d => d.dataObj.getFullYear() === year);
+            } else if (periodFilter === '6months') {
+                const limit = new Date(); limit.setMonth(limit.getMonth() - 6);
+                filtered = filtered.filter(d => d.dataObj >= limit);
+            } else if (periodFilter === 'last') {
+                const map = {};
+                filtered.forEach(d => { if(!map[d.equipe] || d.dataObj > map[d.equipe].dataObj) map[d.equipe] = d; });
+                filtered = Object.values(map);
+            }
 
-            const todasEquipesSorted = [...new Set(fullData.map(d => d.equipe))].sort();
-            const equipeColorMap = {};
-            todasEquipesSorted.forEach((eq, idx) => {
-                equipeColorMap[eq] = colorPalette[idx % colorPalette.length];
-            });
+            const equipes = [...new Set(fullData.map(d => d.equipe))].sort();
+            const colorMap = {}; equipes.forEach((e, i) => colorMap[e] = colorPalette[i % colorPalette.length]);
 
+            // Table update
             const tableBody = document.getElementById('dataTableBody');
             tableBody.innerHTML = '';
-            
-            const sortedForTable = [...filtered].sort((a, b) => b.dataObj - a.dataObj);
-            
-            sortedForTable.forEach(row => {
-                const color = equipeColorMap[row.equipe] || '#64748b';
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+            [...filtered].sort((a,b) => b.dataObj - a.dataObj).forEach(row => {
+                const c = colorMap[row.equipe];
+                tableBody.innerHTML += `<tr>
                     <td class="font-medium text-slate-600">${row.dataStr}</td>
-                    <td>
-                        <span class="px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight" style="background-color: ${color}15; color: ${color}; border: 1px solid ${color}30">
-                            ${row.equipe}
-                        </span>
-                    </td>
+                    <td><span class="px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight" style="background-color: ${c}15; color: ${c}; border: 1px solid ${c}30">${row.equipe}</span></td>
                     <td class="font-mono font-bold text-slate-800">${formatDisplayTime(row.tempo)}</td>
                     <td class="text-slate-500 italic text-xs">${row.local}</td>
-                `;
-                tableBody.appendChild(tr);
+                </tr>`;
             });
 
-            const equipes = [...new Set(filtered.map(d => d.equipe))].sort();
             document.getElementById('totalTests').innerText = filtered.length;
 
             // Bar Chart
-            const barDataArray = [['Equipe', 'Segundos', { role: 'style' }, { role: 'annotation' }]];
-            let totalSecs = 0, bestAvg = Infinity, bestTeam = '-';
-            let maxTempo = 0;
-
-            equipes.forEach((eq) => {
-                const eqEntries = filtered.filter(d => d.equipe === eq);
-                const avg = eqEntries.reduce((s, e) => s + e.tempo, 0) / eqEntries.length;
-                const color = equipeColorMap[eq];
-                barDataArray.push([eq, avg, color, formatDisplayTime(avg)]);
-                totalSecs += avg;
+            const barData = [['Equipe', 'Segundos', {role: 'style'}, {role: 'annotation'}]];
+            let bestAvg = Infinity, bestTeam = '-', sum = 0;
+            
+            const currentEquipes = [...new Set(filtered.map(d => d.equipe))].sort();
+            currentEquipes.forEach(eq => {
+                const items = filtered.filter(f => f.equipe === eq);
+                const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+                barData.push([eq, avg, colorMap[eq], formatDisplayTime(avg)]);
+                sum += avg;
                 if(avg < bestAvg) { bestAvg = avg; bestTeam = eq; }
-                if(avg > maxTempo) maxTempo = avg;
             });
 
             document.getElementById('bestTeam').innerText = bestTeam;
-            document.getElementById('avgTime').innerText = formatDisplayTime(totalSecs / (equipes.length || 1));
+            document.getElementById('avgTime').innerText = formatDisplayTime(sum / (currentEquipes.length || 1));
 
-            const barTicks = [];
-            const barMaxLimit = Math.max(240, Math.ceil(maxTempo / 30) * 30 + 30);
-            for (let i = 0; i <= barMaxLimit; i += 30) barTicks.push({v: i, f: formatDisplayTime(i)});
-
-            const barDataTable = google.visualization.arrayToDataTable(barDataArray);
-            
+            const barTicks = []; for(let i=0; i<=240; i+=30) barTicks.push({v: i, f: formatDisplayTime(i)});
             new google.visualization.ColumnChart(document.getElementById('barChart')).draw(
-                barDataTable, 
+                google.visualization.arrayToDataTable(barData),
                 { 
-                    legend: 'none', 
-                    chartArea: { width: isMobile ? '80%' : '85%', height: '70%' }, 
-                    vAxis: { 
-                        ticks: barTicks, 
-                        textStyle: { color: '#94a3b8', fontSize: isMobile ? 11 : 13 }, 
-                        gridlines: { color: '#f1f5f9' } 
-                    }, 
-                    hAxis: { slantedText: true, textStyle: { color: '#64748b', fontSize: isMobile ? 11 : 13 } },
-                    bar: { groupWidth: '60%' },
-                    annotations: { alwaysOutside: true, textStyle: { fontSize: isMobile ? 12 : 15, bold: true, color: '#334155' } },
-                    backgroundColor: 'transparent',
-                    tooltip: { textStyle: { fontSize: 13 }, showColorCode: true }
+                    legend: 'none', chartArea: {width: '85%', height: '70%'},
+                    vAxis: {ticks: barTicks, gridlines: {color: '#f1f5f9'}},
+                    hAxis: {slantedText: true, textStyle: {fontSize: 11}},
+                    annotations: {alwaysOutside: true, textStyle: {fontSize: 12, bold: true}},
+                    backgroundColor: 'transparent'
                 }
             );
 
             // Line Chart
-            const distinctDates = [...new Set(filtered.map(d => d.dataObj.getTime()))].sort((a, b) => a - b);
-            const lineDataArray = [['Data', ...equipes]];
-            
-            distinctDates.forEach(timestamp => {
-                const d = new Date(timestamp);
-                const row = [d];
-                equipes.forEach(eq => {
-                    const entries = filtered.filter(item => item.dataObj.getTime() === timestamp && item.equipe === eq);
-                    if (entries.length > 0) {
-                        row.push({v: entries[0].tempo, f: formatDisplayTime(entries[0].tempo)});
-                    } else {
-                        row.push(null);
-                    }
+            const dates = [...new Set(filtered.map(d => d.dataObj.getTime()))].sort((a,b) => a-b);
+            const lineData = [['Data', ...currentEquipes]];
+            dates.forEach(t => {
+                const row = [new Date(t)];
+                currentEquipes.forEach(eq => {
+                    const found = filtered.find(f => f.dataObj.getTime() === t && f.equipe === eq);
+                    row.push(found ? {v: found.tempo, f: formatDisplayTime(found.tempo)} : null);
                 });
-                lineDataArray.push(row);
+                lineData.push(row);
             });
 
-            if (lineDataArray.length > 1) {
-                const lineDataTable = google.visualization.arrayToDataTable(lineDataArray);
-                const dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy'});
-                dateFormatter.format(lineDataTable, 0);
-
-                const vTicks = [];
-                for (let i = 60; i <= 240; i += 30) vTicks.push({v: i, f: formatDisplayTime(i)});
-
+            if(lineData.length > 1) {
                 new google.visualization.LineChart(document.getElementById('lineChart')).draw(
-                    lineDataTable, 
+                    google.visualization.arrayToDataTable(lineData),
                     {
-                        curveType: 'function',
-                        selectionMode: 'multiple', // Habilita a seleção para destacar as linhas
-                        legend: { 
-                            position: 'bottom', 
-                            alignment: 'center',
-                            textStyle: { color: '#64748b', fontSize: isMobile ? 10 : 13, bold: true }, 
-                            maxLines: 10 
-                        },
-                        colors: equipes.map(eq => equipeColorMap[eq]),
-                        chartArea: { 
-                            width: isMobile ? '85%' : '85%', 
-                            height: isMobile ? '55%' : '75%',
-                            bottom: isMobile ? 100 : 80,
-                            top: 40 
-                        },
-                        pointSize: isMobile ? 6 : 10,
-                        lineWidth: isMobile ? 2 : 4,
-                        interpolateNulls: true,
-                        backgroundColor: 'transparent',
-                        vAxis: {
-                            ticks: vTicks,
-                            viewWindow: { min: 60, max: 240 },
-                            textStyle: { color: '#94a3b8', fontSize: isMobile ? 11 : 13 },
-                            gridlines: { color: '#f1f5f9' }
-                        },
-                        hAxis: { 
-                            format: isMobile ? 'MM/yy' : 'MMM/yy', 
-                            textStyle: { color: '#64748b', fontSize: isMobile ? 10 : 12 },
-                            gridlines: { color: '#e2e8f0', lineDashStyle: [4, 4] }
-                        },
-                        focusTarget: 'category',
-                        tooltip: { isHtml: false, textStyle: { fontSize: 13 } }
+                        curveType: 'function', pointSize: 8, lineWidth: 3, interpolateNulls: true,
+                        legend: {position: 'bottom', textStyle: {fontSize: 11}},
+                        colors: currentEquipes.map(e => colorMap[e]),
+                        chartArea: {width: '85%', height: '70%'},
+                        vAxis: {ticks: barTicks, viewWindow: {min: 60}, gridlines: {color: '#f1f5f9'}},
+                        backgroundColor: 'transparent'
                     }
                 );
             }
