@@ -91,9 +91,13 @@
 
         .data-table-container {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Melhora o scroll no iOS */
+            width: 100%;
         }
+        
         .data-table {
             width: 100%;
+            min-width: 600px; /* Garante que a tabela não esprema demais os dados no mobile */
             border-collapse: separate;
             border-spacing: 0;
         }
