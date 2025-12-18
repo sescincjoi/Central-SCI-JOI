@@ -334,16 +334,27 @@
             const barMaxLimit = Math.max(240, Math.ceil(maxTempo / 30) * 30 + 30);
             for (let i = 0; i <= barMaxLimit; i += 30) barTicks.push({v: i, f: formatDisplayTime(i)});
 
+            const barDataTable = google.visualization.arrayToDataTable(barDataArray);
+            
+            // Formatador para o gráfico de barras (apenas para exibição no tooltip)
+            const formatter = new google.visualization.DateFormat({pattern: 'mm:ss'});
+            // Nota: Formatter de data em número de segundos não existe nativamente, usamos o formatDisplayTime nas anotações
+            
             new google.visualization.ColumnChart(document.getElementById('barChart')).draw(
-                google.visualization.arrayToDataTable(barDataArray), 
+                barDataTable, 
                 { 
                     legend: 'none', 
                     chartArea: { width: isMobile ? '80%' : '85%', height: '70%' }, 
-                    vAxis: { ticks: barTicks, textStyle: { color: '#94a3b8', fontSize: isMobile ? 11 : 13 }, gridlines: { color: '#f1f5f9' } }, 
+                    vAxis: { 
+                        ticks: barTicks, 
+                        textStyle: { color: '#94a3b8', fontSize: isMobile ? 11 : 13 }, 
+                        gridlines: { color: '#f1f5f9' } 
+                    }, 
                     hAxis: { slantedText: true, textStyle: { color: '#64748b', fontSize: isMobile ? 11 : 13 } },
                     bar: { groupWidth: '60%' },
                     annotations: { alwaysOutside: true, textStyle: { fontSize: isMobile ? 12 : 15, bold: true, color: '#334155' } },
-                    backgroundColor: 'transparent'
+                    backgroundColor: 'transparent',
+                    tooltip: { textStyle: { fontSize: 13 }, showColorCode: true }
                 }
             );
 
@@ -356,27 +367,37 @@
                 const row = [d];
                 equipes.forEach(eq => {
                     const entries = filtered.filter(item => item.dataObj.getTime() === timestamp && item.equipe === eq);
-                    row.push(entries.length > 0 ? entries[0].tempo : null);
+                    // Adicionamos o valor numérico e o valor formatado para o tooltip
+                    if (entries.length > 0) {
+                        row.push({v: entries[0].tempo, f: formatDisplayTime(entries[0].tempo)});
+                    } else {
+                        row.push(null);
+                    }
                 });
                 lineDataArray.push(row);
             });
 
             if (lineDataArray.length > 1) {
+                const lineDataTable = google.visualization.arrayToDataTable(lineDataArray);
+                
+                // Formatador de Data para remover o horário do tooltip
+                const dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy'});
+                dateFormatter.format(lineDataTable, 0);
+
                 const vTicks = [];
                 for (let i = 60; i <= 240; i += 30) vTicks.push({v: i, f: formatDisplayTime(i)});
 
                 new google.visualization.LineChart(document.getElementById('lineChart')).draw(
-                    google.visualization.arrayToDataTable(lineDataArray), 
+                    lineDataTable, 
                     {
                         curveType: 'function',
                         legend: { 
                             position: 'bottom', 
                             alignment: 'center',
                             textStyle: { color: '#64748b', fontSize: isMobile ? 10 : 13, bold: true }, 
-                            maxLines: 10 // Força a exibição de várias linhas para evitar o carrossel (paginação)
+                            maxLines: 10 
                         },
                         colors: colorPalette.slice(0, equipes.length),
-                        // Aumentamos o "bottom" da área do gráfico para dar espaço às legendas sem paginar
                         chartArea: { 
                             width: isMobile ? '85%' : '85%', 
                             height: isMobile ? '55%' : '75%',
@@ -398,7 +419,8 @@
                             textStyle: { color: '#64748b', fontSize: isMobile ? 10 : 12 },
                             gridlines: { color: '#e2e8f0', lineDashStyle: [4, 4] }
                         },
-                        focusTarget: 'category'
+                        focusTarget: 'category',
+                        tooltip: { isHtml: false, textStyle: { fontSize: 13 } }
                     }
                 );
             }
