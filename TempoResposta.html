@@ -105,10 +105,17 @@
         .data-table td { padding: 1rem; font-size: 0.875rem; color: #334155; border-bottom: 1px solid #f1f5f9; }
         .data-table tr:hover { background-color: #f8fafc; }
 
-        #customLineLegend > div { transition: all 0.2s ease; }
-        #customLineLegend > div:hover { transform: translateY(-2px); }
-        .legend-active { opacity: 1; transform: scale(1.05); }
-        .legend-inactive { opacity: 0.4; }
+        /* Modal Design */
+        #modalOverlay {
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(8px);
+        }
+        .modal-header-gradient {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        }
+        #modalContent {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
         @media screen and (max-width: 767px) and (orientation: portrait) {
             #rotationWarning:not(.user-closed) { display: flex !important; }
@@ -116,6 +123,43 @@
     </style>
 </head>
 <body class="text-slate-900 antialiased">
+
+    <!-- Modal para PDF -->
+    <div id="modalOverlay" class="fixed inset-0 bg-slate-900/70 z-[200] hidden opacity-0 flex items-center justify-center p-2 md:p-6">
+        <div id="modalContent" class="bg-white w-full max-w-6xl h-full md:h-[90vh] rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden flex flex-col scale-95 border border-slate-700/20">
+            <!-- Cabeçalho Modal -->
+            <div class="px-4 py-3 md:px-6 md:py-4 modal-header-gradient flex items-center justify-between shadow-lg relative z-10">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-white/10 rounded-lg hidden sm:block">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm md:text-base leading-tight">Instrução Suplementar ANAC</h3>
+                        <p class="text-[10px] text-blue-300/80 uppercase tracking-widest font-bold">Nº 153.409-001</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <a id="btnOriginal" href="https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf" target="_blank" class="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition-all border border-white/10 group">
+                        <span>Abrir Original</span>
+                        <svg class="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                    <button onclick="closeModal()" class="p-2 hover:bg-red-500/20 rounded-xl transition-colors text-white/60 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="flex-grow bg-slate-800 relative">
+                <!-- Loader -->
+                <div id="pdfLoader" class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-slate-400">
+                    <div class="loader"></div>
+                    <span class="text-xs font-medium animate-pulse text-white">Carregando Visualizador...</span>
+                </div>
+                <iframe id="pdfIframe" src="" class="w-full h-full border-none opacity-0 transition-opacity duration-500" onload="document.getElementById('pdfLoader').style.display='none'; this.style.opacity='1'"></iframe>
+            </div>
+        </div>
+    </div>
 
     <div id="rotationWarning" class="hidden fixed top-4 left-4 right-4 z-[100] bg-blue-600 text-white p-4 rounded-2xl shadow-2xl items-center justify-between animate-bounce">
         <div class="flex items-center gap-3">
@@ -151,8 +195,8 @@
 
     <main class="max-w-[1600px] mx-auto px-2 md:px-4">
         
-        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 relative z-[60] px-4 md:px-8">
-            <!-- Botão com ícone aumentado para w-7 h-7 -->
+        <!-- Filtros -->
+        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-4 relative z-[60] px-4 md:px-8">
             <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-6 py-4 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
                 <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -198,8 +242,28 @@
             </div>
         </div>
 
+        <!-- Card Normativo ANAC -->
+        <div class="px-4 md:px-8 mb-8">
+            <div class="glass-card w-full p-4 md:p-6 rounded-3xl shadow-sm flex items-center justify-between gap-6 border-l-4 border-l-blue-500">
+                <div class="flex items-center gap-5">
+                    <div class="hidden sm:flex p-3 bg-blue-50 rounded-2xl text-blue-600 flex-shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    </div>
+                    <p class="text-slate-600 text-[13px] md:text-sm font-medium leading-relaxed">
+                        Os indicadores deste painel atendem ao RBAC 153, com aferições realizadas conforme referência técnica da Instrução Suplementar Nº 153.409-001 da ANAC.
+                    </p>
+                </div>
+                <button onclick="openModal()" title="Visualizar Norma" class="p-4 bg-slate-900 text-white rounded-2xl hover:bg-slate-800 transition-all shadow-lg active:scale-95 group flex-shrink-0">
+                    <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
         <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
 
+        <!-- Cards de Resumo -->
         <div class="flex flex-col md:flex-row gap-6 mb-12 relative z-10 px-4 md:px-0">
             <div class="glass-card py-4 px-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm flex-1">
                 <div class="flex items-center gap-4 mb-2">
@@ -232,6 +296,7 @@
             </div>
         </div>
 
+        <!-- Gráficos -->
         <div class="space-y-8 md:space-y-12 mb-12">
             <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
                 <div class="mb-4 md:mb-6 px-2 text-center md:text-left">
@@ -259,6 +324,7 @@
             </div>
         </div>
 
+        <!-- Tabela -->
         <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden mb-12">
             <div class="mb-4 md:mb-6 px-2">
                 <h3 class="text-xl md:text-2xl font-bold text-slate-800">Histórico de Exercícios</h3>
@@ -291,16 +357,55 @@
 
     <script type="text/javascript">
         const SHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
+        const PDF_URL = 'https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf';
+        const GOOGLE_VIEWER_URL = `https://docs.google.com/viewer?url=${encodeURIComponent(PDF_URL)}&embedded=true`;
+        
         let fullData = [];
         let selectedLocais = [];
         let currentType = 'final';
         let currentPeriod = 'all';
         let highlightedTeam = null; 
         const colorPalette = ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed', '#0891b2', '#db2777', '#4b5563', '#ea580c', '#1e293b'];
-        let lineChartInstance = null;
-        let barChartInstance = null;
         
         const TIME_LIMIT = 180;
+
+        // Modal Functions
+        function openModal() {
+            const overlay = document.getElementById('modalOverlay');
+            const content = document.getElementById('modalContent');
+            const iframe = document.getElementById('pdfIframe');
+            const loader = document.getElementById('pdfLoader');
+            
+            loader.style.display = 'flex';
+            iframe.style.opacity = '0';
+            iframe.src = GOOGLE_VIEWER_URL;
+            
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.add('opacity-100');
+                overlay.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const overlay = document.getElementById('modalOverlay');
+            const content = document.getElementById('modalContent');
+            const iframe = document.getElementById('pdfIframe');
+
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+                iframe.src = '';
+                document.body.style.overflow = '';
+            }, 300);
+        }
 
         window.onload = function() {
             if (typeof google !== 'undefined') {
@@ -563,8 +668,7 @@
             document.getElementById('bestTeam').innerText = bestTeam;
             document.getElementById('avgTime').innerText = formatDisplayTime(sum / (currentEquipes.length || 1));
 
-            barChartInstance = new google.visualization.ComboChart(document.getElementById('barChart'));
-            barChartInstance.draw(google.visualization.arrayToDataTable(barData), { 
+            new google.visualization.ComboChart(document.getElementById('barChart')).draw(google.visualization.arrayToDataTable(barData), { 
                 seriesType: 'bars', tooltip: { isHtml: true, trigger: 'both' },
                 series: { 0: { color: '#475569' }, 1: { type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true } },
                 legend: { position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'} }, 
@@ -604,8 +708,7 @@
                 });
                 seriesOptions[currentEquipes.length] = { color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2 };
 
-                lineChartInstance = new google.visualization.LineChart(document.getElementById('lineChart'));
-                lineChartInstance.draw(lineDataTable, {
+                new google.visualization.LineChart(document.getElementById('lineChart')).draw(lineDataTable, {
                     curveType: 'function', pointSize: 10, interpolateNulls: true, tooltip: { isHtml: true, trigger: 'both' }, legend: { position: 'none' },
                     series: seriesOptions, chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
                     vAxis: { ticks: vAxisTicks, viewWindow: vAxisViewWindow, gridlines: {color: '#f1f5f9'} },
