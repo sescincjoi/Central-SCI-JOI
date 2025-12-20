@@ -425,93 +425,102 @@
         }
 
         const PDF_ORIGINAL_URL = "https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf";
-        const PDF_DRIVE_FILE_ID = "1EiiSe5oGFNgJ2ttoJsKS-luNqWE838kj";
-        const PDF_DRIVE_FILE = "https://drive.google.com/file/d/1EiiSe5oGFNgJ2ttoJsKS-luNqWE838kj/preview";
-        
-        // Array de métodos de visualização (tentará em ordem)
-        const PDF_VIEWERS = [
-            `https://drive.google.com/file/d/${PDF_DRIVE_FILE_ID}/preview`,
-            `https://docs.google.com/viewer?url=${encodeURIComponent(PDF_DRIVE_FILE)}&embedded=true`,
-            `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(PDF_DRIVE_FILE)}`,
-            `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(PDF_DRIVE_FILE)}`
-        ];
-        
-        let currentViewerIndex = 0;
-        let loadAttempts = 0;
-        const MAX_LOAD_ATTEMPTS = 3;
-        
-        function openPdfModal() {
-            const modal = document.getElementById('pdfModal');
-            const backdrop = document.getElementById('modalBackdrop');
-            const panel = document.getElementById('modalPanel');
-            const iframe = document.getElementById('pdfIframe');
-        
-            // Load iframe content only when opening
-            if (!iframe.src) {
-                loadPdfWithFallback(iframe);
-            }
-        
-            modal.classList.remove('hidden');
-            // Small delay to allow display:block to apply before transition
-            setTimeout(() => {
-                backdrop.classList.remove('opacity-0');
-                panel.classList.remove('scale-95', 'opacity-0');
-                panel.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-        
-        function loadPdfWithFallback(iframe) {
-            if (currentViewerIndex >= PDF_VIEWERS.length) {
-                console.error('Todos os métodos de visualização falharam. Abrindo em nova aba.');
-                window.open(PDF_ORIGINAL_URL, '_blank');
-                closePdfModal();
-                return;
-            }
-            
-            const currentUrl = PDF_VIEWERS[currentViewerIndex];
-            console.log(`Tentando carregar PDF com método ${currentViewerIndex + 1}: ${currentUrl}`);
-            
-            iframe.src = currentUrl;
-            loadAttempts = 0;
-            
-            // Timeout para detectar falha de carregamento
-            const loadTimeout = setTimeout(() => {
-                if (loadAttempts < MAX_LOAD_ATTEMPTS) {
-                    loadAttempts++;
-                    console.log(`Tentativa ${loadAttempts} falhou, tentando próximo método...`);
-                    currentViewerIndex++;
-                    loadPdfWithFallback(iframe);
+const PDF_DRIVE_FILE_ID = "1EiiSe5oGFNgJ2ttoJsKS-luNqWE838kj";
+
+// Array de métodos de visualização (tentará em ordem)
+const PDF_VIEWERS = [
+    {
+        name: "Google Drive Preview",
+        url: `https://drive.google.com/file/d/${PDF_DRIVE_FILE_ID}/preview`
+    },
+    {
+        name: "Google Drive Embed",
+        url: `https://drive.google.com/file/d/${PDF_DRIVE_FILE_ID}/view?embedded=true`
+    },
+    {
+        name: "Google Docs Viewer",
+        url: `https://docs.google.com/viewer?url=${encodeURIComponent(PDF_ORIGINAL_URL)}&embedded=true`
+    },
+    {
+        name: "Mozilla PDF.js",
+        url: `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(PDF_ORIGINAL_URL)}`
+    }
+];
+
+let currentViewerIndex = 0;
+let autoLoadTimeout = null;
+
+function openPdfModal() {
+    const modal = document.getElementById('pdfModal');
+    const backdrop = document.getElementById('modalBackdrop');
+    const panel = document.getElementById('modalPanel');
+    
+    currentViewerIndex = 0;
+    loadPdfMethod();
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        backdrop.classList.remove('opacity-0');
+        panel.classList.remove('scale-95', 'opacity-0');
+        panel.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function loadPdfMethod() {
+    if (currentViewerIndex >= PDF_VIEWERS.length) {
+        console.error('Todos os métodos de visualização falharam');
+        // Abre em nova aba como último recurso
+        window.open(PDF_ORIGINAL_URL, '_blank');
+        return;
+    }
+    
+    const iframe = document.getElementById('pdfIframe');
+    const currentMethod = PDF_VIEWERS[currentViewerIndex];
+    
+    console.log(`Tentando método ${currentViewerIndex + 1} de ${PDF_VIEWERS.length}: ${currentMethod.name}`);
+    
+    iframe.src = currentMethod.url;
+    
+    // Auto-avançar após 8 segundos se não carregar
+    if (autoLoadTimeout) clearTimeout(autoLoadTimeout);
+    autoLoadTimeout = setTimeout(() => {
+        console.log(`Timeout do método ${currentViewerIndex + 1}, tentando próximo...`);
+        currentViewerIndex++;
+        loadPdfMethod();
+    }, 8000);
+    
+    // Detectar sucesso de carregamento
+    iframe.onload = function() {
+        // Pequeno delay para verificar se realmente carregou conteúdo
+        setTimeout(() => {
+            try {
+                // Tenta acessar o contentWindow (se falhar, PDF não carregou)
+                if (iframe.contentWindow) {
+                    clearTimeout(autoLoadTimeout);
+                    console.log('PDF carregado com sucesso!');
                 }
-            }, 5000); // 5 segundos de timeout
-            
-            // Listener de sucesso
-            iframe.onload = function() {
-                clearTimeout(loadTimeout);
-                console.log('PDF carregado com sucesso!');
-            };
-            
-            // Listener de erro
-            iframe.onerror = function() {
-                clearTimeout(loadTimeout);
-                console.log('Erro ao carregar, tentando próximo método...');
-                currentViewerIndex++;
-                loadPdfWithFallback(iframe);
-            };
-        }
-        
-        function closePdfModal() {
-            const modal = document.getElementById('pdfModal');
-            const backdrop = document.getElementById('modalBackdrop');
-            const panel = document.getElementById('modalPanel');
-        
-            backdrop.classList.add('opacity-0');
-            panel.classList.remove('scale-100', 'opacity-100');
-            panel.classList.add('scale-95', 'opacity-0');
-        
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 300); // Match transition duration
-        }
+            } catch(e) {
+                // Erro de CORS, mas iframe pode estar carregando
+                clearTimeout(autoLoadTimeout);
+                console.log('Iframe carregado (CORS pode estar bloqueando verificação)');
+            }
+        }, 1000);
+    };
+}
+
+function closePdfModal() {
+    const modal = document.getElementById('pdfModal');
+    const backdrop = document.getElementById('modalBackdrop');
+    const panel = document.getElementById('modalPanel');
+
+    backdrop.classList.add('opacity-0');
+    panel.classList.remove('scale-100', 'opacity-100');
+    panel.classList.add('scale-95', 'opacity-0');
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300); // Match transition duration
+}
 
         /*const PDF_URL = "https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf";
         // Google Proxy to allow iframe embedding
