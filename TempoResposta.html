@@ -426,13 +426,14 @@
 
         const PDF_ORIGINAL_URL = "https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf";
         const PDF_DRIVE_FILE_ID = "1EiiSe5oGFNgJ2ttoJsKS-luNqWE838kj";
+        const PDF_DRIVE_FILE = "https://drive.google.com/file/d/1EiiSe5oGFNgJ2ttoJsKS-luNqWE838kj/preview";
         
         // Array de métodos de visualização (tentará em ordem)
         const PDF_VIEWERS = [
             `https://drive.google.com/file/d/${PDF_DRIVE_FILE_ID}/preview`,
-            `https://docs.google.com/viewer?url=${encodeURIComponent(PDF_ORIGINAL_URL)}&embedded=true`,
-            `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(PDF_ORIGINAL_URL)}`,
-            `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(PDF_ORIGINAL_URL)}`
+            `https://docs.google.com/viewer?url=${encodeURIComponent(PDF_DRIVE_FILE)}&embedded=true`,
+            `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(PDF_DRIVE_FILE)}`,
+            `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(PDF_DRIVE_FILE)}`
         ];
         
         let currentViewerIndex = 0;
