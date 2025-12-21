@@ -816,7 +816,7 @@ function closePdfModal() {
                 const items = chartData.filter(f => f.equipe === eq);
                 const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
                 const tempoFormatado = formatDisplayTime(avg);
-                barData.push([eq, {v: avg, f: tempoFormatado}, colorMap[eq], tempoFormatado, createCustomTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"), {v: limitValue, f: formatDisplayTime(limitValue)}]);
+                barData.push([eq, {v: avg, f: tempoFormatado}, colorMap[eq], tempoFormatado, createCustomTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"), limitValue]);
                 sum += avg; if(avg < bestAvg) { bestAvg = avg; bestTeam = eq; }
             });
             document.getElementById('bestTeam').innerText = bestTeam;
