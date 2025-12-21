@@ -806,7 +806,7 @@
                             color: '#000000', 
                             lineDashStyle: [4, 4], 
                             pointSize: 0, 
-                            lineWidth: 2, 
+                            lineWidth: 2.5,  // ← Pode aumentar um pouco
                             visibleInLegend: true
                         }
                     },
@@ -817,14 +817,18 @@
                         slantedText: false, 
                         maxAlternation: 1, 
                         textStyle: {fontSize: 10},
-                        // ✅ ADICIONE ESTAS LINHAS:
                         viewWindow: {
-                            min: -0.5,  // Estende antes da primeira barra
-                            max: null   // Estende após a última barra (null = automático)
-                        }
+                            min: -0.5,
+                            max: null
+                        },
+                        // ✅ ADICIONE TAMBÉM:
+                        baseline: 0,
+                        baselineColor: 'transparent'
                     },
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 11, bold: true}},
-                    backgroundColor: 'transparent'
+                    backgroundColor: 'transparent',
+                    // ✅ E ESTA OPÇÃO PARA FORÇAR INTERPOLAÇÃO:
+                    interpolateNulls: false
                 };
             }
             
