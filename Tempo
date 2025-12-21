@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .chart-container-bar { min-height: 350px; }
+        .chart-container-line { min-height: 450px; }
+        
+        @media (min-width: 768px) {
+            .chart-container-bar { min-height: 450px; }
+            .chart-container-line { min-height: 650px; }
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2563eb;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .custom-tooltip {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            font-size: 12px;
+            pointer-events: none;
+            min-width: 160px;
+        }
+        .tooltip-header {
+            display: flex;
+            align-items: center; gap: 8px; margin-bottom: 6px; font-weight: 800; color: #1e293b; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px;
+        }
+        .color-indicator { width: 12px; height: 12px; border-radius: 3px; }
+        
+        /* Custom Dropdown Styling */
+        .custom-select-container {
+            position: relative;
+            min-width: 200px;
+            z-index: 60;
+            transition: z-index 0.1s; /* Smooth transition for stacking context */
+        }
+        .custom-select-trigger {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .custom-select-options {
+            display: none;
+            position: absolute;
+            top: 100%; left: 0; right: 0; z-index: 100;
+            background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem;
+            margin-top: 0.5rem; max-height: 280px; overflow-y: auto;
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .custom-select-options.active { display: block; }
+        .option-item {
+            padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; cursor: pointer; transition: background 0.2s;
+        }
+        .option-item:hover { background-color: #f1f5f9; }
+        .option-item.selected { background-color: #eff6ff; color: #2563eb; font-weight: 600; }
+
+        .header-studio {
+            background: radial-gradient(circle at center, #2c2c2c 0%, #111111 100%);
+            position: relative; overflow: hidden;
+        }
+        .header-studio::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .logo-border {
+            border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; padding: 0; overflow: hidden; 
+            background-color: #ffffff; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        html, body { overflow-x: hidden; width: 100%; }
+
+        .btn-sheet { transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-sheet:hover { transform: translateY(-1px); background-color: #f1f5f9; }
+
+        .data-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
+        .data-table { width: 100%; min-width: 600px; border-collapse: separate; border-spacing: 0; }
+        .data-table th { background-color: #f1f5f9; color: #64748b; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 1rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .data-table td { padding: 1rem; font-size: 0.875rem; color: #334155; border-bottom: 1px solid #f1f5f9; }
+        .data-table tr:hover { background-color: #f8fafc; }
+
+        #customLineLegend > div { transition: all 0.2s ease; }
+        #customLineLegend > div:hover { transform: translateY(-2px); }
+        .legend-active { opacity: 1; transform: scale(1.05); }
+        .legend-inactive { opacity: 0.4; }
+
+        /* Footer Notification Bar Animation */
+        #complianceFooter {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        #complianceFooter.hidden-footer {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* Floating Info Button Animation */
+        #floatingInfoBtn {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+        }
+        #floatingInfoBtn.hidden-btn {
+            transform: scale(0) rotate(-180deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media screen and (max-width: 767px) and (orientation: portrait) {
+            #rotationWarning:not(.user-closed) { display: flex !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-900 antialiased pb-20 md:pb-0">
+
+    <div id="rotationWarning" class="hidden fixed top-4 left-4 right-4 z-[100] bg-blue-600 text-white p-4 rounded-2xl shadow-2xl items-center justify-between animate-bounce">
+        <div class="flex items-center gap-3">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <p class="text-xs font-bold leading-tight">Vire o celular para a horizontal para visualizar os gráficos melhor.</p>
+        </div>
+        <button onclick="const el = document.getElementById('rotationWarning'); el.classList.add('user-closed'); el.style.setProperty('display', 'none', 'important');" class="p-1 hover:bg-blue-700 rounded-lg">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+    </div>
+
+    <header class="header-studio w-full shadow-2xl mb-8">
+        <div class="max-w-[1600px] mx-auto px-4 py-4 md:py-5 flex flex-col md:flex-row items-center justify-center gap-4 md:gap-10 text-center relative z-10">
+            <div class="flex-shrink-0">
+                <a href="./">
+                    <img src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" alt="Logótipo SCI" class="h-12 md:h-16 aspect-square object-cover logo-border transition-transform hover:scale-105" onerror="this.src='https://via.placeholder.com/150x150?text=SCI+Logo'; this.classList.remove('logo-border');">
+                </a>
+            </div>
+            <div class="flex flex-col items-center md:items-start overflow-hidden">
+                <a href="./" class="group">
+                    <h1 class="text-lg sm:text-xl md:text-2xl lg:text-3xl font-extrabold tracking-tight text-white whitespace-nowrap drop-shadow-lg group-hover:text-blue-200 transition-colors">
+                        Exercício de Tempo Resposta
+                    </h1>
+                </a>
+                <p class="text-slate-400 text-[9px] sm:text-[10px] md:text-xs font-medium mt-0.5 whitespace-nowrap opacity-90 uppercase tracking-widest">
+                    SCI Aeroporto de Joinville
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1600px] mx-auto px-2 md:px-4 mb-24 md:mb-12">
+        
+        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 relative z-[60] px-4 md:px-8">
+            <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
+                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Acessar Planilha
+            </a>
+
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 custom-select-container" id="typeContainer">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Tipo de Medição</label>
+                    <div id="typeTrigger" class="custom-select-trigger font-semibold text-slate-700 p-1 text-sm min-w-[180px]">
+                        <span id="typeLabel">Tempo Total</span>
+                        <svg class="w-4 h-4 text-slate-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="typeOptions" class="custom-select-options">
+                        <div class="option-item selected" data-value="final">Tempo Total</div>
+                        <div class="option-item" data-value="tempo1">Embarque CCI</div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 custom-select-container" id="localContainer">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Localização</label>
+                    <div id="localMultiSelect" class="custom-select-trigger font-semibold text-slate-700 p-1 text-sm min-w-[180px]">
+                        <span id="localLabel" class="truncate">Todos os Locais</span>
+                        <svg class="w-4 h-4 text-slate-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="localOptions" class="custom-select-options"></div>
+                </div>
+
+                <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 custom-select-container" id="periodContainer">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Período Analisado</label>
+                    <div id="periodTrigger" class="custom-select-trigger font-semibold text-slate-700 p-1 text-sm min-w-[180px]">
+                        <span id="periodLabel">Todo o Histórico</span>
+                        <svg class="w-4 h-4 text-slate-400 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div id="periodOptions" class="custom-select-options">
+                        <div class="option-item selected" data-value="all">Todo o Histórico</div>
+                        <div class="option-item" data-value="year">Ano Atual</div>
+                        <div class="option-item" data-value="6months">Últimos 6 meses</div>
+                        <div class="option-item" data-value="last">Último de cada equipe</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="errorMessage" class="hidden mb-8 p-5 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-sm font-medium text-center"></div>
+
+        <!-- Ajustado para evitar quebra 2+1: ou 1 por linha (mobile) ou 3 por linha (md em diante) -->
+        <div class="flex flex-col md:flex-row gap-6 mb-12 relative z-10 px-4 md:px-0">
+            <div class="glass-card py-4 px-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm flex-1">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="p-2 bg-emerald-50 rounded-xl">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Melhor Tempo</p>
+                </div>
+                <div id="bestTeam" class="text-xl md:text-2xl font-bold text-slate-900 truncate">...</div>
+            </div>
+
+            <div class="glass-card py-4 px-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm flex-1">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="p-2 bg-blue-50 rounded-xl">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Média Geral</p>
+                </div>
+                <div id="avgTime" class="text-xl md:text-2xl font-bold text-slate-900">--:--</div>
+            </div>
+
+            <div class="glass-card py-4 px-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm flex-1">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="p-2 bg-slate-50 rounded-xl">
+                        <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Exercícios</p>
+                </div>
+                <div id="totalTests" class="text-xl md:text-2xl font-bold text-slate-900">0</div>
+            </div>
+        </div>
+
+        <div class="space-y-8 md:space-y-12 mb-12">
+            <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
+                <div class="mb-4 md:mb-6 px-2 text-center md:text-left">
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800">Desempenho por Equipe</h3>
+                    <p class="text-slate-400 text-xs md:text-sm">Média de tempo atingida por grupo.</p>
+                </div>
+                <div id="barChart" class="chart-container-bar flex items-center justify-center">
+                    <div class="loader"></div>
+                </div>
+            </div>
+
+            <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
+                <div class="mb-4 md:mb-6 px-2 text-center md:text-left">
+                    <h3 class="text-xl md:text-2xl font-bold text-slate-800">Evolução dos Tempos</h3>
+                    <p class="text-slate-400 text-xs md:text-sm">Análise histórica Mensal.</p>
+                </div>
+                <div id="lineChart" class="chart-container-line flex items-center justify-center">
+                    <div class="loader"></div>
+                </div>
+                <div id="customLineLegend" class="flex flex-wrap justify-center gap-x-6 gap-y-4 mt-6 px-4"></div>
+                
+                <div class="text-center mt-6">
+                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Clique na equipe para evidenciar sua linha</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden mb-12">
+            <div class="mb-4 md:mb-6 px-2">
+                <h3 class="text-xl md:text-2xl font-bold text-slate-800">Histórico de Exercícios</h3>
+                <p class="text-slate-400 text-xs md:text-sm">Listagem detalhada dos registos utilizados.</p>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Equipe</th>
+                            <th id="thTempo1">Embarque CCI</th>
+                            <th id="thTempoFinal">Tempo Total</th>
+                            <th>Local</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="mb-10 px-2 flex flex-col md:flex-row items-center justify-between text-slate-400 text-[10px] md:text-xs border-t border-slate-200 pt-8 gap-4">
+            <p class="text-center md:text-left">&copy; 2025 SCI Aeroporto de Joinville - Central SCI JOI</p>
+            <div class="flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                Status: <span id="syncStatus" class="font-bold uppercase tracking-widest text-[9px] md:text-[10px]">Sincronizado</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Footer de Conformidade (Rodapé Clean) -->
+    <div id="complianceFooter" class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-4 md:px-8">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-start gap-3 flex-1">
+                <div class="mt-1 hidden md:block">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <p class="text-xs md:text-sm text-slate-600 leading-snug text-center md:text-left">
+                    Os indicadores deste painel atendem ao <strong class="text-slate-800">RBAC 153</strong>, com aferições realizadas conforme referência técnica da Instrução Suplementar Nº <strong class="text-slate-800">153.409-001</strong> da ANAC.
+                </p>
+            </div>
+            <div class="flex items-center gap-3 w-full md:w-auto justify-center md:justify-end">
+                <button onclick="openPdfModal()" class="flex-grow md:flex-grow-0 px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs md:text-sm font-bold rounded-xl transition-all shadow-sm active:scale-95 whitespace-nowrap">
+                    Consultar IS
+                </button>
+                <button onclick="toggleFooter(false)" class="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all" aria-label="Fechar notificação">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botão Flutuante 'Info' (Aparece quando o footer é fechado) -->
+    <button id="floatingInfoBtn" onclick="toggleFooter(true)" class="hidden-btn fixed bottom-4 right-4 z-40 bg-slate-800 hover:bg-slate-700 text-white p-3 rounded-full shadow-lg transition-transform hover:scale-110 active:scale-95 group">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span class="absolute right-full mr-2 bg-slate-800 text-white text-xs font-bold py-1 px-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-sm">
+            Normativa ANAC
+        </span>
+    </button>
+
+    <!-- Modal PDF -->
+    <div id="pdfModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity opacity-0" id="modalBackdrop" onclick="closePdfModal()"></div>
+
+        <!-- Modal Panel -->
+        <div class="fixed inset-4 md:inset-10 z-10 flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all scale-95 opacity-0" id="modalPanel">
+            <!-- Header Modal -->
+            <div class="bg-slate-900 px-4 py-3 md:px-6 md:py-4 flex items-center justify-between shadow-md shrink-0">
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="bg-white/10 p-1.5 rounded-lg shrink-0">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <h3 class="text-sm md:text-base font-bold text-white leading-tight truncate" id="modal-title">IS Nº 153.409-001</h3>
+                        <span class="text-[10px] md:text-xs text-slate-300 truncate">Instrução Suplementar ANAC</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 md:gap-3 shrink-0">
+                    <a href="https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf" target="_blank" class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition-colors">
+                        <span>Abrir Original</span>
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                    <button onclick="closePdfModal()" class="p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile "Abrir Original" Bar (only small screens) -->
+            <div class="sm:hidden bg-slate-100 border-b border-slate-200 px-4 py-2 flex justify-center shrink-0">
+                <a href="https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf" target="_blank" class="text-blue-600 text-xs font-bold flex items-center gap-1">
+                    Abrir PDF Original em Nova Aba
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            </div>
+
+            <!-- Iframe Container -->
+            <div class="flex-1 bg-slate-50 relative w-full h-full">
+                <div class="absolute inset-0 flex items-center justify-center z-0">
+                    <div class="loader"></div>
+                </div>
+                <iframe id="pdfIframe" class="absolute inset-0 w-full h-full z-10" src="" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+        // ============================================
+        // 📦 CONFIGURAÇÃO GLOBAL
+        // ============================================
+        const CONFIG = {
+            SHEET_ID: '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg',
+            TIME_LIMIT: 180,
+            COLOR_PALETTE: ['#2563eb', '#dc2626', '#f59e0b', '#059669', '#7c3aed']
+        };
+
+        // ============================================
+        // 📦 MÓDULO: DADOS
+        // ============================================
+        const DataModule = {
+            // Estado interno
+            _fullData: [],
+            _filteredData: [],
+            
+            // Getter público
+            getFullData() {
+                return this._fullData;
+            },
+            
+            getFilteredData() {
+                return this._filteredData;
+            },
+            
+            // Buscar dados do Google Sheets
+            async fetch() {
+                const query = encodeURIComponent('Select B, C, D, G, H offset 2');
+                const url = `https://docs.google.com/spreadsheets/d/${CONFIG.SHEET_ID}/gviz/tq?tq=${query}&headers=0`;
+                
+                try {
+                    const response = await fetch(url);
+                    const text = await response.text();
+                    const json = JSON.parse(text.substring(47, text.length - 2));
+                    this._processData(json.table);
+                    return true;
+                } catch (error) {
+                    console.error('Erro ao buscar dados:', error);
+                    UIModule.showError('Erro ao carregar dados.');
+                    return false;
+                }
+            },
+            
+            // Filtrar dados
+            filter(locais, periodo, tipo) {
+                let result = [...this._fullData];
+                
+                // Filtro de locais
+                if (locais.length > 0) {
+                    result = result.filter(d => locais.includes(d.local));
+                }
+                
+                // Filtro de período
+                if (periodo === 'year') {
+                    const year = new Date().getFullYear();
+                    result = result.filter(d => d.dataObj.getFullYear() === year);
+                } else if (periodo === '6months') {
+                    const limit = new Date();
+                    limit.setMonth(limit.getMonth() - 6);
+                    result = result.filter(d => d.dataObj >= limit);
+                } else if (periodo === 'last') {
+                    const map = {};
+                    result.forEach(d => {
+                        if (!map[d.equipe] || d.dataObj > map[d.equipe].dataObj) {
+                            map[d.equipe] = d;
+                        }
+                    });
+                    result = Object.values(map);
+                }
+                
+                // Adicionar tempo baseado no tipo
+                result = result.map(d => ({
+                    ...d,
+                    tempo: tipo === 'tempo1' ? d.tempo1 : d.tempoFinal
+                })).filter(d => d.tempo > 0);
+                
+                this._filteredData = result;
+                return result;
+            },
+            
+            getUniqueLocations() {
+                return [...new Set(this._fullData.map(d => d.local))].sort();
+            },
+            
+            // Métodos privados (convenção _)
+            _processData(table) {
+                this._fullData = table.rows.map((row, index) => {
+                    const rawDate = row.c[0] ? (row.c[0].f || row.c[0].v) : null;
+                    return {
+                        id: index,
+                        dataStr: rawDate,
+                        dataObj: this._parseDate(rawDate),
+                        equipe: row.c[1] ? row.c[1].v : null,
+                        local: row.c[2] ? row.c[2].v : 'N/A',
+                        tempo1: this._parseDuration(row.c[3]),
+                        tempoFinal: this._parseDuration(row.c[4])
+                    };
+                }).filter(d => 
+                    d.equipe !== null && 
+                    d.dataObj !== null && 
+                    (d.tempo1 > 0 || d.tempoFinal > 0)
+                );
+                
+                this._fullData.sort((a, b) => a.dataObj - b.dataObj);
+            },
+            
+            _parseDate(dateStr) {
+                if (!dateStr) return null;
+                const parts = dateStr.split('/');
+                return parts.length === 3 
+                    ? new Date(parts[2], parts[1] - 1, parts[0], 12, 0, 0)
+                    : new Date(dateStr);
+            },
+            
+            _parseDuration(cell) {
+                if (!cell) return 0;
+                if (cell.f && cell.f.includes(':')) {
+                    const parts = cell.f.split(':');
+                    if (parts.length === 3) {
+                        return (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2]);
+                    }
+                    if (parts.length === 2) {
+                        return (+parts[0]) * 60 + (+parts[1]);
+                    }
+                }
+                if (typeof cell.v === 'number') {
+                    return cell.v < 1 ? Math.round(cell.v * 86400) : Math.round(cell.v);
+                }
+                return 0;
+            }
+        };
+
+        // ============================================
+        // 📦 MÓDULO: INTERFACE (UI)
+        // ============================================
+        const UIModule = {
+            elements: {},
+            
+            init() {
+                // Cachear elementos DOM
+                this.elements = {
+                    bestTeam: document.getElementById('bestTeam'),
+                    avgTime: document.getElementById('avgTime'),
+                    totalTests: document.getElementById('totalTests'),
+                    barChart: document.getElementById('barChart'),
+                    lineChart: document.getElementById('lineChart'),
+                    dataTableBody: document.getElementById('dataTableBody'),
+                    errorMessage: document.getElementById('errorMessage')
+                };
+            },
+            
+            showLoading(containerId) {
+                const el = document.getElementById(containerId);
+                if (el) {
+                    el.innerHTML = '<div class="loader"></div>';
+                }
+            },
+            
+            showError(message) {
+                if (this.elements.errorMessage) {
+                    this.elements.errorMessage.classList.remove('hidden');
+                    this.elements.errorMessage.innerText = message;
+                }
+            },
+            
+            updateStats(stats) {
+                if (this.elements.bestTeam) {
+                    this.elements.bestTeam.innerText = stats.bestTeam;
+                }
+                if (this.elements.avgTime) {
+                    this.elements.avgTime.innerText = this.formatTime(stats.avgTime);
+                }
+                if (this.elements.totalTests) {
+                    this.elements.totalTests.innerText = stats.totalTests;
+                }
+            },
+            
+            updateTable(data, colorMap) {
+                if (!this.elements.dataTableBody) return;
+                
+                const sortedData = [...data].sort((a, b) => b.dataObj - a.dataObj);
+                
+                this.elements.dataTableBody.innerHTML = sortedData.map(row => {
+                    const color = colorMap[row.equipe];
+                    return `
+                        <tr>
+                            <td class="font-medium text-slate-600">${row.dataStr}</td>
+                            <td>
+                                <span class="px-2 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-tight" 
+                                      style="background-color: ${color}15; color: ${color}; border: 1px solid ${color}30">
+                                    ${row.equipe}
+                                </span>
+                            </td>
+                            <td class="font-mono text-slate-500 text-xs">${this.formatTime(row.tempo1)}</td>
+                            <td class="font-mono font-bold text-slate-800">${this.formatTime(row.tempoFinal)}</td>
+                            <td class="text-slate-500 italic text-xs">${row.local}</td>
+                        </tr>
+                    `;
+                }).join('');
+            },
+            
+            formatTime(totalSeconds) {
+                if (isNaN(totalSeconds) || totalSeconds < 0) return "0:00";
+                const m = Math.floor(totalSeconds / 60);
+                const s = Math.round(totalSeconds % 60);
+                return `${m}:${s < 10 ? '0' : ''}${s}`;
+            }
+        };
+
+        // ============================================
+        // 📦 MÓDULO: GRÁFICOS
+        // ============================================
+        const ChartModule = {
+            instances: {
+                bar: null,
+                line: null
+            },
+            
+            highlightedTeam: null,
+            
+            drawBarChart(data, tipo) {
+                const equipes = [...new Set(data.map(d => d.equipe))].sort();
+                const colorMap = this._getColorMap(equipes);
+                
+                const limitValue = tipo === 'tempo1' 
+                    ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
+                    : CONFIG.TIME_LIMIT;
+                    
+                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                
+                // Preparar dados
+                const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
+                
+                equipes.forEach(eq => {
+                    const items = data.filter(f => f.equipe === eq);
+                    const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+                    const tempoFormatado = UIModule.formatTime(avg);
+                    
+                    chartData.push([
+                        eq,
+                        {v: avg, f: tempoFormatado},
+                        colorMap[eq],
+                        tempoFormatado,
+                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
+                        limitValue
+                    ]);
+                });
+                
+                // Desenhar
+                this.instances.bar = new google.visualization.ComboChart(
+                    document.getElementById('barChart')
+                );
+                
+                this.instances.bar.draw(
+                    google.visualization.arrayToDataTable(chartData),
+                    this._getBarOptions(tipo)
+                );
+                
+                return colorMap;
+            },
+            
+            drawLineChart(data, tipo, colorMap) {
+                const equipes = [...new Set(data.map(d => d.equipe))].sort();
+                const dates = [...new Set(data.map(d => d.dataObj.getTime()))].sort((a, b) => a - b);
+                
+                const limitValue = tipo === 'tempo1'
+                    ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
+                    : CONFIG.TIME_LIMIT;
+                    
+                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                
+                // Criar DataTable
+                const lineDataTable = new google.visualization.DataTable();
+                lineDataTable.addColumn('date', 'Data');
+                
+                equipes.forEach(eq => {
+                    lineDataTable.addColumn('number', eq);
+                    lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
+                });
+                
+                lineDataTable.addColumn('number', limitLabel);
+                
+                // Preencher dados
+                dates.forEach(t => {
+                    const dataAtual = new Date(t);
+                    const row = [dataAtual];
+                    
+                    equipes.forEach(eq => {
+                        const found = data.find(f => f.dataObj.getTime() === t && f.equipe === eq);
+                        if (found) {
+                            const tooltipLabel = tipo === 'tempo1' ? 'Embarque CCI' : 'TEMPO TOTAL';
+                            const tempo1ParaTooltip = tipo === 'final' ? found.tempo1 : null;
+                            
+                            row.push({v: found.tempo, f: UIModule.formatTime(found.tempo)});
+                            row.push(this._createTooltip(
+                                eq,
+                                colorMap[eq],
+                                found.tempo,
+                                tooltipLabel,
+                                found.dataStr,
+                                found.local,
+                                tempo1ParaTooltip
+                            ));
+                        } else {
+                            row.push(null);
+                            row.push(null);
+                        }
+                    });
+                    
+                    row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
+                    lineDataTable.addRow(row);
+                });
+                
+                // Desenhar
+                this.instances.line = new google.visualization.LineChart(
+                    document.getElementById('lineChart')
+                );
+                
+                this.instances.line.draw(
+                    lineDataTable,
+                    this._getLineOptions(equipes, colorMap, tipo)
+                );
+                
+                this._updateCustomLegend(equipes, colorMap, limitLabel);
+            },
+            
+            _getColorMap(equipes) {
+                const map = {};
+                equipes.forEach((e, i) => {
+                    map[e] = CONFIG.COLOR_PALETTE[i % CONFIG.COLOR_PALETTE.length];
+                });
+                return map;
+            },
+            
+            _createTooltip(equipe, cor, tempoVal, labelPrincipal, dataStr = null, local = null, tempo1Val = null) {
+                const tempoPrincipalFmt = UIModule.formatTime(tempoVal);
+                const tempo1Fmt = tempo1Val !== null ? UIModule.formatTime(tempo1Val) : null;
+                
+                return `
+                    <div class="custom-tooltip">
+                        <div class="tooltip-header">
+                            <div class="color-indicator" style="background-color: ${cor}"></div>
+                            <span>${equipe}</span>
+                        </div>
+                        <div style="line-height: 1.6;">
+                            ${dataStr ? `<div style="color: #64748b; font-size: 10px;">DATA: <b style="color: #334155">${dataStr}</b></div>` : ''}
+                            ${tempo1Fmt ? `<div style="color: #64748b; font-size: 10px;">Embarque CCI: <b style="color: #334155">${tempo1Fmt}</b></div>` : ''}
+                            <div style="color: #64748b; font-size: 10px;">${labelPrincipal}: <b style="color: #1e293b; font-size: 12px;">${tempoPrincipalFmt}</b></div>
+                            ${local ? `<div style="color: #64748b; font-size: 10px; margin-top: 4px; border-top: 1px dashed #e2e8f0; padding-top: 4px;">LOCAL: <b style="color: #334155">${local}</b></div>` : ''}
+                        </div>
+                    </div>
+                `;
+            },
+            
+            _getBarOptions(tipo) {
+                const ticks = [];
+                const viewWindow = {};
+                
+                if (tipo === 'tempo1') {
+                    for (let i = 20; i <= 60; i += 5) {
+                        ticks.push({v: i, f: UIModule.formatTime(i)});
+                    }
+                    viewWindow.min = 20;
+                    viewWindow.max = 60;
+                } else {
+                    for (let i = 0; i <= 240; i += 30) {
+                        ticks.push({v: i, f: UIModule.formatTime(i)});
+                    }
+                    viewWindow.min = 0;
+                    viewWindow.max = 240;
+                }
+                
+                return {
+                    seriesType: 'bars',
+                    tooltip: {isHtml: true, trigger: 'both'},
+                    series: {
+                        0: {color: '#475569'},
+                        1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true}
+                    },
+                    legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
+                    chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                    vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
+                    hAxis: {slantedText: false, maxAlternation: 1, textStyle: {fontSize: 10}},
+                    annotations: {alwaysOutside: true, textStyle: {fontSize: 11, bold: true}},
+                    backgroundColor: 'transparent'
+                };
+            },
+            
+            _getLineOptions(equipes, colorMap, tipo) {
+                const seriesOptions = {};
+                
+                equipes.forEach((eq, index) => {
+                    const baseColor = colorMap[eq];
+                    if (this.highlightedTeam) {
+                        seriesOptions[index] = {
+                            color: (this.highlightedTeam === eq ? baseColor : '#e2e8f0'),
+                            lineWidth: (this.highlightedTeam === eq ? 4 : 1),
+                            areaOpacity: (this.highlightedTeam === eq ? 0.1 : 0)
+                        };
+                    } else {
+                        seriesOptions[index] = {color: baseColor, lineWidth: 3};
+                    }
+                });
+                
+                seriesOptions[equipes.length] = {
+                    color: '#000000',
+                    lineDashStyle: [4, 4],
+                    pointSize: 0,
+                    lineWidth: 2
+                };
+                
+                const ticks = [];
+                const viewWindow = {};
+                
+                if (tipo === 'tempo1') {
+                    for (let i = 20; i <= 60; i += 5) {
+                        ticks.push({v: i, f: UIModule.formatTime(i)});
+                    }
+                    viewWindow.min = 20;
+                    viewWindow.max = 60;
+                } else {
+                    for (let i = 0; i <= 240; i += 30) {
+                        ticks.push({v: i, f: UIModule.formatTime(i)});
+                    }
+                    viewWindow.min = 0;
+                    viewWindow.max = 240;
+                }
+                
+                return {
+                    curveType: 'function',
+                    pointSize: 10,
+                    interpolateNulls: true,
+                    tooltip: {isHtml: true, trigger: 'both'},
+                    legend: {position: 'none'},
+                    series: seriesOptions,
+                    chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                    vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
+                    hAxis: {format: "MMM/yy", gridlines: {count: -1}, minorGridlines: {count: 0}},
+                    backgroundColor: 'transparent'
+                };
+            },
+            
+            _updateCustomLegend(equipes, colorMap, limitLabel) {
+                const customLegend = document.getElementById('customLineLegend');
+                if (!customLegend) return;
+                
+                customLegend.innerHTML = '';
+                
+                equipes.forEach(eq => {
+                    const color = colorMap[eq];
+                    const isActive = this.highlightedTeam === eq;
+                    const isFaded = this.highlightedTeam && !isActive;
+                    
+                    const item = document.createElement('div');
+                    item.className = `flex flex-col items-center gap-1 min-w-[60px] cursor-pointer ${isActive ? 'legend-active' : ''} ${isFaded ? 'legend-inactive' : ''}`;
+                    
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        this.highlightedTeam = (this.highlightedTeam === eq) ? null : eq;
+                        App.refresh();
+                    };
+                    
+                    item.innerHTML = `
+                        <div class="flex items-center justify-center h-4 w-full">
+                            <div class="h-[3px] w-8 rounded-full relative flex items-center justify-center" style="background-color: ${color}">
+                                <div class="w-2.5 h-2.5 rounded-full border-2 border-white absolute" style="background-color: ${color}"></div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-tight text-center leading-tight ${isActive ? 'text-slate-900' : ''}">${eq}</span>
+                    `;
+                    
+                    customLegend.appendChild(item);
+                });
+                
+                // Adicionar item do limite
+                const limitItem = document.createElement('div');
+                limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
+                limitItem.innerHTML = `
+                    <div class="flex items-center justify-center h-4 w-full">
+                        <div class="h-[2px] w-8 border-t-2 border-dashed border-slate-900"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-900 uppercase tracking-tight text-center leading-tight">${limitLabel}</span>
+                `;
+                customLegend.appendChild(limitItem);
+            }
+        };
+
+        // ============================================
+        // 📦 MÓDULO: FILTROS
+        // ============================================
+        const FilterModule = {
+            state: {
+                locais: [],
+                periodo: 'all',
+                tipo: 'final'
+            },
+            
+            init() {
+                this._setupTypeSelect();
+                this._setupPeriodSelect();
+                this._setupGlobalClickHandler();
+            },
+            
+            initLocalSelect(locations) {
+                this.state.locais = [...locations];
+                this._setupLocalMultiSelect(locations);
+            },
+            
+            getState() {
+                return {...this.state};
+            },
+            
+            _setupTypeSelect() {
+                const trigger = document.getElementById('typeTrigger');
+                const options = document.getElementById('typeOptions');
+                const label = document.getElementById('typeLabel');
+                
+                if (!trigger || !options) return;
+                
+                trigger.onclick = (e) => {
+                    e.stopPropagation();
+                    this._closeOthers('typeContainer');
+                    options.classList.toggle('active');
+                    document.getElementById('typeContainer').style.zIndex = 
+                        options.classList.contains('active') ? '80' : '';
+                };
+                
+                options.querySelectorAll('.option-item').forEach(opt => {
+                    opt.onclick = () => {
+                        options.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+                        opt.classList.add('selected');
+                        this.state.tipo = opt.dataset.value;
+                        label.innerText = opt.innerText;
+                        options.classList.remove('active');
+                        document.getElementById('typeContainer').style.zIndex = '';
+                        App.refresh();
+                    };
+                });
+            },
+            
+            _setupPeriodSelect() {
+                const trigger = document.getElementById('periodTrigger');
+                const options = document.getElementById('periodOptions');
+                const label = document.getElementById('periodLabel');
+                
+                if (!trigger || !options) return;
+                
+                trigger.onclick = (e) => {
+                    e.stopPropagation();
+                    this._closeOthers('periodContainer');
+                    options.classList.toggle('active');
+                    document.getElementById('periodContainer').style.zIndex = 
+                        options.classList.contains('active') ? '80' : '';
+                };
+                
+                options.querySelectorAll('.option-item').forEach(opt => {
+                    opt.onclick = () => {
+                        options.querySelectorAll('.option-item').forEach(o => o.classList.remove('selected'));
+                        opt.classList.add('selected');
+                        this.state.periodo = opt.dataset.value;
+                        label.innerText = opt.innerText;
+                        options.classList.remove('active');
+                        document.getElementById('periodContainer').style.zIndex = '';
+                        App.refresh();
+                    };
+                });
+            },
+            
+            _setupLocalMultiSelect(locais) {
+                const trigger = document.getElementById('localMultiSelect');
+                const optionsContainer = document.getElementById('localOptions');
+                const label = document.getElementById('localLabel');
+                
+                if (!trigger || !optionsContainer) return;
+                
+                trigger.onclick = (e) => {
+                    e.stopPropagation();
+                    this._closeOthers('localContainer');
+                    optionsContainer.classList.toggle('active');
+                    document.getElementById('localContainer').style.zIndex = 
+                        optionsContainer.classList.contains('active') ? '80' : '';
+                };
+                
+                optionsContainer.innerHTML = '';
+                
+                // Botão "Selecionar Todos"
+                const allItem = document.createElement('div');
+                allItem.className = 'option-item border-b border-slate-100 font-bold text-blue-600 hover:bg-blue-50';
+                allItem.innerHTML = '<span>Selecionar Todos</span>';
+                allItem.onclick = (e) => {
+                    e.stopPropagation();
+                    this.state.locais = [...locais];
+                    this._updateLocalCheckboxes(locais);
+                    App.refresh();
+                };
+                optionsContainer.appendChild(allItem);
+                
+                // Botão "Limpar Seleção"
+                const noneItem = document.createElement('div');
+                noneItem.className = 'option-item border-b border-slate-100 font-bold text-slate-400 hover:bg-slate-50';
+                noneItem.innerHTML = '<span>Limpar Seleção</span>';
+                noneItem.onclick = (e) => {
+                    e.stopPropagation();
+                    this.state.locais = [];
+                    this._updateLocalCheckboxes(locais);
+                    App.refresh();
+                };
+                optionsContainer.appendChild(noneItem);
+                
+                // Checkboxes de locais
+                locais.forEach(local => {
+                    const div = document.createElement('div');
+                    div.className = 'option-item';
+                    div.innerHTML = `
+                        <input type="checkbox" value="${local}" id="chk_${local}" checked>
+                        <label for="chk_${local}" class="flex-grow cursor-pointer truncate text-slate-700 font-medium">${local}</label>
+                    `;
+                    
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        const chk = div.querySelector('input');
+                        if (e.target !== chk) chk.checked = !chk.checked;
+                        
+                        if (chk.checked) {
+                            if (!this.state.locais.includes(local)) {
+                                this.state.locais.push(local);
+                            }
+                        } else {
+                            this.state.locais = this.state.locais.filter(l => l !== local);
+                        }
+                        
+                        this._updateLabel(locais);
+                        App.refresh();
+                    };
+                    
+                    optionsContainer.appendChild(div);
+                });
+                
+                this._updateLabel(locais);
+            },
+            
+            _updateLocalCheckboxes(locais) {
+                const optionsContainer = document.getElementById('localOptions');
+                if (!optionsContainer) return;
+                
+                const checks = optionsContainer.querySelectorAll('input[type="checkbox"]');
+                checks.forEach(c => {
+                    c.checked = this.state.locais.includes(c.value);
+                });
+                
+                this._updateLabel(locais);
+            },
+            
+            _updateLabel(locais) {
+                const label = document.getElementById('localLabel');
+                if (!label) return;
+                
+                if (this.state.locais.length === 0) {
+                    label.innerText = "Nenhum Local";
+                } else if (this.state.locais.length === locais.length) {
+                    label.innerText = "Todos os Locais";
+                } else if (this.state.locais.length === 1) {
+                    label.innerText = this.state.locais[0];
+                } else {
+                    label.innerText = `${this.state.locais.length} Locais`;
+                }
+            },
+            
+            _closeOthers(exceptId) {
+                const ids = ['typeContainer', 'localContainer', 'periodContainer'];
+                ids.forEach(id => {
+                    if (id !== exceptId) {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.querySelector('.custom-select-options').classList.remove('active');
+                            el.style.zIndex = '';
+                        }
+                    }
+                });
+            },
+            
+            _setupGlobalClickHandler() {
+                window.addEventListener('click', (e) => {
+                    const selects = ['typeContainer', 'localContainer', 'periodContainer'];
+                    selects.forEach(id => {
+                        const el = document.getElementById(id);
+                        if (el && !el.contains(e.target)) {
+                            el.querySelector('.custom-select-options').classList.remove('active');
+                            el.style.zIndex = '';
+                        }
+                    });
+                });
+            }
+        };
+
+        // ============================================
+        // 📦 MÓDULO: MODAL PDF
+        // ============================================
+        const ModalModule = {
+            PDF_VIEWERS: [
+                {
+                    name: "Google Drive Preview",
+                    url: "https://drive.google.com/file/d/1EiiSe5oGFNgJ2ttoJsKS-luNqWE838kj/preview"
+                },
+                {
+                    name: "Google Drive Embed",
+                    url: "https://drive.google.com/file/d/1EiiSe5oGFNgJ2ttoJsKS-luNqWE838kj/view?embedded=true"
+                },
+                {
+                    name: "Mozilla PDF.js",
+                    url: "https://mozilla.github.io/pdf.js/web/viewer.html?file=" + 
+                         encodeURIComponent("https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf")
+                }
+            ],
+            
+            currentViewerIndex: 0,
+            autoLoadTimeout: null,
+            
+            open() {
+                const modal = document.getElementById('pdfModal');
+                const backdrop = document.getElementById('modalBackdrop');
+                const panel = document.getElementById('modalPanel');
+                
+                this.currentViewerIndex = 0;
+                this._loadPdfMethod();
+                
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    backdrop.classList.remove('opacity-0');
+                    panel.classList.remove('scale-95', 'opacity-0');
+                    panel.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+            
+            close() {
+                const modal = document.getElementById('pdfModal');
+                const backdrop = document.getElementById('modalBackdrop');
+                const panel = document.getElementById('modalPanel');
+                
+                backdrop.classList.add('opacity-0');
+                panel.classList.remove('scale-100', 'opacity-100');
+                panel.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 300);
+            },
+            
+            _loadPdfMethod() {
+                if (this.currentViewerIndex >= this.PDF_VIEWERS.length) {
+                    console.error('Todos os métodos de visualização falharam');
+                    window.open("https://www.anac.gov.br/assuntos/legislacao/legislacao-1/iac-e-is/is/is-153-409-001/@@display-file/arquivo_norma/IS153.409-001A.pdf", '_blank');
+                    return;
+                }
+                
+                const iframe = document.getElementById('pdfIframe');
+                const currentMethod = this.PDF_VIEWERS[this.currentViewerIndex];
+                
+                console.log(`Tentando método ${this.currentViewerIndex + 1} de ${this.PDF_VIEWERS.length}: ${currentMethod.name}`);
+                
+                iframe.src = currentMethod.url;
+                
+                if (this.autoLoadTimeout) clearTimeout(this.autoLoadTimeout);
+                this.autoLoadTimeout = setTimeout(() => {
+                    console.log(`Timeout do método ${this.currentViewerIndex + 1}, tentando próximo...`);
+                    this.currentViewerIndex++;
+                    this._loadPdfMethod();
+                }, 8000);
+                
+                iframe.onload = () => {
+                    setTimeout(() => {
+                        try {
+                            if (iframe.contentWindow) {
+                                clearTimeout(this.autoLoadTimeout);
+                                console.log('PDF carregado com sucesso!');
+                            }
+                        } catch(e) {
+                            clearTimeout(this.autoLoadTimeout);
+                            console.log('Iframe carregado (CORS pode estar bloqueando verificação)');
+                        }
+                    }, 1000);
+                };
+            }
+        };
+
+        // ============================================
+        // 📦 MÓDULO: FOOTER DE CONFORMIDADE
+        // ============================================
+        const FooterModule = {
+            toggle(show) {
+                const footer = document.getElementById('complianceFooter');
+                const floatingBtn = document.getElementById('floatingInfoBtn');
+                
+                if (show) {
+                    footer.classList.remove('hidden-footer');
+                    floatingBtn.classList.add('hidden-btn');
+                } else {
+                    footer.classList.add('hidden-footer');
+                    floatingBtn.classList.remove('hidden-btn');
+                }
+            }
+        };
+
+        // ============================================
+        // 🎯 APLICAÇÃO PRINCIPAL
+        // ============================================
+        const App = {
+            async init() {
+                // Inicializar módulos
+                UIModule.init();
+                FilterModule.init();
+                
+                // Mostrar loading
+                UIModule.showLoading('barChart');
+                UIModule.showLoading('lineChart');
+                
+                // Carregar dados
+                const success = await DataModule.fetch();
+                
+                if (!success) {
+                    return;
+                }
+                
+                // Inicializar filtro de locais
+                const locations = DataModule.getUniqueLocations();
+                FilterModule.initLocalSelect(locations);
+                
+                // Desenhar dashboard inicial
+                this.refresh();
+            },
+            
+            refresh() {
+                const filters = FilterModule.getState();
+                const data = DataModule.filter(
+                    filters.locais,
+                    filters.periodo,
+                    filters.tipo
+                );
+                
+                if (data.length === 0) {
+                    UIModule.updateStats({
+                        bestTeam: '-',
+                        avgTime: 0,
+                        totalTests: 0
+                    });
+                    return;
+                }
+                
+                // Calcular estatísticas
+                const stats = this._calculateStats(data);
+                UIModule.updateStats(stats);
+                
+                // Desenhar gráficos
+                const colorMap = ChartModule.drawBarChart(data, filters.tipo);
+                ChartModule.drawLineChart(data, filters.tipo, colorMap);
+                
+                // Atualizar tabela
+                UIModule.updateTable(data, colorMap);
+            },
+            
+            _calculateStats(data) {
+                let bestAvg = Infinity;
+                let bestTeam = '-';
+                let sumAvg = 0;
+                
+                const equipes = [...new Set(data.map(d => d.equipe))];
+                
+                equipes.forEach(eq => {
+                    const items = data.filter(f => f.equipe === eq);
+                    const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+                    sumAvg += avg;
+                    
+                    if (avg < bestAvg) {
+                        bestAvg = avg;
+                        bestTeam = eq;
+                    }
+                });
+                
+                return {
+                    bestTeam: bestTeam,
+                    avgTime: sumAvg / (equipes.length || 1),
+                    totalTests: data.length
+                };
+            }
+        };
+
+        // ============================================
+        // 🚀 FUNÇÕES GLOBAIS (para onclick no HTML)
+        // ============================================
+        function openPdfModal() {
+            ModalModule.open();
+        }
+        
+        function closePdfModal() {
+            ModalModule.close();
+        }
+        
+        function toggleFooter(show) {
+            FooterModule.toggle(show);
+        }
+
+        // ============================================
+        // 🚀 INICIALIZAÇÃO
+        // ============================================
+        window.onload = function() {
+            if (typeof google !== 'undefined') {
+                google.charts.load('current', {'packages': ['corechart'], 'language': 'pt-br'});
+                google.charts.setOnLoadCallback(() => App.init());
+            }
+        };
+        
+        window.onresize = function() {
+            App.refresh();
+        };
+    </script>
+</body>
+</html>
+
+## 📚 **ESTRUTURA**
+```
+┌─────────────────────────────────────┐
+│         CONFIG GLOBAL               │ ← Constantes compartilhadas
+├─────────────────────────────────────┤
+│         DataModule                  │ ← Buscar/processar dados
+├─────────────────────────────────────┤
+│         UIModule                    │ ← Manipular interface
+├─────────────────────────────────────┤
+│         ChartModule                 │ ← Desenhar gráficos
+├─────────────────────────────────────┤
+│         FilterModule                │ ← Gerenciar filtros
+├─────────────────────────────────────┤
+│         ModalModule                 │ ← Controlar modal PDF
+├─────────────────────────────────────┤
+│         FooterModule                │ ← Footer conformidade
+├─────────────────────────────────────┤
+│         App (Orquestrador)          │ ← Coordena tudo
+├─────────────────────────────────────┤
+│    Funções Globais (onclick)        │ ← Para HTML chamar
+└─────────────────────────────────────┘
+
+</body>
+</html>
