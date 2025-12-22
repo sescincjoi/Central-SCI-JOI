@@ -629,7 +629,9 @@
                 dataTable.addColumn({ type: 'string', role: 'annotation' });
                 dataTable.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
                 dataTable.addColumn('number', limitLabel);
-                dataTable.addColumn('number', 'Recomendável'); // sempre existe
+                    if (tipo === 'final') {
+                        dataTable.addColumn('number', 'Recomendável');
+                     }
             
                 // Linha fantasma inicial (faz a linha começar no início do gráfico)
                 dataTable.addRow([
@@ -639,7 +641,9 @@
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
-                    tipo === 'final' ? recomendavelValue : null
+                    if (tipo === 'final') {
+                        rowInicial.push(recomendavelValue);
+                     }
                 ]);
             
                 // Dados reais
@@ -655,7 +659,9 @@
                         tempoFormatado,
                         this._createTooltip(eq, colorMap[eq], avg, 'TEMPO MÉDIO'),
                         limitValue,
-                        tipo === 'final' ? recomendavelValue : null
+                        if (tipo === 'final') {
+                            rowInicial.push(recomendavelValue);
+                         }
                     ]);
                 });
             
@@ -667,7 +673,9 @@
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
-                    tipo === 'final' ? recomendavelValue : null
+                    if (tipo === 'final') {
+                        rowInicial.push(recomendavelValue);
+                     }
                 ]);
             
                 this.instances.bar = new google.visualization.ComboChart(
@@ -807,8 +815,24 @@
                     tooltip: {isHtml: true, trigger: 'both'},
                     series: {
                         0: {color: '#475569'},
-                        1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
-                        2: {type: 'line', color: '#ababab', lineDashStyle: [2, 5], pointSize: 0, lineWidth: 2, visibleInLegend: true}
+                        1: {
+                            type: 'line', 
+                            color: '#000000', 
+                            lineDashStyle: [4, 4], 
+                            pointSize: 0, 
+                            lineWidth: 2, 
+                            visibleInLegend: true
+                        },
+                        ...(tipo === 'final' ? {
+                            2: {
+                                type: 'line', 
+                                color: '#ababab', 
+                                lineDashStyle: [2, 5], 
+                                pointSize: 0, 
+                                lineWidth: 2, 
+                                visibleInLegend: true
+                            }
+                        } : {})
                     },
                     legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     bar: {groupWidth: '60%'},
