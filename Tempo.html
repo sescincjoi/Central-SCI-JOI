@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-3<head>
+4<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -713,9 +713,9 @@
                 const options = this._getBarOptions(tipo, limitValue);
                 
                 // Listener para desenhar linhas após renderização
-                google.visualization.events.addListener(this.instances.bar, 'ready', () => {
+                /*google.visualization.events.addListener(this.instances.bar, 'ready', () => {
                     this._drawReferenceLines('barChart', limitValue, recomendavelValue, tipo);
-                });
+                });*/
                 
                 this.instances.bar.draw(
                     google.visualization.arrayToDataTable(chartData),
