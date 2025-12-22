@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-2<head>
+3<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -616,11 +616,11 @@
                 const colorMap = this._getColorMap(equipes);
             
                 const limitValue = tipo === 'tempo1'
-                    ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
+                    ? (data.reduce((a, d) => a + d.tempo, 0) / data.length || 0)
                     : CONFIG.TIME_LIMIT;
             
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
-                const recomendavelValue = tipo === 'final' ? 120 : null;
+                const recomendavelValue = 120;
             
                 const dataTable = new google.visualization.DataTable();
                 dataTable.addColumn('string', 'Equipe');
@@ -629,9 +629,9 @@
                 dataTable.addColumn({ type: 'string', role: 'annotation' });
                 dataTable.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
                 dataTable.addColumn('number', limitLabel);
-                if (tipo === 'final') dataTable.addColumn('number', 'Tempo Recomendável');
+                dataTable.addColumn('number', 'Tempo Recomendável'); // sempre existe
             
-                /* ===== LINHA FANTASMA INICIAL ===== */
+                // Linha fantasma inicial (faz a linha começar no início do gráfico)
                 dataTable.addRow([
                     '',
                     null,
@@ -639,29 +639,27 @@
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
-                    ...(tipo === 'final' ? [recomendavelValue] : [])
+                    tipo === 'final' ? recomendavelValue : null
                 ]);
             
-                /* ===== DADOS REAIS ===== */
+                // Dados reais
                 equipes.forEach(eq => {
                     const items = data.filter(f => f.equipe === eq);
                     const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
                     const tempoFormatado = UIModule.formatTime(avg);
             
-                    const row = [
+                    dataTable.addRow([
                         eq,
                         { v: avg, f: tempoFormatado },
                         colorMap[eq],
                         tempoFormatado,
                         this._createTooltip(eq, colorMap[eq], avg, 'TEMPO MÉDIO'),
-                        limitValue
-                    ];
-            
-                    if (tipo === 'final') row.push(recomendavelValue);
-                    dataTable.addRow(row);
+                        limitValue,
+                        tipo === 'final' ? recomendavelValue : null
+                    ]);
                 });
             
-                /* ===== LINHA FANTASMA FINAL ===== */
+                // Linha fantasma final (faz a linha terminar no fim do gráfico)
                 dataTable.addRow([
                     '',
                     null,
@@ -669,18 +667,14 @@
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
-                    ...(tipo === 'final' ? [recomendavelValue] : [])
+                    tipo === 'final' ? recomendavelValue : null
                 ]);
             
                 this.instances.bar = new google.visualization.ComboChart(
                     document.getElementById('barChart')
                 );
             
-                this.instances.bar.draw(
-                    dataTable,
-                    this._getBarOptions(tipo)
-                );
-            
+                this.instances.bar.draw(dataTable, this._getBarOptions(tipo));
                 return colorMap;
             }
             
