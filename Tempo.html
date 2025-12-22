@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-5<head>
+1<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -619,10 +619,10 @@
                     ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
                     : CONFIG.TIME_LIMIT;
                     
-                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                const recomendavelValue = tipo === 'final' ? 120 : null;
                 
-                // Preparar dados
-                /*const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
+                // Preparar dados (SEM as colunas de linha)
+                const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}]];
                 
                 equipes.forEach(eq => {
                     const items = data.filter(f => f.equipe === eq);
@@ -634,46 +634,25 @@
                         {v: avg, f: tempoFormatado},
                         colorMap[eq],
                         tempoFormatado,
-                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
-                        limitValue
+                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO")
                     ]);
-                });*/
-                const recomendavelValue = tipo === 'final' ? 120 : null;
-                const recomendavelLabel = 'Tempo Recomendável';
-                
-                const chartData = tipo === 'final' 
-                    ? [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel, recomendavelLabel]]
-                    : [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
-                
-                equipes.forEach(eq => {
-                    const items = data.filter(f => f.equipe === eq);
-                    const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
-                    const tempoFormatado = UIModule.formatTime(avg);
-                    
-                    const row = [
-                        eq,
-                        {v: avg, f: tempoFormatado},
-                        colorMap[eq],
-                        tempoFormatado,
-                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
-                        limitValue
-                    ];
-                    
-                    if (tipo === 'final') {
-                        row.push(recomendavelValue);
-                    }
-                    
-                    chartData.push(row);
-                });/* acaba aqui */
+                });
                 
                 // Desenhar
-                this.instances.bar = new google.visualization.ComboChart(
+                this.instances.bar = new google.visualization.ColumnChart(
                     document.getElementById('barChart')
                 );
                 
+                const options = this._getBarOptions(tipo);
+                
+                // Listener para desenhar linhas após renderização
+                google.visualization.events.addListener(this.instances.bar, 'ready', () => {
+                    this._drawReferenceLines('barChart', limitValue, recomendavelValue, tipo);
+                });
+                
                 this.instances.bar.draw(
                     google.visualization.arrayToDataTable(chartData),
-                    this._getBarOptions(tipo)
+                    options
                 );
                 
                 return colorMap;
@@ -796,31 +775,6 @@
                 `;
             },
             
-            /*_getBarOptions(tipo) {
-                const ticks = [];
-                const viewWindow = {};
-                
-                if (tipo === 'tempo1') {
-                    for (let i = 20; i <= 60; i += 5) {
-                        ticks.push({v: i, f: UIModule.formatTime(i)});
-                    }
-                    viewWindow.min = 20;
-                    viewWindow.max = 60;
-                } else {
-                    for (let i = 0; i <= 240; i += 30) {
-                        ticks.push({v: i, f: UIModule.formatTime(i)});
-                    }
-                    viewWindow.min = 0;
-                    viewWindow.max = 240;
-                }
-                
-                return {
-                    seriesType: 'bars',
-                    tooltip: {isHtml: true, trigger: 'both'},
-                    series: {
-                        0: {color: '#475569'},
-                        1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true}
-                    },*/
             _getBarOptions(tipo) {
                 const ticks = [];
                 const viewWindow = {};
@@ -840,21 +794,108 @@
                 }
                 
                 return {
-                    seriesType: 'bars',
                     tooltip: {isHtml: true, trigger: 'both'},
-                    series: {
-                        0: {color: '#475569'},
-                        1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
-                        2: {type: 'line', color: '#606060', lineDashStyle: [2, 5], pointSize: 0, lineWidth: 3, visibleInLegend: true}
-                    }, /*acaba aqui*/
-                    legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
+                    legend: {position: 'none'},
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
                     vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
                     hAxis: {slantedText: false, maxAlternation: 1, textStyle: {fontSize: 12}},
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
-                    backgroundColor: 'transparent'
+                    backgroundColor: 'transparent',
+                    bar: {groupWidth: '75%'}
                 };
-            },            
+            },   
+            _drawReferenceLines(containerId, limitValue, recomendavelValue, tipo) {
+                const container = document.getElementById(containerId);
+                const svg = container.querySelector('svg');
+                if (!svg) return;
+                
+                // Remover linhas anteriores se existirem
+                const oldLines = svg.querySelector('.reference-lines');
+                if (oldLines) oldLines.remove();
+                
+                // Tentar encontrar o chart area
+                let chartArea = svg.querySelector('rect[fill="#ffffff"]');
+                if (!chartArea) chartArea = svg.querySelector('rect[fill="white"]');
+                if (!chartArea) chartArea = svg.querySelector('rect[fill="#fff"]');
+                if (!chartArea) {
+                    const rects = svg.querySelectorAll('rect');
+                    chartArea = rects.length > 1 ? rects[1] : rects[0];
+                }
+                
+                if (!chartArea) {
+                    console.error('Chart area não encontrada');
+                    return;
+                }
+                
+                const x = parseFloat(chartArea.getAttribute('x'));
+                const y = parseFloat(chartArea.getAttribute('y'));
+                const width = parseFloat(chartArea.getAttribute('width'));
+                const height = parseFloat(chartArea.getAttribute('height'));
+                
+                // Calcular escala Y
+                const viewWindow = tipo === 'tempo1' ? {min: 20, max: 60} : {min: 0, max: 240};
+                const range = viewWindow.max - viewWindow.min;
+                
+                // Função para converter valor em coordenada Y
+                const valueToY = (value) => {
+                    const ratio = (value - viewWindow.min) / range;
+                    return y + height - (ratio * height);
+                };
+                
+                // Criar grupo de linhas
+                const linesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                linesGroup.setAttribute('class', 'reference-lines');
+                
+                // Linha do limite (preta tracejada)
+                const limitLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                const limitY = valueToY(limitValue);
+                limitLine.setAttribute('x1', x);
+                limitLine.setAttribute('x2', x + width);
+                limitLine.setAttribute('y1', limitY);
+                limitLine.setAttribute('y2', limitY);
+                limitLine.setAttribute('stroke', '#000000');
+                limitLine.setAttribute('stroke-width', '2');
+                limitLine.setAttribute('stroke-dasharray', '8 4');
+                linesGroup.appendChild(limitLine);
+                
+                // Label do limite
+                const limitText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                limitText.setAttribute('x', x + width - 5);
+                limitText.setAttribute('y', limitY - 5);
+                limitText.setAttribute('text-anchor', 'end');
+                limitText.setAttribute('fill', '#000000');
+                limitText.setAttribute('font-size', '11');
+                limitText.setAttribute('font-weight', 'bold');
+                limitText.textContent = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                linesGroup.appendChild(limitText);
+                
+                // Linha recomendável (só para tempo final)
+                if (tipo === 'final' && recomendavelValue) {
+                    const recomLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    const recomY = valueToY(recomendavelValue);
+                    recomLine.setAttribute('x1', x);
+                    recomLine.setAttribute('x2', x + width);
+                    recomLine.setAttribute('y1', recomY);
+                    recomLine.setAttribute('y2', recomY);
+                    recomLine.setAttribute('stroke', '#606060');
+                    recomLine.setAttribute('stroke-width', '3');
+                    recomLine.setAttribute('stroke-dasharray', '2 5');
+                    linesGroup.appendChild(recomLine);
+                    
+                    // Label recomendável
+                    const recomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    recomText.setAttribute('x', x + width - 5);
+                    recomText.setAttribute('y', recomY - 5);
+                    recomText.setAttribute('text-anchor', 'end');
+                    recomText.setAttribute('fill', '#606060');
+                    recomText.setAttribute('font-size', '11');
+                    recomText.setAttribute('font-weight', 'bold');
+                    recomText.textContent = 'Tempo Recomendável';
+                    linesGroup.appendChild(recomText);
+                }
+                
+                svg.appendChild(linesGroup);
+            },
             
             _getLineOptions(equipes, colorMap, tipo) {
                 const seriesOptions = {};
