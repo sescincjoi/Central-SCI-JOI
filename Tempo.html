@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-3<head>
+5<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -611,7 +611,7 @@
             
             highlightedTeam: null,
             
-            drawBarChart(data, tipo) {
+            /*drawBarChart(data, tipo) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
                 const colorMap = this._getColorMap(equipes);
                 
@@ -650,7 +650,92 @@
                 );
                 
                 return colorMap;
-            },
+            },*/
+            drawBarChart(data, tipo) {
+                const equipes = [...new Set(data.map(d => d.equipe))].sort();
+                const colorMap = this._getColorMap(equipes);
+                
+                const limitValue = tipo === 'tempo1' 
+                    ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
+                    : CONFIG.TIME_LIMIT;
+                    
+                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                
+                // Preparar dados (SEM a série da linha)
+                const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}]];
+                
+                equipes.forEach(eq => {
+                    const items = data.filter(f => f.equipe === eq);
+                    const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+                    const tempoFormatado = UIModule.formatTime(avg);
+                    
+                    chartData.push([
+                        eq,
+                        {v: avg, f: tempoFormatado},
+                        colorMap[eq],
+                        tempoFormatado,
+                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO")
+                    ]);
+                });
+                
+                // Desenhar
+                const container = document.getElementById('barChart');
+                this.instances.bar = new google.visualization.ComboChart(container);
+                
+                // ✅ Calcular posição da linha após desenhar
+                google.visualization.events.addListener(this.instances.bar, 'ready', () => {
+                    this._drawReferenceLine(container, limitValue, tipo, limitLabel);
+                });
+                
+                this.instances.bar.draw(
+                    google.visualization.arrayToDataTable(chartData),
+                    this._getBarOptions(tipo, limitLabel) // ✅ Passa o label também
+                );
+                
+                return colorMap;
+            }
+
+                                                    _drawReferenceLine(container, limitValue, tipo, limitLabel) {
+                                                        // Remove linha anterior se existir
+                                                        const oldLine = container.querySelector('.reference-line');
+                                                        if (oldLine) oldLine.remove();
+                                                        
+                                                        const oldLabel = container.querySelector('.reference-line-label');
+                                                        if (oldLabel) oldLabel.remove();
+                                                        
+                                                        // Calcular posição Y baseada no limitValue
+                                                        const chartLayout = this.instances.bar.getChartLayoutInterface();
+                                                        const chartArea = chartLayout.getChartAreaBoundingBox();
+                                                        
+                                                        const yPosition = chartLayout.getYLocation(limitValue);
+                                                        
+                                                        // Criar linha SVG
+                                                        const svg = container.querySelector('svg');
+                                                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                                                        line.setAttribute('class', 'reference-line');
+                                                        line.setAttribute('x1', chartArea.left);
+                                                        line.setAttribute('x2', chartArea.left + chartArea.width);
+                                                        line.setAttribute('y1', yPosition);
+                                                        line.setAttribute('y2', yPosition);
+                                                        line.setAttribute('stroke', '#000000');
+                                                        line.setAttribute('stroke-width', '2');
+                                                        line.setAttribute('stroke-dasharray', '4 4');
+                                                        
+                                                        svg.appendChild(line);
+                                                        
+                                                        // Adicionar label
+                                                        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                                                        label.setAttribute('class', 'reference-line-label');
+                                                        label.setAttribute('x', chartArea.left + chartArea.width - 5);
+                                                        label.setAttribute('y', yPosition - 5);
+                                                        label.setAttribute('text-anchor', 'end');
+                                                        label.setAttribute('fill', '#64748b');
+                                                        label.setAttribute('font-size', '11');
+                                                        label.setAttribute('font-weight', 'bold');
+                                                        label.textContent = limitLabel;
+                                                        
+                                                        svg.appendChild(label);
+                                                    }
             
             drawLineChart(data, tipo, colorMap) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
@@ -745,7 +830,7 @@
                 `;
             },
             
-            _getBarOptions(tipo) {
+            /*_getBarOptions(tipo) {
                 const ticks = [];
                 const viewWindow = {};
                 
@@ -777,7 +862,43 @@
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
                     backgroundColor: 'transparent'
                 };
-            },
+            },*/
+                                                                        _getBarOptions(tipo, limitLabel) {
+                                                                    const ticks = [];
+                                                                    const viewWindow = {};
+                                                                    
+                                                                    if (tipo === 'tempo1') {
+                                                                        for (let i = 20; i <= 60; i += 5) {
+                                                                            ticks.push({v: i, f: UIModule.formatTime(i)});
+                                                                        }
+                                                                        viewWindow.min = 20;
+                                                                        viewWindow.max = 60;
+                                                                    } else {
+                                                                        for (let i = 0; i <= 240; i += 30) {
+                                                                            ticks.push({v: i, f: UIModule.formatTime(i)});
+                                                                        }
+                                                                        viewWindow.min = 0;
+                                                                        viewWindow.max = 240;
+                                                                    }
+                                                                    
+                                                                    return {
+                                                                        seriesType: 'bars',
+                                                                        tooltip: {isHtml: true, trigger: 'both'},
+                                                                        series: {
+                                                                            0: {color: '#475569'}
+                                                                            // ✅ Removida a série da linha tracejada
+                                                                        },
+                                                                        legend: {
+                                                                            position: 'bottom', 
+                                                                            textStyle: {fontSize: 11, color: '#64748b'}
+                                                                        },
+                                                                        chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                                                                        vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
+                                                                        hAxis: {slantedText: false, maxAlternation: 1, textStyle: {fontSize: 10}},
+                                                                        annotations: {alwaysOutside: true, textStyle: {fontSize: 11, bold: true}},
+                                                                        backgroundColor: 'transparent'
+                                                                    };
+                                                                }
             
             
             _getLineOptions(equipes, colorMap, tipo) {
