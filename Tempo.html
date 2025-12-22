@@ -676,7 +676,7 @@
             
                 this.instances.bar.draw(dataTable, this._getBarOptions(tipo));
                 return colorMap;
-            }
+            },
             
             drawLineChart(data, tipo, colorMap) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
