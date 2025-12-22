@@ -641,9 +641,7 @@
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
-                    if (tipo === 'final') {
-                        rowInicial.push(recomendavelValue);
-                     }
+                    tipo === 'final' ? recomendavelValue : null
                 ]);
             
                 // Dados reais
@@ -659,9 +657,7 @@
                         tempoFormatado,
                         this._createTooltip(eq, colorMap[eq], avg, 'TEMPO MÉDIO'),
                         limitValue,
-                        if (tipo === 'final') {
-                            rowInicial.push(recomendavelValue);
-                         }
+                        tipo === 'final' ? recomendavelValue : null
                     ]);
                 });
             
@@ -673,9 +669,7 @@
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
-                    if (tipo === 'final') {
-                        rowInicial.push(recomendavelValue);
-                     }
+                    tipo === 'final' ? recomendavelValue : null
                 ]);
             
                 this.instances.bar = new google.visualization.ComboChart(
