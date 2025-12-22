@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-4<head>
+5<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -845,7 +845,7 @@
                     series: {
                         0: {color: '#475569'},
                         1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
-                        2: {type: 'line', color: '#d1d5db', lineDashStyle: [2, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true}
+                        2: {type: 'line', color: '#222222', lineDashStyle: [2, 5], pointSize: 0, lineWidth: 2, visibleInLegend: true}
                     }, /*acaba aqui*/
                     legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
@@ -887,8 +887,8 @@
                 
                 if (tipo === 'final') {
                     seriesOptions[equipes.length + 1] = {
-                        color: '#d1d5db',
-                        lineDashStyle: [2, 4],
+                        color: '#222222',
+                        lineDashStyle: [2, 5],
                         pointSize: 0,
                         lineWidth: 2
                     };
@@ -985,7 +985,7 @@
                     recomendavelItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-60';
                     recomendavelItem.innerHTML = `
                         <div class="flex items-center justify-center h-4 w-full">
-                            <div class="h-[2px] w-8 border-t-2 border-dashed" style="border-color: #d1d5db;"></div>
+                            <div class="h-[2px] w-8 border-t-2 border-dotted" style="border-color: #222222;"></div>
                         </div>
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center leading-tight">Tempo Recomendável</span>
                     `;
