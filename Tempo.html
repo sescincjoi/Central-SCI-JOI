@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-1<head>
+2<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -622,7 +622,7 @@
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
                 
                 // Preparar dados
-                const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
+                /*const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
                 
                 equipes.forEach(eq => {
                     const items = data.filter(f => f.equipe === eq);
@@ -637,7 +637,34 @@
                         this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
                         limitValue
                     ]);
-                });
+                });*/
+                const recomendavelValue = tipo === 'final' ? 120 : null;
+                const recomendavelLabel = 'Tempo Recomendável';
+                
+                const chartData = tipo === 'final' 
+                    ? [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel, recomendavelLabel]]
+                    : [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
+                
+                equipes.forEach(eq => {
+                    const items = data.filter(f => f.equipe === eq);
+                    const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+                    const tempoFormatado = UIModule.formatTime(avg);
+                    
+                    const row = [
+                        eq,
+                        {v: avg, f: tempoFormatado},
+                        colorMap[eq],
+                        tempoFormatado,
+                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
+                        limitValue
+                    ];
+                    
+                    if (tipo === 'final') {
+                        row.push(recomendavelValue);
+                    }
+                    
+                    chartData.push(row);
+                });/* acaba aqui */
                 
                 // Desenhar
                 this.instances.bar = new google.visualization.ComboChart(
@@ -663,6 +690,19 @@
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
                 
                 // Criar DataTable
+                /*const lineDataTable = new google.visualization.DataTable();
+                lineDataTable.addColumn('date', 'Data');
+                
+                equipes.forEach(eq => {
+                    lineDataTable.addColumn('number', eq);
+                    lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
+                });
+                
+                lineDataTable.addColumn('number', limitLabel);*/
+                const recomendavelValue = tipo === 'final' ? 120 : null;
+                const recomendavelLabel = 'Tempo Recomendável';
+                
+                // Criar DataTable
                 const lineDataTable = new google.visualization.DataTable();
                 lineDataTable.addColumn('date', 'Data');
                 
@@ -672,6 +712,10 @@
                 });
                 
                 lineDataTable.addColumn('number', limitLabel);
+                
+                if (tipo === 'final') {
+                    lineDataTable.addColumn('number', recomendavelLabel);
+                }/* acaba aqui */
                 
                 // Preencher dados
                 dates.forEach(t => {
@@ -700,8 +744,15 @@
                         }
                     });
                     
+                    /*row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
+                    lineDataTable.addRow(row);*/
                     row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
-                    lineDataTable.addRow(row);
+
+                    if (tipo === 'final') {
+                        row.push({v: recomendavelValue, f: UIModule.formatTime(recomendavelValue)});
+                    }
+                    
+                    lineDataTable.addRow(row);/* acaba aqui */
                 });
                 
                 // Desenhar
@@ -745,7 +796,7 @@
                 `;
             },
             
-            _getBarOptions(tipo) {
+            /*_getBarOptions(tipo) {
                 const ticks = [];
                 const viewWindow = {};
                 
@@ -769,7 +820,33 @@
                     series: {
                         0: {color: '#475569'},
                         1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true}
-                    },
+                    },*/
+            _getBarOptions(tipo) {
+                const ticks = [];
+                const viewWindow = {};
+                
+                if (tipo === 'tempo1') {
+                    for (let i = 20; i <= 60; i += 5) {
+                        ticks.push({v: i, f: UIModule.formatTime(i)});
+                    }
+                    viewWindow.min = 20;
+                    viewWindow.max = 60;
+                } else {
+                    for (let i = 0; i <= 240; i += 30) {
+                        ticks.push({v: i, f: UIModule.formatTime(i)});
+                    }
+                    viewWindow.min = 0;
+                    viewWindow.max = 240;
+                }
+                
+                return {
+                    seriesType: 'bars',
+                    tooltip: {isHtml: true, trigger: 'both'},
+                    series: {
+                        0: {color: '#475569'},
+                        1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
+                        2: {type: 'line', color: '#d1d5db', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true}
+                    }, /*acaba aqui*/
                     legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
                     vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
@@ -795,12 +872,27 @@
                     }
                 });
                 
+                /*seriesOptions[equipes.length] = {
+                    color: '#000000',
+                    lineDashStyle: [4, 4],
+                    pointSize: 0,
+                    lineWidth: 2
+                };*/
                 seriesOptions[equipes.length] = {
                     color: '#000000',
                     lineDashStyle: [4, 4],
                     pointSize: 0,
                     lineWidth: 2
                 };
+                
+                if (tipo === 'final') {
+                    seriesOptions[equipes.length + 1] = {
+                        color: '#d1d5db',
+                        lineDashStyle: [4, 4],
+                        pointSize: 0,
+                        lineWidth: 2
+                    };
+                }/* acaba aqui */
                 
                 const ticks = [];
                 const viewWindow = {};
@@ -866,6 +958,16 @@
                 });
                 
                 // Adicionar item do limite
+                /*const limitItem = document.createElement('div');
+                limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
+                limitItem.innerHTML = `
+                    <div class="flex items-center justify-center h-4 w-full">
+                        <div class="h-[2px] w-8 border-t-2 border-dashed border-slate-900"></div>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-900 uppercase tracking-tight text-center leading-tight">${limitLabel}</span>
+                `;
+                customLegend.appendChild(limitItem);*/
+                // Adicionar item do limite
                 const limitItem = document.createElement('div');
                 limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
                 limitItem.innerHTML = `
@@ -875,6 +977,20 @@
                     <span class="text-[10px] font-bold text-slate-900 uppercase tracking-tight text-center leading-tight">${limitLabel}</span>
                 `;
                 customLegend.appendChild(limitItem);
+                
+                // Adicionar item do tempo recomendável (só para tipo final)
+                const filterState = FilterModule.getState();
+                if (filterState.tipo === 'final') {
+                    const recomendavelItem = document.createElement('div');
+                    recomendavelItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-60';
+                    recomendavelItem.innerHTML = `
+                        <div class="flex items-center justify-center h-4 w-full">
+                            <div class="h-[2px] w-8 border-t-2 border-dashed" style="border-color: #d1d5db;"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center leading-tight">Tempo Recomendável</span>
+                    `;
+                    customLegend.appendChild(recomendavelItem);
+                }/* acaba aqui */
             }
         };
 
