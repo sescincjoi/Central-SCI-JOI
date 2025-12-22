@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-1<head>
+2<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -621,7 +621,6 @@
             
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
                 const recomendavelValue = tipo === 'final' ? 120 : null;
-                const recomendavelLabel = 'Tempo Recomendável';
             
                 const dataTable = new google.visualization.DataTable();
                 dataTable.addColumn('string', 'Equipe');
@@ -630,20 +629,20 @@
                 dataTable.addColumn({ type: 'string', role: 'annotation' });
                 dataTable.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
                 dataTable.addColumn('number', limitLabel);
-                if (tipo === 'final') dataTable.addColumn('number', recomendavelLabel);
+                if (tipo === 'final') dataTable.addColumn('number', 'Tempo Recomendável');
             
-                /* ========= CATEGORIA FANTASMA INICIAL ========= */
+                /* ===== LINHA FANTASMA INICIAL ===== */
                 dataTable.addRow([
                     '',
                     null,
-                    null,
-                    null,
+                    '',
+                    '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
                     ...(tipo === 'final' ? [recomendavelValue] : [])
                 ]);
             
-                /* ========= DADOS REAIS ========= */
+                /* ===== DADOS REAIS ===== */
                 equipes.forEach(eq => {
                     const items = data.filter(f => f.equipe === eq);
                     const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
@@ -654,7 +653,7 @@
                         { v: avg, f: tempoFormatado },
                         colorMap[eq],
                         tempoFormatado,
-                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
+                        this._createTooltip(eq, colorMap[eq], avg, 'TEMPO MÉDIO'),
                         limitValue
                     ];
             
@@ -662,12 +661,12 @@
                     dataTable.addRow(row);
                 });
             
-                /* ========= CATEGORIA FANTASMA FINAL ========= */
+                /* ===== LINHA FANTASMA FINAL ===== */
                 dataTable.addRow([
                     '',
                     null,
-                    null,
-                    null,
+                    '',
+                    '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
                     limitValue,
                     ...(tipo === 'final' ? [recomendavelValue] : [])
