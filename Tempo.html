@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-6<head>
+9<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -706,7 +706,7 @@
                 });
                 
                 // Desenhar
-                this.instances.bar = new google.visualization.BarChart(
+                this.instances.bar = new google.visualization.ComboChart(
                     document.getElementById('barChart')
                 );
                 
@@ -902,37 +902,37 @@
                 };
             },*/
         _getBarOptions(tipo, limitValue) {
-    const ticks = [];
-    const viewWindow = {};
-    
-    if (tipo === 'tempo1') {
-        for (let i = 20; i <= 60; i += 5) {
-            ticks.push({v: i, f: UIModule.formatTime(i)});
+            const ticks = [];
+            const viewWindow = {};
+            
+            if (tipo === 'tempo1') {
+                for (let i = 20; i <= 60; i += 5) {
+                    ticks.push({v: i, f: UIModule.formatTime(i)});
+                }
+                viewWindow.min = 20;
+                viewWindow.max = 60;
+            } else {
+                for (let i = 0; i <= 240; i += 30) {
+                    ticks.push({v: i, f: UIModule.formatTime(i)});
+                }
+                viewWindow.min = 0;
+                viewWindow.max = 240;
+            }
+            
+            return {
+                seriesType: 'bars',  // IMPORTANTE!
+                tooltip: {isHtml: true, trigger: 'both'},
+                series: {
+                    0: {color: '#475569'}
+                },
+                legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
+                chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
+                hAxis: {slantedText: false, maxAlternation: 1, textStyle: {fontSize: 12}},
+                annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
+                backgroundColor: 'transparent'
+            };
         }
-        viewWindow.min = 20;
-        viewWindow.max = 60;
-    } else {
-        for (let i = 0; i <= 240; i += 30) {
-            ticks.push({v: i, f: UIModule.formatTime(i)});
-        }
-        viewWindow.min = 0;
-        viewWindow.max = 240;
-    }
-    
-    return {
-        seriesType: 'bars',
-        tooltip: {isHtml: true, trigger: 'both'},
-        series: {
-            0: {color: '#475569'}
-        },
-        legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
-        chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
-        vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
-        hAxis: {slantedText: false, maxAlternation: 1, textStyle: {fontSize: 12}},
-        annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
-        backgroundColor: 'transparent'
-    };
-}
             _drawReferenceLines(containerId, limitValue, recomendavelValue, tipo) {
                 const container = document.getElementById(containerId);
                 const svg = container.querySelector('svg');
