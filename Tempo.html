@@ -634,15 +634,18 @@
                      }
             
                 // Linha fantasma inicial (faz a linha começar no início do gráfico)
-                dataTable.addRow([
+                const rowInicial = [
                     '',
                     null,
                     '',
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
-                    limitValue,
-                    tipo === 'final' ? recomendavelValue : null
-                ]);
+                    limitValue
+                ];
+                if (tipo === 'final') {
+                    rowInicial.push(recomendavelValue);
+                }
+                dataTable.addRow(rowInicial);
             
                 // Dados reais
                 equipes.forEach(eq => {
@@ -650,27 +653,32 @@
                     const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
                     const tempoFormatado = UIModule.formatTime(avg);
             
-                    dataTable.addRow([
-                        eq,
-                        { v: avg, f: tempoFormatado },
-                        colorMap[eq],
-                        tempoFormatado,
-                        this._createTooltip(eq, colorMap[eq], avg, 'TEMPO MÉDIO'),
-                        limitValue,
-                        tipo === 'final' ? recomendavelValue : null
-                    ]);
-                });
+                    const rowInicial = [
+                        '',
+                        null,
+                        '',
+                        '',
+                        this._createTooltip('Limite', '#000000', limitValue, limitLabel),
+                        limitValue
+                    ];
+                    if (tipo === 'final') {
+                        rowInicial.push(recomendavelValue);
+                    }
+                    dataTable.addRow(rowInicial);
             
                 // Linha fantasma final (faz a linha terminar no fim do gráfico)
-                dataTable.addRow([
+                const rowInicial = [
                     '',
                     null,
                     '',
                     '',
                     this._createTooltip('Limite', '#000000', limitValue, limitLabel),
-                    limitValue,
-                    tipo === 'final' ? recomendavelValue : null
-                ]);
+                    limitValue
+                ];
+                if (tipo === 'final') {
+                    rowInicial.push(recomendavelValue);
+                }
+                dataTable.addRow(rowInicial);
             
                 this.instances.bar = new google.visualization.ComboChart(
                     document.getElementById('barChart')
