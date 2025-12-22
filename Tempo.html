@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-4<head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -262,7 +262,6 @@
                 <div id="barChart" class="chart-container-bar flex items-center justify-center">
                     <div class="loader"></div>
                 </div>
-                <div id="barLegend" class="flex flex-wrap gap-3 mt-4"></div>
             </div>
 
             <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
@@ -609,39 +608,6 @@
                 bar: null,
                 line: null
             },
-
-            drawBarLegend(colorMap) {
-                const container = document.getElementById('barLegend');
-                container.innerHTML = '';
-            
-                Object.entries(colorMap).forEach(([equipe, color]) => {
-                    const item = document.createElement('div');
-                    item.className =
-                        'flex items-center gap-2 cursor-pointer px-3 py-1 rounded border ' +
-                        'hover:bg-slate-100 transition';
-            
-                    item.innerHTML = `
-                        <span style="
-                            width:12px;
-                            height:12px;
-                            border-radius:50%;
-                            background:${color};
-                            display:inline-block;
-                        "></span>
-                        <span class="text-sm font-medium">${equipe}</span>
-                    `;
-            
-                    item.onclick = () => {
-                        this.highlightedTeam =
-                            this.highlightedTeam === equipe ? null : equipe;
-                        App.render();
-                    };
-                    if (this.highlightedTeam === equipe) {
-                        item.classList.add('bg-slate-200', 'border-slate-400');
-                    }
-                    container.appendChild(item);
-                });
-            }
             
             highlightedTeam: null,
             
@@ -844,7 +810,7 @@
                         1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
                         2: {type: 'line', color: '#606060', lineDashStyle: [2, 5], pointSize: 0, lineWidth: 3, visibleInLegend: true}
                     },
-                    legend: {position: 'none', textStyle: {fontSize: 11, color: '#64748b'}},
+                    legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     bar: {groupWidth: '60%'},
                     chartArea: {width: '100%', height: '70%', left: '10%', right: '5%'},
                     vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
@@ -1350,7 +1316,6 @@
                 // Desenhar gráficos
                 const colorMap = ChartModule.drawBarChart(data, filters.tipo);
                 ChartModule.drawLineChart(data, filters.tipo, colorMap);
-                ChartModule.drawBarLegend(barColorMap);
                 
                 // Atualizar tabela
                 UIModule.updateTable(data, colorMap);
