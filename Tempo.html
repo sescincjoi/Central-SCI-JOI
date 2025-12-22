@@ -808,7 +808,7 @@
                     series: {
                         0: {color: '#475569'},
                         1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
-                        2: {type: 'line', color: '#606060', lineDashStyle: [2, 5], pointSize: 0, lineWidth: 3, visibleInLegend: true}
+                        2: {type: 'line', color: '#ababab', lineDashStyle: [2, 5], pointSize: 0, lineWidth: 2, visibleInLegend: true}
                     },
                     legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     bar: {groupWidth: '60%'},
@@ -851,10 +851,10 @@
                 
                 if (tipo === 'final') {
                     seriesOptions[equipes.length + 1] = {
-                        color: '#606060',
+                        color: '#ababab',
                         lineDashStyle: [2, 5],
                         pointSize: 0,
-                        lineWidth: 3
+                        lineWidth: 2
                     };
                 }
                 
@@ -939,7 +939,7 @@
                     recomendavelItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-60';
                     recomendavelItem.innerHTML = `
                         <div class="flex items-center justify-center h-4 w-full">
-                            <div class="h-[2px] w-8 border-t-2 border-dotted" style="border-color: #606060;"></div>
+                            <div class="h-[2px] w-8 border-t-2 border-dotted" style="border-color: #ababab;"></div>
                         </div>
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center leading-tight">Tempo Recomendável</span>
                     `;
