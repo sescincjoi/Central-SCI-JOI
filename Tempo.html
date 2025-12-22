@@ -629,9 +629,9 @@
                 dataTable.addColumn({ type: 'string', role: 'annotation' });
                 dataTable.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
                 dataTable.addColumn('number', limitLabel);
-                    if (tipo === 'final') {
-                        dataTable.addColumn('number', 'Recomendável');
-                     }
+                if (tipo === 'final') {
+                    dataTable.addColumn('number', 'Recomendável');
+                }
             
                 // Linha fantasma inicial (faz a linha começar no início do gráfico)
                 const rowInicial = [
@@ -653,21 +653,22 @@
                     const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
                     const tempoFormatado = UIModule.formatTime(avg);
             
-                    const rowInicial = [
-                        '',
-                        null,
-                        '',
-                        '',
-                        this._createTooltip('Limite', '#000000', limitValue, limitLabel),
+                    const rowEquipe = [
+                        eq,
+                        { v: avg, f: tempoFormatado },
+                        colorMap[eq],
+                        tempoFormatado,
+                        this._createTooltip(eq, colorMap[eq], avg, 'TEMPO MÉDIO'),
                         limitValue
                     ];
                     if (tipo === 'final') {
-                        rowInicial.push(recomendavelValue);
+                        rowEquipe.push(recomendavelValue);
                     }
-                    dataTable.addRow(rowInicial);
+                    dataTable.addRow(rowEquipe);
+                });
             
                 // Linha fantasma final (faz a linha terminar no fim do gráfico)
-                const rowInicial = [
+                const rowFinal = [
                     '',
                     null,
                     '',
@@ -676,9 +677,9 @@
                     limitValue
                 ];
                 if (tipo === 'final') {
-                    rowInicial.push(recomendavelValue);
+                    rowFinal.push(recomendavelValue);
                 }
-                dataTable.addRow(rowInicial);
+                dataTable.addRow(rowFinal);
             
                 this.instances.bar = new google.visualization.ComboChart(
                     document.getElementById('barChart')
