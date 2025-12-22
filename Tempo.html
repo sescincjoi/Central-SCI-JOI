@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-7<head>
+1<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -611,7 +611,7 @@
             
             highlightedTeam: null,
             
-            drawBarChart(data, tipo) {
+            /*drawBarChart(data, tipo) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
                 const colorMap = this._getColorMap(equipes);
                 
@@ -619,7 +619,7 @@
                     ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
                     : CONFIG.TIME_LIMIT;
                     
-                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';*/
                 
                 // Preparar dados
                 /*const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
@@ -638,7 +638,7 @@
                         limitValue
                     ]);
                 });*/
-                const recomendavelValue = tipo === 'final' ? 120 : null;
+                /*const recomendavelValue = tipo === 'final' ? 120 : null;
                 const recomendavelLabel = 'Tempo Recomendável';
                 
                 const chartData = tipo === 'final' 
@@ -665,6 +665,48 @@
                     
                     chartData.push(row);
                 });/* acaba aqui */
+            drawBarChart(data, tipo) {
+                const equipes = [...new Set(data.map(d => d.equipe))].sort();
+                const colorMap = this._getColorMap(equipes);
+                
+                const limitValue = tipo === 'tempo1' 
+                    ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
+                    : CONFIG.TIME_LIMIT;
+                    
+                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                
+                // Preparar dados
+                const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}]];
+                
+                equipes.forEach(eq => {
+                    const items = data.filter(f => f.equipe === eq);
+                    const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+                    const tempoFormatado = UIModule.formatTime(avg);
+                    
+                    chartData.push([
+                        eq,
+                        {v: avg, f: tempoFormatado},
+                        colorMap[eq],
+                        tempoFormatado,
+                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO")
+                    ]);
+                });
+                
+                // Desenhar
+                this.instances.bar = new google.visualization.BarChart(
+                    document.getElementById('barChart')
+                );
+                
+                // Opções com linhas de referência
+                const options = this._getBarOptions(tipo, limitValue, limitLabel);
+                
+                this.instances.bar.draw(
+                    google.visualization.arrayToDataTable(chartData),
+                    options
+                );
+                
+                return colorMap;
+            },
                 
                 // Desenhar
                 this.instances.bar = new google.visualization.ComboChart(
@@ -677,7 +719,7 @@
                 );
                 
                 return colorMap;
-            },
+            },*/
             
             drawLineChart(data, tipo, colorMap) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
@@ -821,7 +863,7 @@
                         0: {color: '#475569'},
                         1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true}
                     },*/
-            _getBarOptions(tipo) {
+            /*_getBarOptions(tipo) {
                 const ticks = [];
                 const viewWindow = {};
                 
@@ -846,15 +888,88 @@
                         0: {color: '#475569'},
                         1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
                         2: {type: 'line', color: '#c7c7c7', lineDashStyle: [2, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true}
-                    }, /*acaba aqui*/
-                    legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
+                    },*/ /*acaba aqui*/
+                    /*legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
                     vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
                     hAxis: {slantedText: false, maxAlternation: 1, textStyle: {fontSize: 12}},
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
                     backgroundColor: 'transparent'
                 };
-            },            
+            },*/
+        _getBarOptions(tipo, limitValue, limitLabel) {
+            const ticks = [];
+            const viewWindow = {};
+            
+            if (tipo === 'tempo1') {
+                for (let i = 20; i <= 60; i += 5) {
+                    ticks.push({v: i, f: UIModule.formatTime(i)});
+                }
+                viewWindow.min = 20;
+                viewWindow.max = 60;
+            } else {
+                for (let i = 0; i <= 240; i += 30) {
+                    ticks.push({v: i, f: UIModule.formatTime(i)});
+                }
+                viewWindow.min = 0;
+                viewWindow.max = 240;
+            }
+            
+            // Configurar linhas de referência
+            const baselineColor = '#000000';
+            const recomendavelColor = '#d1d5db';
+            
+            const options = {
+                seriesType: 'bars',
+                tooltip: {isHtml: true, trigger: 'both'},
+                series: {
+                    0: {color: '#475569'}
+                },
+                legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
+                chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
+                vAxis: {
+                    ticks: ticks, 
+                    viewWindow: viewWindow, 
+                    gridlines: {color: '#f1f5f9'}
+                },
+                hAxis: {
+                    slantedText: false, 
+                    maxAlternation: 1, 
+                    textStyle: {fontSize: 12}
+                },
+                annotations: {
+                    alwaysOutside: true, 
+                    textStyle: {fontSize: 14, bold: true}
+                },
+                backgroundColor: 'transparent'
+            };
+            
+            // Adicionar linha de limite (sempre)
+            if (!options.series[1]) options.series[1] = {};
+            options.series[1] = {
+                type: 'line',
+                color: baselineColor,
+                lineWidth: 0,
+                pointSize: 0,
+                visibleInLegend: false,
+                enableInteractivity: false
+            };
+            
+            // Adicionar linha recomendável (só para tempo final)
+            if (tipo === 'final') {
+                if (!options.series[2]) options.series[2] = {};
+                options.series[2] = {
+                    type: 'line',
+                    color: recomendavelColor,
+                    lineWidth: 0,
+                    pointSize: 0,
+                    visibleInLegend: false,
+                    enableInteractivity: false
+                };
+            }
+            
+            return options;
+        }
             
             _getLineOptions(equipes, colorMap, tipo) {
                 const seriesOptions = {};
