@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-11<head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -134,12 +134,6 @@
         @media screen and (max-width: 767px) and (orientation: portrait) {
             #rotationWarning:not(.user-closed) { display: flex !important; }
         }
-
-        /* Linhas de referência dos gráficos */
-        .reference-line {
-            pointer-events: none;
-        }
-        
     </style>
 </head>
 <body class="text-slate-900 antialiased pb-20 md:pb-0">
@@ -628,40 +622,38 @@
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
                 
                 // Preparar dados
-                const chartData = [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}]];
-
+                const recomendavelValue = tipo === 'final' ? 120 : null;
+                const recomendavelLabel = 'Tempo Recomendável';
+                
+                const chartData = tipo === 'final' 
+                    ? [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel, recomendavelLabel]]
+                    : [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
+                
                 equipes.forEach(eq => {
                     const items = data.filter(f => f.equipe === eq);
                     const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
                     const tempoFormatado = UIModule.formatTime(avg);
                     
-                    chartData.push([
+                    const row = [
                         eq,
                         {v: avg, f: tempoFormatado},
                         colorMap[eq],
                         tempoFormatado,
-                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO")
-                    ]);
+                        this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
+                        limitValue
+                    ];
+                    
+                    if (tipo === 'final') {
+                        row.push(recomendavelValue);
+                    }
+                    
+                    chartData.push(row);
                 });
                 
                 // Desenhar
                 this.instances.bar = new google.visualization.ComboChart(
                     document.getElementById('barChart')
                 );
-                
-                this.instances.bar.draw(
-                    google.visualization.arrayToDataTable(chartData),
-                    this._getBarOptions(tipo)
-                );
-                // Desenhar
-                this.instances.bar = new google.visualization.ComboChart(
-                    document.getElementById('barChart')
-                );
-                
-                // Listener para adicionar linhas após renderização
-                google.visualization.events.addListener(this.instances.bar, 'ready', () => {
-                    this._addBarReferenceLines('barChart', limitValue, tipo === 'final' ? 120 : null, tipo);
-                });
                 
                 this.instances.bar.draw(
                     google.visualization.arrayToDataTable(chartData),
@@ -682,15 +674,6 @@
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
                 
                 // Criar DataTable
-                /*const lineDataTable = new google.visualization.DataTable();
-                lineDataTable.addColumn('date', 'Data');
-                
-                equipes.forEach(eq => {
-                    lineDataTable.addColumn('number', eq);
-                    lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
-                });
-                
-                lineDataTable.addColumn('number', limitLabel);*/
                 const recomendavelValue = tipo === 'final' ? 120 : null;
                 const recomendavelLabel = 'Tempo Recomendável';
                 
@@ -736,8 +719,6 @@
                         }
                     });
                     
-                    /*row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
-                    lineDataTable.addRow(row);*/
                     row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
 
                     if (tipo === 'final') {
@@ -788,7 +769,6 @@
                 `;
             },
             
-            
             _getBarOptions(tipo) {
                 const ticks = [];
                 const viewWindow = {};
@@ -811,7 +791,9 @@
                     seriesType: 'bars',
                     tooltip: {isHtml: true, trigger: 'both'},
                     series: {
-                        0: {color: '#475569'}
+                        0: {color: '#475569'},
+                        1: {type: 'line', color: '#000000', lineDashStyle: [4, 4], pointSize: 0, lineWidth: 2, visibleInLegend: true},
+                        2: {type: 'line', color: '#606060', lineDashStyle: [2, 5], pointSize: 0, lineWidth: 3, visibleInLegend: true}
                     },
                     legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
@@ -820,89 +802,7 @@
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
                     backgroundColor: 'transparent'
                 };
-            },   
-            _addBarReferenceLines(containerId, limitValue, recomendavelValue, tipo) {
-                const container = document.getElementById(containerId);
-                const svg = container.querySelector('svg');
-                if (!svg) return;
-                
-                // Remover linhas antigas
-                const oldGroup = svg.querySelector('.reference-lines-bar');
-                if (oldGroup) oldGroup.remove();
-                
-                // Encontrar chart area
-                const rects = svg.querySelectorAll('rect');
-                const chartArea = rects[1] || rects[0];
-                if (!chartArea) return;
-                
-                const x = parseFloat(chartArea.getAttribute('x'));
-                const y = parseFloat(chartArea.getAttribute('y'));
-                const width = parseFloat(chartArea.getAttribute('width'));
-                const height = parseFloat(chartArea.getAttribute('height'));
-                
-                const viewWindow = tipo === 'tempo1' ? {min: 20, max: 60} : {min: 0, max: 240};
-                const range = viewWindow.max - viewWindow.min;
-                
-                const valueToY = (value) => {
-                    const ratio = (value - viewWindow.min) / range;
-                    return y + height - (ratio * height);
-                };
-                
-                const linesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                linesGroup.setAttribute('class', 'reference-lines-bar');
-                
-                // Linha limite (preta)
-                const limitY = valueToY(limitValue);
-                const limitLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                limitLine.setAttribute('x1', x);
-                limitLine.setAttribute('x2', x + width);
-                limitLine.setAttribute('y1', limitY);
-                limitLine.setAttribute('y2', limitY);
-                limitLine.setAttribute('stroke', '#000000');
-                limitLine.setAttribute('stroke-width', '2');
-                limitLine.setAttribute('stroke-dasharray', '8 4');
-                limitLine.setAttribute('class', 'reference-line');
-                linesGroup.appendChild(limitLine);
-                
-                // Label limite
-                const limitText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                limitText.setAttribute('x', x + width - 5);
-                limitText.setAttribute('y', limitY - 5);
-                limitText.setAttribute('text-anchor', 'end');
-                limitText.setAttribute('fill', '#000000');
-                limitText.setAttribute('font-size', '10');
-                limitText.setAttribute('font-weight', 'bold');
-                limitText.textContent = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
-                linesGroup.appendChild(limitText);
-                
-                // Linha recomendável (só tempo final)
-                if (recomendavelValue) {
-                    const recomY = valueToY(recomendavelValue);
-                    const recomLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    recomLine.setAttribute('x1', x);
-                    recomLine.setAttribute('x2', x + width);
-                    recomLine.setAttribute('y1', recomY);
-                    recomLine.setAttribute('y2', recomY);
-                    recomLine.setAttribute('stroke', '#606060');
-                    recomLine.setAttribute('stroke-width', '3');
-                    recomLine.setAttribute('stroke-dasharray', '4 6');
-                    recomLine.setAttribute('class', 'reference-line');
-                    linesGroup.appendChild(recomLine);
-                    
-                    // Label recomendável
-                    const recomText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                    recomText.setAttribute('x', x + width - 5);
-                    recomText.setAttribute('y', recomY - 5);
-                    recomText.setAttribute('text-anchor', 'end');
-                    recomText.setAttribute('fill', '#606060');
-                    recomText.setAttribute('font-size', '10');
-                    recomText.setAttribute('font-weight', 'bold');
-                    recomText.textContent = 'Tempo Recomendável';
-                    linesGroup.appendChild(recomText);
-                }
-                
-                svg.appendChild(linesGroup);
-            },
+            },            
             
             _getLineOptions(equipes, colorMap, tipo) {
                 const seriesOptions = {};
@@ -920,12 +820,6 @@
                     }
                 });
                 
-                /*seriesOptions[equipes.length] = {
-                    color: '#000000',
-                    lineDashStyle: [4, 4],
-                    pointSize: 0,
-                    lineWidth: 2
-                };*/
                 seriesOptions[equipes.length] = {
                     color: '#000000',
                     lineDashStyle: [4, 4],
@@ -940,7 +834,7 @@
                         pointSize: 0,
                         lineWidth: 3
                     };
-                }/* acaba aqui */
+                }
                 
                 const ticks = [];
                 const viewWindow = {};
@@ -1004,17 +898,7 @@
                     
                     customLegend.appendChild(item);
                 });
-                
-                // Adicionar item do limite
-                /*const limitItem = document.createElement('div');
-                limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
-                limitItem.innerHTML = `
-                    <div class="flex items-center justify-center h-4 w-full">
-                        <div class="h-[2px] w-8 border-t-2 border-dashed border-slate-900"></div>
-                    </div>
-                    <span class="text-[10px] font-bold text-slate-900 uppercase tracking-tight text-center leading-tight">${limitLabel}</span>
-                `;
-                customLegend.appendChild(limitItem);*/
+
                 // Adicionar item do limite
                 const limitItem = document.createElement('div');
                 limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
