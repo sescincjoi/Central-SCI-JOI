@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
+1<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercício de Tempo Resposta - SCI Aeroporto de Joinville</title>
@@ -614,54 +614,76 @@
             drawBarChart(data, tipo) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
                 const colorMap = this._getColorMap(equipes);
-                
-                const limitValue = tipo === 'tempo1' 
+            
+                const limitValue = tipo === 'tempo1'
                     ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
                     : CONFIG.TIME_LIMIT;
-                    
+            
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
-                
-                // Preparar dados
                 const recomendavelValue = tipo === 'final' ? 120 : null;
                 const recomendavelLabel = 'Tempo Recomendável';
-                
-                const chartData = tipo === 'final' 
-                    ? [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel, recomendavelLabel]]
-                    : [['Equipa', 'Média de Tempo', {role: 'style'}, {role: 'annotation'}, {role: 'tooltip', p: {html: true}}, limitLabel]];
-                
+            
+                const dataTable = new google.visualization.DataTable();
+                dataTable.addColumn('string', 'Equipe');
+                dataTable.addColumn('number', 'Média de Tempo');
+                dataTable.addColumn({ type: 'string', role: 'style' });
+                dataTable.addColumn({ type: 'string', role: 'annotation' });
+                dataTable.addColumn({ type: 'string', role: 'tooltip', p: { html: true } });
+                dataTable.addColumn('number', limitLabel);
+                if (tipo === 'final') dataTable.addColumn('number', recomendavelLabel);
+            
+                /* ========= CATEGORIA FANTASMA INICIAL ========= */
+                dataTable.addRow([
+                    '',
+                    null,
+                    null,
+                    null,
+                    this._createTooltip('Limite', '#000000', limitValue, limitLabel),
+                    limitValue,
+                    ...(tipo === 'final' ? [recomendavelValue] : [])
+                ]);
+            
+                /* ========= DADOS REAIS ========= */
                 equipes.forEach(eq => {
                     const items = data.filter(f => f.equipe === eq);
                     const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
                     const tempoFormatado = UIModule.formatTime(avg);
-                    
+            
                     const row = [
                         eq,
-                        {v: avg, f: tempoFormatado},
+                        { v: avg, f: tempoFormatado },
                         colorMap[eq],
                         tempoFormatado,
                         this._createTooltip(eq, colorMap[eq], avg, "TEMPO MÉDIO"),
                         limitValue
                     ];
-                    
-                    if (tipo === 'final') {
-                        row.push(recomendavelValue);
-                    }
-                    
-                    chartData.push(row);
+            
+                    if (tipo === 'final') row.push(recomendavelValue);
+                    dataTable.addRow(row);
                 });
-                
-                // Desenhar
+            
+                /* ========= CATEGORIA FANTASMA FINAL ========= */
+                dataTable.addRow([
+                    '',
+                    null,
+                    null,
+                    null,
+                    this._createTooltip('Limite', '#000000', limitValue, limitLabel),
+                    limitValue,
+                    ...(tipo === 'final' ? [recomendavelValue] : [])
+                ]);
+            
                 this.instances.bar = new google.visualization.ComboChart(
                     document.getElementById('barChart')
                 );
-                
+            
                 this.instances.bar.draw(
-                    google.visualization.arrayToDataTable(chartData),
+                    dataTable,
                     this._getBarOptions(tipo)
                 );
-                
+            
                 return colorMap;
-            },
+            }
             
             drawLineChart(data, tipo, colorMap) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
@@ -798,7 +820,13 @@
                     legend: {position: 'bottom', textStyle: {fontSize: 11, color: '#64748b'}},
                     chartArea: {width: '85%', height: '70%', left: '10%', right: '5%'},
                     vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
-                    hAxis: {slantedText: false, maxAlternation: 1, textStyle: {fontSize: 12}},
+                    hAxis: {
+                        slantedText: false,
+                        maxAlternation: 1,
+                        textPosition: 'out',
+                        textStyle: { fontSize: 12 },
+                        padding: 0
+                    },
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
                     backgroundColor: 'transparent'
                 };
