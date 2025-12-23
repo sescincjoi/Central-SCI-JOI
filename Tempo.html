@@ -1196,10 +1196,10 @@
                     viewWindow.min = 10;
                     viewWindow.max = 50;
                 } else {
-                    for (let i = 0; i <= 240; i += 30) {
+                    for (let i = 60; i <= 240; i += 30) {
                         ticks.push({v: i, f: UIModule.formatTime(i)});
                     }
-                    viewWindow.min = 0;
+                    viewWindow.min = 60;
                     viewWindow.max = 240;
                 }
                 
@@ -1239,7 +1239,7 @@
                     annotations: {alwaysOutside: true, textStyle: {fontSize: 14, bold: true}},
                     backgroundColor: 'transparent'
                 };
-            },            
+            },          
             
             _getLineOptions(equipes, colorMap, tipo) {
                 const seriesOptions = {};
