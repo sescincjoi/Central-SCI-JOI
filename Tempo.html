@@ -2003,10 +2003,156 @@ const PDFReportModule = {
 
     async _captureCharts() {
         try {
-            // Capturar apenas gráfico de linhas
-            if (ChartModule.instances.line) {
-                return ChartModule.instances.line.getImageURI();
+            // Criar container temporário em alta resolução
+            const tempContainer = document.createElement('div');
+            tempContainer.style.position = 'absolute';
+            tempContainer.style.left = '-9999px';
+            tempContainer.style.top = '0';
+            tempContainer.style.width = '1200px'; // Largura fixa em alta resolução
+            tempContainer.style.height = '600px'; // Altura fixa em alta resolução
+            document.body.appendChild(tempContainer);
+            
+            // Obter dados filtrados e state atual
+            const filters = FilterModule.getState();
+            const data = DataModule.getFilteredData();
+            
+            if (data.length === 0) {
+                document.body.removeChild(tempContainer);
+                return null;
             }
+            
+            // Preparar dados para o gráfico
+            const equipes = [...new Set(data.map(d => d.equipe))].sort();
+            const colorMap = ChartModule._getColorMap(equipes);
+            const dates = [...new Set(data.map(d => d.dataObj.getTime()))].sort((a, b) => a - b);
+            
+            const limitValue = filters.tipo === 'tempo1'
+                ? (data.reduce((acc, d) => acc + d.tempo, 0) / data.length || 0)
+                : CONFIG.TIME_LIMIT;
+            
+            const recomendavelValue = filters.tipo === 'final' ? 120 : null;
+            
+            // Criar DataTable
+            const lineDataTable = new google.visualization.DataTable();
+            lineDataTable.addColumn('date', 'Data');
+            
+            equipes.forEach(eq => {
+                lineDataTable.addColumn('number', eq);
+                lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
+            });
+            
+            lineDataTable.addColumn('number', filters.tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)');
+            
+            if (filters.tipo === 'final') {
+                lineDataTable.addColumn('number', 'Tempo Recomendável');
+            }
+            
+            // Preencher dados
+            dates.forEach(t => {
+                const dataAtual = new Date(t);
+                const row = [dataAtual];
+                
+                equipes.forEach(eq => {
+                    const found = data.find(f => f.dataObj.getTime() === t && f.equipe === eq);
+                    if (found) {
+                        row.push({v: found.tempo, f: UIModule.formatTime(found.tempo)});
+                        row.push(''); // Tooltip vazio para PDF
+                    } else {
+                        row.push(null);
+                        row.push(null);
+                    }
+                });
+                
+                row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
+                
+                if (filters.tipo === 'final') {
+                    row.push({v: recomendavelValue, f: UIModule.formatTime(recomendavelValue)});
+                }
+                
+                lineDataTable.addRow(row);
+            });
+            
+            // Opções otimizadas para PDF
+            const seriesOptions = {};
+            equipes.forEach((eq, index) => {
+                seriesOptions[index] = {
+                    color: colorMap[eq],
+                    lineWidth: 3
+                };
+            });
+            
+            seriesOptions[equipes.length] = {
+                color: '#000000',
+                lineDashStyle: [4, 4],
+                pointSize: 0,
+                lineWidth: 2
+            };
+            
+            if (filters.tipo === 'final') {
+                seriesOptions[equipes.length + 1] = {
+                    color: '#ababab',
+                    lineDashStyle: [2, 5],
+                    pointSize: 0,
+                    lineWidth: 2
+                };
+            }
+            
+            const ticks = [];
+            const viewWindow = {};
+            
+            if (filters.tipo === 'tempo1') {
+                for (let i = 10; i <= 50; i += 5) {
+                    ticks.push({v: i, f: UIModule.formatTime(i)});
+                }
+                viewWindow.min = 10;
+                viewWindow.max = 50;
+            } else {
+                for (let i = 0; i <= 240; i += 30) {
+                    ticks.push({v: i, f: UIModule.formatTime(i)});
+                }
+                viewWindow.min = 0;
+                viewWindow.max = 240;
+            }
+            
+            const chartOptions = {
+                curveType: 'function',
+                pointSize: 8,
+                interpolateNulls: true,
+                tooltip: {trigger: 'none'}, // Desabilitar tooltip no PDF
+                legend: {position: 'right', alignment: 'center', textStyle: {fontSize: 12}},
+                series: seriesOptions,
+                chartArea: {width: '75%', height: '75%', left: '10%', right: '20%'},
+                vAxis: {
+                    ticks: ticks,
+                    viewWindow: viewWindow,
+                    gridlines: {color: '#f1f5f9'},
+                    textStyle: {fontSize: 11}
+                },
+                hAxis: {
+                    format: "MMM/yy",
+                    gridlines: {count: -1},
+                    minorGridlines: {count: 0},
+                    textStyle: {fontSize: 11}
+                },
+                backgroundColor: 'white',
+                width: 1200,
+                height: 600
+            };
+            
+            // Renderizar gráfico temporário
+            const tempChart = new google.visualization.LineChart(tempContainer);
+            
+            // Aguardar renderização e capturar
+            return new Promise((resolve) => {
+                google.visualization.events.addListener(tempChart, 'ready', function() {
+                    const imageURI = tempChart.getImageURI();
+                    document.body.removeChild(tempContainer);
+                    resolve(imageURI);
+                });
+                
+                tempChart.draw(lineDataTable, chartOptions);
+            });
+            
         } catch (e) {
             console.warn('Erro ao capturar gráfico de linhas:', e);
         }
