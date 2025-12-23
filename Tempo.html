@@ -2206,38 +2206,44 @@ const PDFReportModule = {
 };
 
 // ============================================
-// 📦 MÓDULO: PREVIEW DE PDF
+// 📦 MÓDULO: PREVIEW DE PDF (Versão Simplificada)
 // ============================================
 const PDFPreviewModule = {
     open(pdfDoc) {
         const modal = document.getElementById('pdfPreviewModal');
-        const iframe = document.getElementById('pdfPreviewFrame');
+        const container = document.getElementById('pdfCanvasContainer');
         const loading = document.getElementById('pdfPreviewLoading');
         
         // Mostrar modal e loading
         modal.classList.remove('hidden');
-        iframe.classList.add('hidden');
         loading.classList.remove('hidden');
+        container.classList.add('hidden');
         
-        // Gerar blob do PDF e exibir no iframe
         setTimeout(() => {
+            // Gerar blob URL do PDF
             const pdfBlob = pdfDoc.output('blob');
             const pdfUrl = URL.createObjectURL(pdfBlob);
             
-            iframe.src = pdfUrl;
-            iframe.onload = () => {
-                loading.classList.add('hidden');
-                iframe.classList.remove('hidden');
-            };
-        }, 100);
+            // Criar embed do PDF (funciona melhor que iframe)
+            container.innerHTML = `
+                <embed 
+                    src="${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1" 
+                    type="application/pdf"
+                    class="w-full min-h-[70vh] md:min-h-[80vh] rounded-lg shadow-lg bg-white"
+                />
+            `;
+            
+            loading.classList.add('hidden');
+            container.classList.remove('hidden');
+        }, 300);
     },
     
     close() {
         const modal = document.getElementById('pdfPreviewModal');
-        const iframe = document.getElementById('pdfPreviewFrame');
+        const container = document.getElementById('pdfCanvasContainer');
         
         modal.classList.add('hidden');
-        iframe.src = '';
+        container.innerHTML = '';
     },
     
     download() {
