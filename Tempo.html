@@ -1056,24 +1056,24 @@
                     
                 const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
                 
-                // Criar DataTable
                 const recomendavelValue = tipo === 'final' ? 120 : null;
-                const recomendavelLabel = 'Tempo Recomendável';
                 
-                // Criar DataTable com colunas de tamanho de ponto
+                // Criar DataTable com séries separadas por localização
                 const lineDataTable = new google.visualization.DataTable();
                 lineDataTable.addColumn('date', 'Data');
                 
+                // Para cada equipe, criar duas colunas: Cabeceira 33 e Outras localizações
                 equipes.forEach(eq => {
-                    lineDataTable.addColumn('number', eq);
+                    lineDataTable.addColumn('number', `${eq} - Cabeceira 33`);
                     lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
-                    lineDataTable.addColumn({type: 'number', role: 'style'}); // Para tamanho do ponto
+                    lineDataTable.addColumn('number', `${eq} - Outros`);
+                    lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
                 });
                 
                 lineDataTable.addColumn('number', limitLabel);
                 
                 if (tipo === 'final') {
-                    lineDataTable.addColumn('number', recomendavelLabel);
+                    lineDataTable.addColumn('number', 'Tempo Recomendável');
                 }
                 
                 // Preencher dados
@@ -1083,15 +1083,11 @@
                     
                     equipes.forEach(eq => {
                         const found = data.find(f => f.dataObj.getTime() === t && f.equipe === eq);
+                        
                         if (found) {
                             const tooltipLabel = tipo === 'tempo1' ? 'Embarque CCI' : 'TEMPO TOTAL';
                             const tempo1ParaTooltip = tipo === 'final' ? found.tempo1 : null;
-                            
-                            // Definir tamanho do ponto baseado na localização
-                            const pointSize = found.local === 'Cabeceira 33' ? 14 : 10;
-                            
-                            row.push({v: found.tempo, f: UIModule.formatTime(found.tempo)});
-                            row.push(this._createTooltip(
+                            const tooltip = this._createTooltip(
                                 eq,
                                 colorMap[eq],
                                 found.tempo,
@@ -1099,9 +1095,22 @@
                                 found.dataStr,
                                 found.local,
                                 tempo1ParaTooltip
-                            ));
-                            row.push(pointSize);
+                            );
+                            
+                            // Se for Cabeceira 33, adiciona na primeira coluna, senão na segunda
+                            if (found.local === 'Cabeceira 33') {
+                                row.push({v: found.tempo, f: UIModule.formatTime(found.tempo)});
+                                row.push(tooltip);
+                                row.push(null);
+                                row.push(null);
+                            } else {
+                                row.push(null);
+                                row.push(null);
+                                row.push({v: found.tempo, f: UIModule.formatTime(found.tempo)});
+                                row.push(tooltip);
+                            }
                         } else {
+                            row.push(null);
                             row.push(null);
                             row.push(null);
                             row.push(null);
@@ -1109,7 +1118,7 @@
                     });
                     
                     row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
-            
+                    
                     if (tipo === 'final') {
                         row.push({v: recomendavelValue, f: UIModule.formatTime(recomendavelValue)});
                     }
@@ -1124,7 +1133,7 @@
                 
                 this.instances.line.draw(
                     lineDataTable,
-                    this._getLineOptions(equipes, colorMap, tipo, data)
+                    this._getLineOptions(equipes, colorMap, tipo)
                 );
                 
                 // Aplicar seleção se houver ponto selecionado
@@ -1137,7 +1146,7 @@
                         setTimeout(() => {
                             this.instances.line.setSelection([{
                                 row: rowIndex,
-                                column: columnIndex * 2 + 1
+                                column: (columnIndex * 4) + 1
                             }]);
                         }, 100);
                     }
@@ -1247,31 +1256,60 @@
                 };
             },          
             
-            _getLineOptions(equipes, colorMap, tipo, data) {
+            _getLineOptions(equipes, colorMap, tipo) {
                 const seriesOptions = {};
                 
+                // Configurar séries: para cada equipe temos 2 séries (Cabeceira 33 e Outros)
                 equipes.forEach((eq, index) => {
                     const baseColor = colorMap[eq];
+                    const seriesIndex = index * 2;
+                    
+                    // Série Cabeceira 33 (pontos grandes)
                     if (this.highlightedTeam) {
-                        seriesOptions[index] = {
+                        seriesOptions[seriesIndex] = {
+                            color: (this.highlightedTeam === eq ? baseColor : '#e2e8f0'),
+                            lineWidth: 0, // Sem linha, apenas pontos
+                            pointSize: (this.highlightedTeam === eq ? 14 : 8),
+                            areaOpacity: 0
+                        };
+                    } else {
+                        seriesOptions[seriesIndex] = {
+                            color: baseColor,
+                            lineWidth: 0,
+                            pointSize: 14
+                        };
+                    }
+                    
+                    // Série Outros (pontos pequenos + linha)
+                    if (this.highlightedTeam) {
+                        seriesOptions[seriesIndex + 1] = {
                             color: (this.highlightedTeam === eq ? baseColor : '#e2e8f0'),
                             lineWidth: (this.highlightedTeam === eq ? 3 : 1),
+                            pointSize: (this.highlightedTeam === eq ? 10 : 6),
                             areaOpacity: (this.highlightedTeam === eq ? 0.1 : 0)
                         };
                     } else {
-                        seriesOptions[index] = {color: baseColor, lineWidth: 2.5};
+                        seriesOptions[seriesIndex + 1] = {
+                            color: baseColor,
+                            lineWidth: 2.5,
+                            pointSize: 10
+                        };
                     }
                 });
                 
-                seriesOptions[equipes.length] = {
+                const numEquipeSeries = equipes.length * 2;
+                
+                // Linha limite
+                seriesOptions[numEquipeSeries] = {
                     color: '#000000',
                     lineDashStyle: [4, 4],
                     pointSize: 0,
                     lineWidth: 2
                 };
                 
+                // Linha recomendável
                 if (tipo === 'final') {
-                    seriesOptions[equipes.length + 1] = {
+                    seriesOptions[numEquipeSeries + 1] = {
                         color: '#ababab',
                         lineDashStyle: [2, 5],
                         pointSize: 0,
@@ -1298,7 +1336,6 @@
                 
                 return {
                     curveType: 'function',
-                    pointSize: 10,
                     interpolateNulls: true,
                     tooltip: {isHtml: true, trigger: 'both'},
                     legend: {position: 'none'},
