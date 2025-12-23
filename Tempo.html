@@ -2133,9 +2133,9 @@ const PDFReportModule = {
             doc.setLineWidth(0.5);
             doc.roundedRect(x, yPos, cardWidth, cardHeight, 3, 3, 'S');
             
-            doc.setFillColor(...card.color);
-            doc.circle(x + 5, yPos + 7, 3, 'F');
-            
+            // Desenhar ícone
+            this._drawCardIcon(doc, x + 5, yPos + 7, card.color, index);
+                    
             doc.setFontSize(7);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(100, 116, 139);
@@ -2149,6 +2149,34 @@ const PDFReportModule = {
         });
         
         return yPos + cardHeight + 10;
+    },
+
+    _drawCardIcon(doc, x, y, color, iconType) {
+        doc.setDrawColor(...color);
+        doc.setFillColor(...color);
+        doc.setLineWidth(0.8);
+        
+        if (iconType === 0) {
+            // Ícone de CHECK (Melhor Tempo)
+            doc.circle(x, y, 3, 'S');
+            doc.setLineWidth(1.2);
+            doc.line(x - 1.5, y, x - 0.3, y + 1.5);
+            doc.line(x - 0.3, y + 1.5, x + 1.8, y - 1.2);
+            
+        } else if (iconType === 1) {
+            // Ícone de RELÓGIO (Média Geral)
+            doc.circle(x, y, 3, 'S');
+            doc.setLineWidth(0.8);
+            doc.line(x, y, x, y - 1.8); // Ponteiro hora
+            doc.line(x, y, x + 1.5, y); // Ponteiro minuto
+            
+        } else if (iconType === 2) {
+            // Ícone de CLIPBOARD (Total Exercícios)
+            doc.roundedRect(x - 2, y - 2.5, 4, 5, 0.5, 0.5, 'S');
+            doc.line(x - 1, y - 0.5, x + 1, y - 0.5);
+            doc.line(x - 1, y + 0.5, x + 1, y + 0.5);
+            doc.line(x - 1, y + 1.5, x + 1, y + 1.5);
+        }
     },
     
     _addTeamPerformanceTable(doc, data, filters, yPos, pageWidth) {
