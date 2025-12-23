@@ -2002,27 +2002,16 @@ const PDFReportModule = {
     },
 
     async _captureCharts() {
-        const charts = { bar: null, line: null };
-        
         try {
-            // Capturar gráfico de barras
-            if (ChartModule.instances.bar) {
-                charts.bar = ChartModule.instances.bar.getImageURI();
-            }
-        } catch (e) {
-            console.warn('Erro ao capturar gráfico de barras:', e);
-        }
-        
-        try {
-            // Capturar gráfico de linhas
+            // Capturar apenas gráfico de linhas
             if (ChartModule.instances.line) {
-                charts.line = ChartModule.instances.line.getImageURI();
+                return ChartModule.instances.line.getImageURI();
             }
         } catch (e) {
             console.warn('Erro ao capturar gráfico de linhas:', e);
         }
         
-        return charts;
+        return null;
     },
     
     async generate() {
@@ -2180,57 +2169,29 @@ const PDFReportModule = {
         return yPos + cardHeight + 10;
     },
 
-    _addCharts(doc, chartImages, yPos, pageWidth, margin, pageHeight) {
-        if (!chartImages.bar && !chartImages.line) return yPos;
+    _addCharts(doc, lineChartImage, yPos, pageWidth, margin, pageHeight) {
+        if (!lineChartImage) return yPos;
         
-        // Adicionar gráfico de barras
-        if (chartImages.bar) {
-            // Verificar se precisa de nova página
-            if (yPos + 80 > pageHeight - 20) {
-                doc.addPage();
-                yPos = 20;
-            }
-            
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(15, 23, 42);
-            doc.text('DESEMPENHO POR EQUIPE', margin, yPos);
-            yPos += 6;
-            
-            const chartWidth = pageWidth - (margin * 2);
-            const chartHeight = 70;
-            
-            try {
-                doc.addImage(chartImages.bar, 'PNG', margin, yPos, chartWidth, chartHeight);
-                yPos += chartHeight + 8;
-            } catch (e) {
-                console.error('Erro ao adicionar gráfico de barras:', e);
-            }
+        // Verificar se precisa de nova página
+        if (yPos + 90 > pageHeight - 20) {
+            doc.addPage();
+            yPos = 20;
         }
         
-        // Adicionar gráfico de linhas
-        if (chartImages.line) {
-            // Verificar se precisa de nova página
-            if (yPos + 90 > pageHeight - 20) {
-                doc.addPage();
-                yPos = 20;
-            }
-            
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(15, 23, 42);
-            doc.text('EVOLUÇÃO DOS TEMPOS', margin, yPos);
-            yPos += 6;
-            
-            const chartWidth = pageWidth - (margin * 2);
-            const chartHeight = 80;
-            
-            try {
-                doc.addImage(chartImages.line, 'PNG', margin, yPos, chartWidth, chartHeight);
-                yPos += chartHeight + 10;
-            } catch (e) {
-                console.error('Erro ao adicionar gráfico de linhas:', e);
-            }
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('EVOLUÇÃO DOS TEMPOS', margin, yPos);
+        yPos += 6;
+        
+        const chartWidth = pageWidth - (margin * 2);
+        const chartHeight = 80;
+        
+        try {
+            doc.addImage(lineChartImage, 'PNG', margin, yPos, chartWidth, chartHeight);
+            yPos += chartHeight + 10;
+        } catch (e) {
+            console.error('Erro ao adicionar gráfico de linhas:', e);
         }
         
         return yPos;
