@@ -2000,12 +2000,40 @@ const PDFReportModule = {
             img.src = 'https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq';
         });
     },
+
+    async _captureCharts() {
+        const charts = { bar: null, line: null };
+        
+        try {
+            // Capturar gráfico de barras
+            if (ChartModule.instances.bar) {
+                charts.bar = ChartModule.instances.bar.getImageURI();
+            }
+        } catch (e) {
+            console.warn('Erro ao capturar gráfico de barras:', e);
+        }
+        
+        try {
+            // Capturar gráfico de linhas
+            if (ChartModule.instances.line) {
+                charts.line = ChartModule.instances.line.getImageURI();
+            }
+        } catch (e) {
+            console.warn('Erro ao capturar gráfico de linhas:', e);
+        }
+        
+        return charts;
+    },
     
     async generate() {
         try {
             this._showGeneratingIndicator();
-
-            await this._loadLogo(); // Carregar logo
+            
+            // Carregar logo
+            await this._loadLogo();
+            
+            // Capturar gráficos
+            const chartImages = await this._captureCharts();
             
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
@@ -2027,6 +2055,7 @@ const PDFReportModule = {
             yPos = this._addHeader(doc, pageWidth, yPos, margin);
             yPos = this._addReportInfo(doc, filters, margin, yPos);
             yPos = this._addStatistics(doc, data, filters, margin, yPos, pageWidth);
+            yPos = this._addCharts(doc, chartImages, yPos, pageWidth, margin, pageHeight);
             yPos = this._addTeamPerformanceTable(doc, data, filters, yPos, pageWidth);
             this._addHistoryTable(doc, data, filters);
             this._addFooters(doc);
@@ -2149,6 +2178,62 @@ const PDFReportModule = {
         });
         
         return yPos + cardHeight + 10;
+    },
+
+    _addCharts(doc, chartImages, yPos, pageWidth, margin, pageHeight) {
+        if (!chartImages.bar && !chartImages.line) return yPos;
+        
+        // Adicionar gráfico de barras
+        if (chartImages.bar) {
+            // Verificar se precisa de nova página
+            if (yPos + 80 > pageHeight - 20) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(15, 23, 42);
+            doc.text('DESEMPENHO POR EQUIPE', margin, yPos);
+            yPos += 6;
+            
+            const chartWidth = pageWidth - (margin * 2);
+            const chartHeight = 70;
+            
+            try {
+                doc.addImage(chartImages.bar, 'PNG', margin, yPos, chartWidth, chartHeight);
+                yPos += chartHeight + 8;
+            } catch (e) {
+                console.error('Erro ao adicionar gráfico de barras:', e);
+            }
+        }
+        
+        // Adicionar gráfico de linhas
+        if (chartImages.line) {
+            // Verificar se precisa de nova página
+            if (yPos + 90 > pageHeight - 20) {
+                doc.addPage();
+                yPos = 20;
+            }
+            
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(15, 23, 42);
+            doc.text('EVOLUÇÃO DOS TEMPOS', margin, yPos);
+            yPos += 6;
+            
+            const chartWidth = pageWidth - (margin * 2);
+            const chartHeight = 80;
+            
+            try {
+                doc.addImage(chartImages.line, 'PNG', margin, yPos, chartWidth, chartHeight);
+                yPos += chartHeight + 10;
+            } catch (e) {
+                console.error('Erro ao adicionar gráfico de linhas:', e);
+            }
+        }
+        
+        return yPos;
     },
 
     _drawCardIcon(doc, x, y, color, iconType) {
