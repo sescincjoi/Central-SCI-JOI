@@ -1964,10 +1964,37 @@
 // ============================================
 const PDFReportModule = {
     currentPdfDoc: null,
+    logoDataUrl: null, // 👈 ADICIONAR
+    
+    // Método para carregar logo
+    async _loadLogo() {
+        if (this.logoDataUrl) return this.logoDataUrl;
+        
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                this.logoDataUrl = canvas.toDataURL('image/png');
+                resolve(this.logoDataUrl);
+            };
+            img.onerror = () => {
+                console.warn('Erro ao carregar logo, usando fallback');
+                resolve(null);
+            };
+            img.src = 'https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq';
+        });
+    },
     
     async generate() {
         try {
             this._showGeneratingIndicator();
+
+            await this._loadLogo(); // Carregar logo
             
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
@@ -2009,8 +2036,20 @@ const PDFReportModule = {
     },
     
     _addHeader(doc, pageWidth, yPos, margin) {
-        doc.setFillColor(37, 99, 235);
-        doc.roundedRect(margin, yPos, 15, 15, 2, 2, 'F');
+        // Adicionar logo se disponível
+        if (this.logoDataUrl) {
+            try {
+                doc.addImage(this.logoDataUrl, 'PNG', margin, yPos, 15, 15);
+            } catch (e) {
+                // Fallback para quadrado azul
+                doc.setFillColor(37, 99, 235);
+                doc.roundedRect(margin, yPos, 15, 15, 2, 2, 'F');
+            }
+        } else {
+            // Fallback para quadrado azul
+            doc.setFillColor(37, 99, 235);
+            doc.roundedRect(margin, yPos, 15, 15, 2, 2, 'F');
+        }
         
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(18);
