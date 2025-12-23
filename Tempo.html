@@ -216,6 +216,21 @@
             height: 1.25rem;
             cursor: pointer;
         }
+        
+        /* Correção de Z-index para evitar sobreposição */
+        #complianceFooter {
+            z-index: 50 !important;
+        }
+        
+        #floatingInfoBtn {
+            z-index: 45 !important;
+        }
+        
+        /* Garantir que os botões de ação fiquem abaixo do footer */
+        main > div:first-of-type {
+            position: relative;
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="text-slate-900 antialiased pb-20 md:pb-0">
