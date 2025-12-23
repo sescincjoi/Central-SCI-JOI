@@ -8,6 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     
     <style>
         body { 
@@ -179,6 +182,12 @@
                 </svg>
                 Acessar Planilha
             </a>
+            <button onclick="PDFReportModule.generate()" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Gerar Relatório PDF
+            </button>
 
             <div class="flex flex-col md:flex-row gap-4">
                 <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 custom-select-container" id="typeContainer">
@@ -1400,6 +1409,339 @@
         window.onresize = function() {
             App.refresh();
         };
+        
+// ============================================
+// 📦 MÓDULO: GERADOR DE RELATÓRIOS PDF
+// ============================================
+const PDFReportModule = {
+    async generate() {
+        try {
+            this._showGeneratingIndicator();
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            const filters = FilterModule.getState();
+            const data = DataModule.getFilteredData();
+            
+            if (data.length === 0) {
+                alert('Não há dados para gerar o relatório. Ajuste os filtros e tente novamente.');
+                this._hideGeneratingIndicator();
+                return;
+            }
+            
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const margin = 15;
+            let yPos = margin;
+            
+            yPos = this._addHeader(doc, pageWidth, yPos, margin);
+            yPos = this._addReportInfo(doc, filters, margin, yPos);
+            yPos = this._addStatistics(doc, data, filters, margin, yPos, pageWidth);
+            yPos = this._addTeamPerformanceTable(doc, data, filters, yPos, pageWidth);
+            this._addHistoryTable(doc, data, filters);
+            this._addFooters(doc);
+            
+            const timestamp = new Date().toISOString().split('T')[0];
+            const tipoLabel = filters.tipo === 'tempo1' ? 'EmbarqueCCI' : 'TempoTotal';
+            doc.save(`Relatorio_TempoResposta_${tipoLabel}_${timestamp}.pdf`);
+            
+            this._hideGeneratingIndicator();
+            
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            alert('Erro ao gerar relatório PDF. Tente novamente.');
+            this._hideGeneratingIndicator();
+        }
+    },
+    
+    _addHeader(doc, pageWidth, yPos, margin) {
+        doc.setFillColor(37, 99, 235);
+        doc.roundedRect(margin, yPos, 15, 15, 2, 2, 'F');
+        
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(18);
+        doc.setTextColor(15, 23, 42);
+        doc.text('Exercício de Tempo Resposta', margin + 20, yPos + 7);
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 116, 139);
+        doc.text('SCI Aeroporto de Joinville', margin + 20, yPos + 12);
+        
+        yPos += 20;
+        doc.setDrawColor(226, 232, 240);
+        doc.setLineWidth(0.5);
+        doc.line(margin, yPos, pageWidth - margin, yPos);
+        
+        return yPos + 8;
+    },
+    
+    _addReportInfo(doc, filters, margin, yPos) {
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(71, 85, 105);
+        
+        const tipoLabel = filters.tipo === 'tempo1' ? 'Embarque CCI' : 'Tempo Total';
+        const periodoLabel = this._getPeriodoLabel(filters.periodo);
+        const locaisLabel = filters.locais.length === 0 
+            ? 'Todos os Locais' 
+            : filters.locais.length === 1 
+                ? filters.locais[0]
+                : `${filters.locais.length} Locais Selecionados`;
+        
+        doc.text(`TIPO DE MEDIÇÃO: ${tipoLabel}`, margin, yPos);
+        doc.text(`PERÍODO: ${periodoLabel}`, margin, yPos + 5);
+        doc.text(`LOCALIZAÇÃO: ${locaisLabel}`, margin, yPos + 10);
+        
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(148, 163, 184);
+        doc.text(`Relatório gerado em: ${new Date().toLocaleString('pt-BR')}`, margin, yPos + 18);
+        
+        return yPos + 25;
+    },
+    
+    _addStatistics(doc, data, filters, margin, yPos, pageWidth) {
+        const stats = this._calculateStats(data);
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('ESTATÍSTICAS GERAIS', margin, yPos);
+        yPos += 8;
+        
+        const cardWidth = (pageWidth - margin * 2 - 10) / 3;
+        const cardHeight = 25;
+        
+        const cards = [
+            { title: 'MELHOR TEMPO', value: stats.bestTeam, color: [16, 185, 129] },
+            { title: 'MÉDIA GERAL', value: UIModule.formatTime(stats.avgTime), color: [37, 99, 235] },
+            { title: 'TOTAL EXERCÍCIOS', value: stats.totalTests.toString(), color: [100, 116, 139] }
+        ];
+        
+        cards.forEach((card, index) => {
+            const x = margin + (cardWidth + 5) * index;
+            
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(x, yPos, cardWidth, cardHeight, 3, 3, 'F');
+            
+            doc.setDrawColor(...card.color);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(x, yPos, cardWidth, cardHeight, 3, 3, 'S');
+            
+            doc.setFillColor(...card.color);
+            doc.circle(x + 5, yPos + 7, 3, 'F');
+            
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(100, 116, 139);
+            doc.text(card.title, x + 10, yPos + 7);
+            
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(15, 23, 42);
+            const valueText = card.value.length > 15 ? card.value.substring(0, 12) + '...' : card.value;
+            doc.text(valueText, x + 5, yPos + 18);
+        });
+        
+        return yPos + cardHeight + 10;
+    },
+    
+    _addTeamPerformanceTable(doc, data, filters, yPos, pageWidth) {
+        const equipes = [...new Set(data.map(d => d.equipe))].sort();
+        const teamData = equipes.map(eq => {
+            const items = data.filter(f => f.equipe === eq);
+            const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+            const min = Math.min(...items.map(x => x.tempo));
+            const max = Math.max(...items.map(x => x.tempo));
+            return { equipe: eq, media: avg, minimo: min, maximo: max, total: items.length };
+        }).sort((a, b) => a.media - b.media);
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('DESEMPENHO POR EQUIPE', 15, yPos);
+        yPos += 5;
+        
+        doc.autoTable({
+            startY: yPos,
+            head: [['Posição', 'Equipe', 'Média', 'Melhor', 'Pior', 'Total']],
+            body: teamData.map((team, index) => [
+                `${index + 1}º`,
+                team.equipe,
+                UIModule.formatTime(team.media),
+                UIModule.formatTime(team.minimo),
+                UIModule.formatTime(team.maximo),
+                team.total
+            ]),
+            theme: 'grid',
+            headStyles: {
+                fillColor: [37, 99, 235],
+                textColor: [255, 255, 255],
+                fontSize: 9,
+                fontStyle: 'bold',
+                halign: 'center'
+            },
+            bodyStyles: { fontSize: 8, textColor: [51, 65, 85] },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 20 },
+                1: { halign: 'left', fontStyle: 'bold' },
+                2: { halign: 'center', cellWidth: 25 },
+                3: { halign: 'center', cellWidth: 25 },
+                4: { halign: 'center', cellWidth: 25 },
+                5: { halign: 'center', cellWidth: 20 }
+            },
+            margin: { left: 15, right: 15 }
+        });
+        
+        return doc.lastAutoTable.finalY + 10;
+    },
+    
+    _addHistoryTable(doc, data, filters) {
+        const sortedData = [...data].sort((a, b) => b.dataObj - a.dataObj);
+        const displayData = sortedData.slice(0, 100);
+        
+        doc.addPage();
+        
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('HISTÓRICO DE EXERCÍCIOS', 15, 20);
+        
+        if (sortedData.length > 100) {
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(220, 38, 38);
+            doc.text(`* Exibindo os 100 registros mais recentes de ${sortedData.length} totais`, 15, 26);
+        }
+        
+        const isTempo1 = filters.tipo === 'tempo1';
+        const headers = isTempo1 
+            ? [['Data', 'Equipe', 'Embarque CCI', 'Local']]
+            : [['Data', 'Equipe', 'Embarque CCI', 'Tempo Total', 'Local']];
+        
+        const bodyData = displayData.map(row => {
+            const base = [row.dataStr, row.equipe, UIModule.formatTime(row.tempo1)];
+            if (!isTempo1) base.push(UIModule.formatTime(row.tempoFinal));
+            base.push(row.local);
+            return base;
+        });
+        
+        doc.autoTable({
+            startY: sortedData.length > 100 ? 30 : 25,
+            head: headers,
+            body: bodyData,
+            theme: 'striped',
+            headStyles: {
+                fillColor: [71, 85, 105],
+                textColor: [255, 255, 255],
+                fontSize: 8,
+                fontStyle: 'bold',
+                halign: 'center'
+            },
+            bodyStyles: { fontSize: 7, textColor: [51, 65, 85] },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            columnStyles: {
+                0: { halign: 'center', cellWidth: 25 },
+                1: { halign: 'left', fontStyle: 'bold', cellWidth: isTempo1 ? 40 : 35 },
+                2: { halign: 'center', cellWidth: isTempo1 ? 30 : 28 },
+                ...(isTempo1 ? {
+                    3: { halign: 'left', cellWidth: 'auto' }
+                } : {
+                    3: { halign: 'center', cellWidth: 28 },
+                    4: { halign: 'left', cellWidth: 'auto' }
+                })
+            },
+            margin: { left: 15, right: 15 }
+        });
+    },
+    
+    _addFooters(doc) {
+        const pageCount = doc.internal.getNumberOfPages();
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            
+            doc.setDrawColor(226, 232, 240);
+            doc.setLineWidth(0.3);
+            doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
+            
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(148, 163, 184);
+            
+            doc.text('© 2025 SCI Aeroporto de Joinville', 15, pageHeight - 10);
+            
+            const conformidade = 'Conforme RBAC 153 e IS Nº 153.409-001';
+            const textWidth = doc.getTextWidth(conformidade);
+            doc.text(conformidade, (pageWidth - textWidth) / 2, pageHeight - 10);
+            
+            const pageText = `Página ${i} de ${pageCount}`;
+            const pageTextWidth = doc.getTextWidth(pageText);
+            doc.text(pageText, pageWidth - 15 - pageTextWidth, pageHeight - 10);
+        }
+    },
+    
+    _calculateStats(data) {
+        let bestAvg = Infinity;
+        let bestTeam = '-';
+        let sumAvg = 0;
+        
+        const equipes = [...new Set(data.map(d => d.equipe))];
+        
+        equipes.forEach(eq => {
+            const items = data.filter(f => f.equipe === eq);
+            const avg = items.reduce((s, x) => s + x.tempo, 0) / items.length;
+            sumAvg += avg;
+            
+            if (avg < bestAvg) {
+                bestAvg = avg;
+                bestTeam = `${eq} (${UIModule.formatTime(avg)})`;
+            }
+        });
+        
+        return {
+            bestTeam: bestTeam,
+            avgTime: sumAvg / (equipes.length || 1),
+            totalTests: data.length
+        };
+    },
+    
+    _getPeriodoLabel(periodo) {
+        const labels = {
+            'all': 'Todo o Histórico',
+            'year': 'Ano Atual',
+            '6months': 'Últimos 6 meses',
+            'last': 'Último de cada equipe'
+        };
+        return labels[periodo] || 'Todo o Histórico';
+    },
+    
+    _showGeneratingIndicator() {
+        const indicator = document.createElement('div');
+        indicator.id = 'pdfGeneratingIndicator';
+        indicator.className = 'fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center';
+        indicator.innerHTML = `
+            <div class="bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-4 max-w-sm mx-4">
+                <div class="loader"></div>
+                <div class="text-center">
+                    <h3 class="text-lg font-bold text-slate-900 mb-2">Gerando Relatório PDF</h3>
+                    <p class="text-sm text-slate-600">Aguarde enquanto processamos os dados...</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(indicator);
+    },
+    
+    _hideGeneratingIndicator() {
+        const indicator = document.getElementById('pdfGeneratingIndicator');
+        if (indicator) indicator.remove();
+    }
+};
     </script>
 </body>
 </html>
