@@ -2001,7 +2001,7 @@ const PDFReportModule = {
         });
     },
 
-    async _captureCharts() {
+   async _captureCharts() {
         try {
             // Criar container temporário em alta resolução
             const tempContainer = document.createElement('div');
@@ -2119,9 +2119,9 @@ const PDFReportModule = {
                 pointSize: 8,
                 interpolateNulls: true,
                 tooltip: {trigger: 'none'}, // Desabilitar tooltip no PDF
-                legend: {position: 'right', alignment: 'center', textStyle: {fontSize: 12}},
+                legend: {position: 'bottom', alignment: 'center', textStyle: {fontSize: 11}, maxLines: 3},
                 series: seriesOptions,
-                chartArea: {width: '75%', height: '75%', left: '10%', right: '20%'},
+                chartArea: {width: '85%', height: '70%', left: '10%', right: '5%', top: '5%', bottom: '20%'},
                 vAxis: {
                     ticks: ticks,
                     viewWindow: viewWindow,
