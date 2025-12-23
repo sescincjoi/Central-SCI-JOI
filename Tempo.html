@@ -991,6 +991,17 @@
                 
                 customLegend.innerHTML = '';
                 
+                // Item da Barra (Média de Tempo)
+                const barItem = document.createElement('div');
+                barItem.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default';
+                barItem.innerHTML = `
+                    <div class="flex items-center justify-center h-4 w-full">
+                        <div class="w-8 h-3 rounded-sm" style="background-color: #475569;"></div>
+                    </div>
+                    <span class="text-xs md:text-sm font-bold text-slate-700 uppercase tracking-tight text-center leading-tight">Média de Tempo</span>
+                `;
+                customLegend.appendChild(barItem);
+                
                 // Item do Limite
                 const limitItem = document.createElement('div');
                 limitItem.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default opacity-80';
