@@ -899,6 +899,7 @@
             },
             
             highlightedTeam: null,
+            selectedPoint: null,
             
             drawBarChart(data, tipo) {
                 const equipes = [...new Set(data.map(d => d.equipe))].sort();
@@ -1102,6 +1103,22 @@
                     this._getLineOptions(equipes, colorMap, tipo)
                 );
                 
+                // Aplicar seleção se houver ponto selecionado
+                if (this.selectedPoint && this.selectedPoint.equipe === this.highlightedTeam) {
+                    const dates = [...new Set(data.map(d => d.dataObj.getTime()))].sort((a, b) => a - b);
+                    const rowIndex = dates.indexOf(this.selectedPoint.timestamp);
+                    const columnIndex = equipes.indexOf(this.selectedPoint.equipe);
+                    
+                    if (rowIndex !== -1 && columnIndex !== -1) {
+                        setTimeout(() => {
+                            this.instances.line.setSelection([{
+                                row: rowIndex,
+                                column: columnIndex * 2 + 1
+                            }]);
+                        }, 100);
+                    }
+                }
+                
                 this._updateCustomLegend(equipes, colorMap, limitLabel);
             },
 
@@ -1114,26 +1131,11 @@
                     block: 'center' 
                 });
                 
-                // Destacar a equipe na legenda
+                // Destacar a equipe na legenda e armazenar o ponto selecionado
                 this.highlightedTeam = equipe;
+                this.selectedPoint = { equipe, timestamp };
                 
-                // Encontrar o índice da linha (row) e coluna correspondentes
-                const data = DataModule.getFilteredData();
-                const equipes = [...new Set(data.map(d => d.equipe))].sort();
-                const dates = [...new Set(data.map(d => d.dataObj.getTime()))].sort((a, b) => a - b);
-                
-                const rowIndex = dates.indexOf(timestamp);
-                const columnIndex = equipes.indexOf(equipe);
-                
-                if (rowIndex !== -1 && columnIndex !== -1) {
-                    // Selecionar o ponto (cada equipe tem 2 colunas: valor e tooltip)
-                    this.instances.line.setSelection([{
-                        row: rowIndex,
-                        column: columnIndex * 2 + 1 // Multiplica por 2 por causa da coluna de tooltip
-                    }]);
-                }
-                
-                // Redesenhar para aplicar o highlight da equipe
+                // Redesenhar para aplicar o highlight
                 App.refresh();
             },
             
