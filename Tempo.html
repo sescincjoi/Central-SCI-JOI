@@ -395,6 +395,7 @@
                 <div id="barChart" class="chart-container-bar flex items-center justify-center">
                     <div class="loader"></div>
                 </div>
+                <div id="customBarLegend" class="flex flex-wrap justify-center gap-x-6 gap-y-4 mt-6 px-4"></div>
             </div>
 
             <div class="glass-card p-3 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm overflow-hidden">
@@ -974,7 +975,45 @@
                 );
             
                 this.instances.bar.draw(dataTable, this._getBarOptions(tipo));
+
+                // LEGENDA HTML
+                this._updateCustomBarLegend(tipo);
+                
                 return colorMap;
+            },
+
+            // LEGENDA HTML
+            _updateCustomBarLegend(tipo) {
+                const customLegend = document.getElementById('customBarLegend');
+                if (!customLegend) return;
+                
+                const limitLabel = tipo === 'tempo1' ? 'Média Geral' : 'Limite (3min)';
+                
+                customLegend.innerHTML = '';
+                
+                // Item do Limite
+                const limitItem = document.createElement('div');
+                limitItem.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default opacity-80';
+                limitItem.innerHTML = `
+                    <div class="flex items-center justify-center h-4 w-full">
+                        <div class="h-[2px] w-8 border-t-2 border-dashed border-slate-900"></div>
+                    </div>
+                    <span class="text-xs md:text-sm font-bold text-slate-900 uppercase tracking-tight text-center leading-tight">${limitLabel}</span>
+                `;
+                customLegend.appendChild(limitItem);
+                
+                // Item do Tempo Recomendável (só para tipo final)
+                if (tipo === 'final') {
+                    const recomendavelItem = document.createElement('div');
+                    recomendavelItem.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default opacity-60';
+                    recomendavelItem.innerHTML = `
+                        <div class="flex items-center justify-center h-4 w-full">
+                            <div class="h-[2px] w-8 border-t-2 border-dotted" style="border-color: #ababab;"></div>
+                        </div>
+                        <span class="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-tight text-center leading-tight">Recomendável</span>
+                    `;
+                    customLegend.appendChild(recomendavelItem);
+                }
             },
             
             drawLineChart(data, tipo, colorMap) {
@@ -1125,7 +1164,7 @@
                             }
                         } : {})
                     },
-                    legend: {position: 'bottom', alignment: 'center', maxLines: 3, maxTextLines: 2, maxAlternation: 2, textStyle: {fontSize: 10, color: '#64748b'}},
+                    legend: {position: 'none', alignment: 'center', maxLines: 3, maxTextLines: 2, maxAlternation: 2, textStyle: {fontSize: 10, color: '#64748b'}},
                     bar: {groupWidth: '70%'},
                     chartArea: {width: '85%', height: '75%', bottom: 80, left: '10%', right: '5%'},
                     vAxis: {ticks: ticks, viewWindow: viewWindow, gridlines: {color: '#f1f5f9'}},
