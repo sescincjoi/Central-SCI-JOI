@@ -257,6 +257,7 @@
             .hide-mobile-filter-btn { display: none !important; }
             .buttons-container-1100 { flex-direction: row !important; }
             .buttons-align-1100 { justify-content: flex-start !important; }
+            .hide-modal-1100 { display: none !important; }
         }
     </style>
 </head>
@@ -485,7 +486,7 @@
     </button>
 
 <!-- Modal Mobile de Filtros -->
-    <div id="mobileFilterModal" class="fixed inset-0 z-[110] hidden md:hidden">
+    <div id="mobileFilterModal" class="fixed inset-0 z-[110] hidden hide-modal-1100">
         <!-- Backdrop -->
         <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="MobileFilterModule.close()"></div>
         
