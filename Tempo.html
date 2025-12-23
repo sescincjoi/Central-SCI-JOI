@@ -1283,10 +1283,10 @@
                     viewWindow.min = 10;
                     viewWindow.max = 50;
                 } else {
-                    for (let i = 0; i <= 240; i += 30) {
+                    for (let i = 60; i <= 240; i += 30) {
                         ticks.push({v: i, f: UIModule.formatTime(i)});
                     }
-                    viewWindow.min = 0;
+                    viewWindow.min = 60;
                     viewWindow.max = 240;
                 }
                 
@@ -2001,7 +2001,7 @@ const PDFReportModule = {
         });
     },
 
-  async _captureCharts() {
+ async _captureCharts() {
         try {
             // Criar container temporário em alta resolução
             const tempContainer = document.createElement('div');
@@ -2107,10 +2107,10 @@ const PDFReportModule = {
                 viewWindow.min = 10;
                 viewWindow.max = 50;
             } else {
-                for (let i = 0; i <= 240; i += 30) {
+                for (let i = 60; i <= 240; i += 30) {
                     ticks.push({v: i, f: UIModule.formatTime(i)});
                 }
-                viewWindow.min = 0;
+                viewWindow.min = 60;
                 viewWindow.max = 240;
             }
             
