@@ -137,6 +137,85 @@
         @media screen and (max-width: 767px) and (orientation: portrait) {
             #rotationWarning:not(.user-closed) { display: flex !important; }
         }
+        
+        /* Mobile Filter Modal */
+        #mobileFilterModal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #mobileFilterModal.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #mobileFilterDrawer {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateY(100%);
+        }
+        #mobileFilterModal:not(.hidden) #mobileFilterDrawer {
+            transform: translateY(0);
+        }
+        
+        .mobile-filter-select {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .mobile-filter-select label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-option-item {
+            padding: 0.875rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 2px solid transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mobile-option-item:hover {
+            background-color: #f1f5f9;
+        }
+        
+        .mobile-option-item.selected {
+            background-color: #eff6ff;
+            border-color: #2563eb;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .mobile-checkbox-item {
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mobile-checkbox-item:hover {
+            background-color: #f8fafc;
+        }
+        
+        .mobile-checkbox-item input[type="checkbox"] {
+            width: 1.25rem;
+            height: 1.25rem;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body class="text-slate-900 antialiased pb-20 md:pb-0">
@@ -176,20 +255,31 @@
     <main class="max-w-[1600px] mx-auto px-2 md:px-4 mb-24 md:mb-12">
         
         <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 mb-8 relative z-[60] px-4 md:px-8">
-            <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors">
-                <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Acessar Planilha
-            </a>
-            <button onclick="PDFReportModule.generate()" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 transition-all">
+            <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                <a href="https://docs.google.com/spreadsheets/d/1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg" target="_blank" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-slate-700 hover:text-blue-600 transition-colors flex-1 sm:flex-none">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Acessar Planilha
+                </a>
+                <button onclick="PDFReportModule.generate()" class="btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 transition-all flex-1 sm:flex-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    Gerar Relatório PDF
+                </button>
+            </div>
+
+            <!-- Botão Mobile para abrir filtros -->
+            <button onclick="MobileFilterModule.open()" class="md:hidden btn-sheet glass-card px-5 py-3 rounded-2xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
                 </svg>
-                Gerar Relatório PDF
+                Ajustar Dados
             </button>
 
-            <div class="flex flex-col md:flex-row gap-4">
+            <!-- Filtros Desktop (mantém comportamento atual) -->
+            <div class="hidden md:flex flex-col md:flex-row gap-4">
                 <div class="glass-card p-3 rounded-2xl shadow-sm flex flex-col gap-1 custom-select-container" id="typeContainer">
                     <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Tipo de Medição</label>
                     <div id="typeTrigger" class="custom-select-trigger font-semibold text-slate-700 p-1 text-sm min-w-[180px]">
@@ -350,6 +440,104 @@
             Normativa ANAC
         </span>
     </button>
+
+<!-- Modal Mobile de Filtros -->
+    <div id="mobileFilterModal" class="fixed inset-0 z-[110] hidden md:hidden">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm" onclick="MobileFilterModule.close()"></div>
+        
+        <!-- Drawer -->
+        <div id="mobileFilterDrawer" class="fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+                    </svg>
+                    <h3 class="text-lg font-bold text-white">Ajustar Dados</h3>
+                </div>
+                <button onclick="MobileFilterModule.close()" class="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Conteúdo Scrollável -->
+            <div class="flex-1 overflow-y-auto px-6 py-6">
+                <!-- Tipo de Medição -->
+                <div class="mobile-filter-select">
+                    <label>Tipo de Medição</label>
+                    <div id="mobileTypeOptions">
+                        <div class="mobile-option-item selected" data-value="final">
+                            <div class="w-5 h-5 rounded-full border-2 border-blue-600 flex items-center justify-center shrink-0">
+                                <div class="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
+                            </div>
+                            <span class="flex-1">Tempo Total</span>
+                        </div>
+                        <div class="mobile-option-item" data-value="tempo1">
+                            <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                <div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+                            </div>
+                            <span class="flex-1">Embarque CCI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Localização -->
+                <div class="mobile-filter-select">
+                    <label>Localização</label>
+                    <div class="mb-3 flex gap-2">
+                        <button onclick="MobileFilterModule.selectAllLocations()" class="flex-1 px-3 py-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors">
+                            Selecionar Todos
+                        </button>
+                        <button onclick="MobileFilterModule.clearAllLocations()" class="flex-1 px-3 py-2 bg-slate-50 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-100 transition-colors">
+                            Limpar Seleção
+                        </button>
+                    </div>
+                    <div id="mobileLocalOptions" class="max-h-64 overflow-y-auto"></div>
+                </div>
+
+                <!-- Período -->
+                <div class="mobile-filter-select mb-6">
+                    <label>Período Analisado</label>
+                    <div id="mobilePeriodOptions">
+                        <div class="mobile-option-item selected" data-value="all">
+                            <div class="w-5 h-5 rounded-full border-2 border-blue-600 flex items-center justify-center shrink-0">
+                                <div class="w-2.5 h-2.5 rounded-full bg-blue-600"></div>
+                            </div>
+                            <span class="flex-1">Todo o Histórico</span>
+                        </div>
+                        <div class="mobile-option-item" data-value="year">
+                            <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                <div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+                            </div>
+                            <span class="flex-1">Ano Atual</span>
+                        </div>
+                        <div class="mobile-option-item" data-value="6months">
+                            <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                <div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+                            </div>
+                            <span class="flex-1">Últimos 6 meses</span>
+                        </div>
+                        <div class="mobile-option-item" data-value="last">
+                            <div class="w-5 h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0">
+                                <div class="w-2.5 h-2.5 rounded-full bg-transparent"></div>
+                            </div>
+                            <span class="flex-1">Último de cada equipe</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botão Aplicar -->
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 shrink-0">
+                <button onclick="MobileFilterModule.apply()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold rounded-xl transition-all shadow-lg active:scale-95">
+                    Aplicar Filtros
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal PDF -->
     <div id="pdfModal" class="fixed inset-0 z-[100] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -1395,6 +1583,185 @@
         function toggleFooter(show) {
             FooterModule.toggle(show);
         }
+
+// ============================================
+        // 📦 MÓDULO: MODAL DE FILTROS MOBILE
+        // ============================================
+        const MobileFilterModule = {
+            tempState: {
+                tipo: 'final',
+                locais: [],
+                periodo: 'all'
+            },
+            
+            open() {
+                // Copiar estado atual para temporário
+                const currentState = FilterModule.getState();
+                this.tempState = {
+                    tipo: currentState.tipo,
+                    locais: [...currentState.locais],
+                    periodo: currentState.periodo
+                };
+                
+                // Renderizar opções de localização
+                this._renderLocalOptions();
+                
+                // Sincronizar seleções visuais
+                this._syncVisualState();
+                
+                // Mostrar modal
+                const modal = document.getElementById('mobileFilterModal');
+                modal.classList.remove('hidden');
+            },
+            
+            close() {
+                const modal = document.getElementById('mobileFilterModal');
+                modal.classList.add('hidden');
+            },
+            
+            apply() {
+                // Aplicar estado temporário ao FilterModule
+                FilterModule.state.tipo = this.tempState.tipo;
+                FilterModule.state.locais = [...this.tempState.locais];
+                FilterModule.state.periodo = this.tempState.periodo;
+                
+                // Atualizar labels desktop
+                this._updateDesktopLabels();
+                
+                // Fechar modal
+                this.close();
+                
+                // Atualizar dashboard
+                App.refresh();
+            },
+            
+            selectAllLocations() {
+                const locations = DataModule.getUniqueLocations();
+                this.tempState.locais = [...locations];
+                this._renderLocalOptions();
+            },
+            
+            clearAllLocations() {
+                this.tempState.locais = [];
+                this._renderLocalOptions();
+            },
+            
+            _renderLocalOptions() {
+                const container = document.getElementById('mobileLocalOptions');
+                if (!container) return;
+                
+                const locations = DataModule.getUniqueLocations();
+                
+                container.innerHTML = locations.map(local => {
+                    const isChecked = this.tempState.locais.includes(local);
+                    return `
+                        <div class="mobile-checkbox-item" onclick="MobileFilterModule._toggleLocation('${local}')">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation()">
+                            <span class="flex-1 text-sm text-slate-700 font-medium">${local}</span>
+                        </div>
+                    `;
+                }).join('');
+            },
+            
+            _toggleLocation(local) {
+                const index = this.tempState.locais.indexOf(local);
+                if (index > -1) {
+                    this.tempState.locais.splice(index, 1);
+                } else {
+                    this.tempState.locais.push(local);
+                }
+                this._renderLocalOptions();
+            },
+            
+            _syncVisualState() {
+                // Tipo de Medição
+                document.querySelectorAll('#mobileTypeOptions .mobile-option-item').forEach(item => {
+                    const value = item.dataset.value;
+                    const isSelected = value === this.tempState.tipo;
+                    
+                    if (isSelected) {
+                        item.classList.add('selected');
+                        item.querySelector('.w-5 div').classList.add('bg-blue-600');
+                        item.querySelector('.w-5').classList.remove('border-slate-300');
+                        item.querySelector('.w-5').classList.add('border-blue-600');
+                    } else {
+                        item.classList.remove('selected');
+                        item.querySelector('.w-5 div').classList.remove('bg-blue-600');
+                        item.querySelector('.w-5').classList.add('border-slate-300');
+                        item.querySelector('.w-5').classList.remove('border-blue-600');
+                    }
+                    
+                    item.onclick = () => {
+                        this.tempState.tipo = value;
+                        this._syncVisualState();
+                    };
+                });
+                
+                // Período
+                document.querySelectorAll('#mobilePeriodOptions .mobile-option-item').forEach(item => {
+                    const value = item.dataset.value;
+                    const isSelected = value === this.tempState.periodo;
+                    
+                    if (isSelected) {
+                        item.classList.add('selected');
+                        item.querySelector('.w-5 div').classList.add('bg-blue-600');
+                        item.querySelector('.w-5').classList.remove('border-slate-300');
+                        item.querySelector('.w-5').classList.add('border-blue-600');
+                    } else {
+                        item.classList.remove('selected');
+                        item.querySelector('.w-5 div').classList.remove('bg-blue-600');
+                        item.querySelector('.w-5').classList.add('border-slate-300');
+                        item.querySelector('.w-5').classList.remove('border-blue-600');
+                    }
+                    
+                    item.onclick = () => {
+                        this.tempState.periodo = value;
+                        this._syncVisualState();
+                    };
+                });
+            },
+            
+            _updateDesktopLabels() {
+                // Atualizar label de Tipo
+                const typeLabel = document.getElementById('typeLabel');
+                if (typeLabel) {
+                    typeLabel.innerText = this.tempState.tipo === 'tempo1' ? 'Embarque CCI' : 'Tempo Total';
+                }
+                
+                // Atualizar seleção visual de Tipo
+                document.querySelectorAll('#typeOptions .option-item').forEach(opt => {
+                    if (opt.dataset.value === this.tempState.tipo) {
+                        opt.classList.add('selected');
+                    } else {
+                        opt.classList.remove('selected');
+                    }
+                });
+                
+                // Atualizar label de Período
+                const periodLabel = document.getElementById('periodLabel');
+                if (periodLabel) {
+                    const periodLabels = {
+                        'all': 'Todo o Histórico',
+                        'year': 'Ano Atual',
+                        '6months': 'Últimos 6 meses',
+                        'last': 'Último de cada equipe'
+                    };
+                    periodLabel.innerText = periodLabels[this.tempState.periodo];
+                }
+                
+                // Atualizar seleção visual de Período
+                document.querySelectorAll('#periodOptions .option-item').forEach(opt => {
+                    if (opt.dataset.value === this.tempState.periodo) {
+                        opt.classList.add('selected');
+                    } else {
+                        opt.classList.remove('selected');
+                    }
+                });
+                
+                // Atualizar label e checkboxes de Localização
+                FilterModule._updateLocalCheckboxes(DataModule.getUniqueLocations());
+            }
+        };
 
         // ============================================
         // 🚀 INICIALIZAÇÃO
