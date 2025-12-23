@@ -1073,7 +1073,7 @@
                 
                 if (tipo === 'final') {
                     lineDataTable.addColumn('number', recomendavelLabel);
-                }
+                }/* acaba aqui */
                 
                 // Preencher dados
                 dates.forEach(t => {
@@ -1103,25 +1103,18 @@
                     });
                     
                     row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
-            
+
                     if (tipo === 'final') {
                         row.push({v: recomendavelValue, f: UIModule.formatTime(recomendavelValue)});
                     }
                     
-                    lineDataTable.addRow(row);
+                    lineDataTable.addRow(row);/* acaba aqui */
                 });
                 
                 // Desenhar
                 this.instances.line = new google.visualization.LineChart(
                     document.getElementById('lineChart')
                 );
-                
-                // 🆕 ADICIONAR LISTENER AQUI
-                google.visualization.events.addListener(this.instances.line, 'ready', () => {
-                    if (tipo === 'final') { // Só aplicar para Tempo Total
-                        this._addLocationMarkers(data, equipes, dates, colorMap);
-                    }
-                });
                 
                 this.instances.line.draw(
                     lineDataTable,
@@ -1145,50 +1138,6 @@
                 }
                 
                 this._updateCustomLegend(equipes, colorMap, limitLabel);
-            },
-
-            _addLocationMarkers(data, equipes, dates, colorMap) {
-                const container = document.getElementById('lineChart');
-                const svg = container.querySelector('svg');
-                if (!svg) return;
-                
-                // Encontrar todos os círculos existentes
-                const circles = Array.from(svg.querySelectorAll('circle'));
-                
-                // Filtrar apenas círculos de pontos de dados (não legendas)
-                const dataCircles = circles.filter(c => {
-                    const r = parseFloat(c.getAttribute('r'));
-                    return r > 3 && r < 15; // Pontos de dados típicos
-                });
-                
-                let circleIndex = 0;
-                
-                // Percorrer na mesma ordem que o gráfico renderiza
-                dates.forEach(timestamp => {
-                    equipes.forEach(eq => {
-                        const point = data.find(d => 
-                            d.dataObj.getTime() === timestamp && d.equipe === eq
-                        );
-                        
-                        if (point && dataCircles[circleIndex]) {
-                            const circle = dataCircles[circleIndex];
-                            
-                            if (point.local === 'Cabeceira 33') {
-                                // Aumentar raio significativamente
-                                circle.setAttribute('r', '8');
-                                circle.setAttribute('stroke-width', '2');
-                            } else {
-                                // Tamanho normal
-                                circle.setAttribute('r', '5');
-                                circle.setAttribute('stroke-width', '1.5');
-                            }
-                            
-                            circleIndex++;
-                        } else if (point) {
-                            circleIndex++;
-                        }
-                    });
-                });
             },
 
             highlightPoint(equipe, timestamp) {
@@ -1411,36 +1360,6 @@
                     `;
                     customLegend.appendChild(recomendavelItem);
                 }/* acaba aqui */
-
-                // Separador visual (só para Tempo Total)
-                const filterState = FilterModule.getState();
-                if (filterState.tipo === 'final') {
-                    const separator = document.createElement('div');
-                    separator.className = 'w-px h-8 bg-slate-200 mx-2';
-                    customLegend.appendChild(separator);
-                    
-                    // Legenda Cabeceira 33
-                    const cabItem = document.createElement('div');
-                    cabItem.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default';
-                    cabItem.innerHTML = `
-                        <div class="flex items-center justify-center h-4 w-full">
-                            <div class="w-4 h-4 rounded-full bg-slate-400 border-2 border-white"></div>
-                        </div>
-                        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tight text-center leading-tight">Cabeceira 33</span>
-                    `;
-                    customLegend.appendChild(cabItem);
-                    
-                    // Legenda Posição 9
-                    const pos9Item = document.createElement('div');
-                    pos9Item.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default';
-                    pos9Item.innerHTML = `
-                        <div class="flex items-center justify-center h-4 w-full">
-                            <div class="w-2.5 h-2.5 rounded-full bg-slate-400 border-2 border-white"></div>
-                        </div>
-                        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tight text-center leading-tight">Posição 9</span>
-                    `;
-                    customLegend.appendChild(pos9Item);
-                }
             }
         };
 
