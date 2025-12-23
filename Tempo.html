@@ -2001,7 +2001,7 @@ const PDFReportModule = {
         });
     },
 
-   async _captureCharts() {
+  async _captureCharts() {
         try {
             // Criar container temporário em alta resolução
             const tempContainer = document.createElement('div');
@@ -2116,23 +2116,23 @@ const PDFReportModule = {
             
             const chartOptions = {
                 curveType: 'function',
-                pointSize: 8,
+                pointSize: 10,
                 interpolateNulls: true,
                 tooltip: {trigger: 'none'}, // Desabilitar tooltip no PDF
-                legend: {position: 'bottom', alignment: 'center', textStyle: {fontSize: 11}, maxLines: 3},
+                legend: {position: 'bottom', alignment: 'center', textStyle: {fontSize: 16, bold: true}, maxLines: 3},
                 series: seriesOptions,
-                chartArea: {width: '85%', height: '70%', left: '10%', right: '5%', top: '5%', bottom: '20%'},
+                chartArea: {width: '85%', height: '65%', left: '10%', right: '5%', top: '5%', bottom: '25%'},
                 vAxis: {
                     ticks: ticks,
                     viewWindow: viewWindow,
                     gridlines: {color: '#f1f5f9'},
-                    textStyle: {fontSize: 11}
+                    textStyle: {fontSize: 16, bold: true}
                 },
                 hAxis: {
                     format: "MMM/yy",
                     gridlines: {count: -1},
                     minorGridlines: {count: 0},
-                    textStyle: {fontSize: 11}
+                    textStyle: {fontSize: 16, bold: true}
                 },
                 backgroundColor: 'white',
                 width: 1200,
