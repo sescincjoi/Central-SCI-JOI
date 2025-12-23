@@ -2154,19 +2154,19 @@ const PDFReportModule = {
     _drawCardIcon(doc, x, y, color, iconType) {
         doc.setDrawColor(...color);
         doc.setFillColor(...color);
-        doc.setLineWidth(0.8);
+        doc.setLineWidth(0.5); // 👈 REDUZIDO de 0.8 para 0.5
         
         if (iconType === 0) {
             // Ícone de CHECK (Melhor Tempo)
             doc.circle(x, y, 3, 'S');
-            doc.setLineWidth(1.2);
+            doc.setLineWidth(0.7); // 👈 REDUZIDO de 1.2 para 0.7
             doc.line(x - 1.5, y, x - 0.3, y + 1.5);
             doc.line(x - 0.3, y + 1.5, x + 1.8, y - 1.2);
             
         } else if (iconType === 1) {
             // Ícone de RELÓGIO (Média Geral)
             doc.circle(x, y, 3, 'S');
-            doc.setLineWidth(0.8);
+            doc.setLineWidth(0.5); // 👈 Mantém em 0.5
             doc.line(x, y, x, y - 1.8); // Ponteiro hora
             doc.line(x, y, x + 1.5, y); // Ponteiro minuto
             
