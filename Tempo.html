@@ -1060,20 +1060,21 @@
                 const recomendavelValue = tipo === 'final' ? 120 : null;
                 const recomendavelLabel = 'Tempo Recomendável';
                 
-                // Criar DataTable
+                // Criar DataTable com colunas de tamanho de ponto
                 const lineDataTable = new google.visualization.DataTable();
                 lineDataTable.addColumn('date', 'Data');
                 
                 equipes.forEach(eq => {
                     lineDataTable.addColumn('number', eq);
                     lineDataTable.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
+                    lineDataTable.addColumn({type: 'number', role: 'style'}); // Para tamanho do ponto
                 });
                 
                 lineDataTable.addColumn('number', limitLabel);
                 
                 if (tipo === 'final') {
                     lineDataTable.addColumn('number', recomendavelLabel);
-                }/* acaba aqui */
+                }
                 
                 // Preencher dados
                 dates.forEach(t => {
@@ -1086,6 +1087,9 @@
                             const tooltipLabel = tipo === 'tempo1' ? 'Embarque CCI' : 'TEMPO TOTAL';
                             const tempo1ParaTooltip = tipo === 'final' ? found.tempo1 : null;
                             
+                            // Definir tamanho do ponto baseado na localização
+                            const pointSize = found.local === 'Cabeceira 33' ? 14 : 10;
+                            
                             row.push({v: found.tempo, f: UIModule.formatTime(found.tempo)});
                             row.push(this._createTooltip(
                                 eq,
@@ -1096,19 +1100,21 @@
                                 found.local,
                                 tempo1ParaTooltip
                             ));
+                            row.push(pointSize);
                         } else {
+                            row.push(null);
                             row.push(null);
                             row.push(null);
                         }
                     });
                     
                     row.push({v: limitValue, f: UIModule.formatTime(limitValue)});
-
+            
                     if (tipo === 'final') {
                         row.push({v: recomendavelValue, f: UIModule.formatTime(recomendavelValue)});
                     }
                     
-                    lineDataTable.addRow(row);/* acaba aqui */
+                    lineDataTable.addRow(row);
                 });
                 
                 // Desenhar
@@ -1118,7 +1124,7 @@
                 
                 this.instances.line.draw(
                     lineDataTable,
-                    this._getLineOptions(equipes, colorMap, tipo)
+                    this._getLineOptions(equipes, colorMap, tipo, data)
                 );
                 
                 // Aplicar seleção se houver ponto selecionado
@@ -1241,7 +1247,7 @@
                 };
             },          
             
-            _getLineOptions(equipes, colorMap, tipo) {
+            _getLineOptions(equipes, colorMap, tipo, data) {
                 const seriesOptions = {};
                 
                 equipes.forEach((eq, index) => {
@@ -1249,11 +1255,11 @@
                     if (this.highlightedTeam) {
                         seriesOptions[index] = {
                             color: (this.highlightedTeam === eq ? baseColor : '#e2e8f0'),
-                            lineWidth: (this.highlightedTeam === eq ? 4 : 1),
+                            lineWidth: (this.highlightedTeam === eq ? 3 : 1),
                             areaOpacity: (this.highlightedTeam === eq ? 0.1 : 0)
                         };
                     } else {
-                        seriesOptions[index] = {color: baseColor, lineWidth: 3};
+                        seriesOptions[index] = {color: baseColor, lineWidth: 2.5};
                     }
                 });
                 
@@ -1335,7 +1341,7 @@
                     
                     customLegend.appendChild(item);
                 });
-
+            
                 // Adicionar item do limite
                 const limitItem = document.createElement('div');
                 limitItem.className = 'flex flex-col items-center gap-1 min-w-[60px] cursor-default opacity-80';
@@ -1359,7 +1365,35 @@
                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tight text-center leading-tight">Recomendável</span>
                     `;
                     customLegend.appendChild(recomendavelItem);
-                }/* acaba aqui */
+                }
+                
+                // Separador visual
+                const separator = document.createElement('div');
+                separator.className = 'w-px h-8 bg-slate-200 mx-2';
+                customLegend.appendChild(separator);
+                
+                // Legenda de tamanhos (apenas para Tempo Total)
+                if (filterState.tipo === 'final') {
+                    const cabItem = document.createElement('div');
+                    cabItem.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default';
+                    cabItem.innerHTML = `
+                        <div class="flex items-center justify-center h-4 w-full">
+                            <div class="w-3.5 h-3.5 rounded-full bg-slate-400 border-2 border-white"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tight text-center leading-tight">Cabeceira 33</span>
+                    `;
+                    customLegend.appendChild(cabItem);
+                    
+                    const pos9Item = document.createElement('div');
+                    pos9Item.className = 'flex flex-col items-center gap-1 min-w-[80px] cursor-default';
+                    pos9Item.innerHTML = `
+                        <div class="flex items-center justify-center h-4 w-full">
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-400 border-2 border-white"></div>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tight text-center leading-tight">Posição 9</span>
+                    `;
+                    customLegend.appendChild(pos9Item);
+                }
             }
         };
 
