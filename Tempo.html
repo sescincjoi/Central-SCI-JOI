@@ -2332,13 +2332,14 @@ const PDFReportModule = {
         
         const chartWidth = pageWidth - (margin * 2);
         const chartHeight = 80;
-        const padding = 3; // Espaçamento interno
+        const padding = 3; // Espaçamento lateral e inferior
+        const paddingTop = 8; // Espaçamento superior (ajuste este valor)
         
         // Desenhar container com borda arredondada (similar ao glass-card)
         doc.setFillColor(255, 255, 255); // Fundo branco
         doc.setDrawColor(226, 232, 240); // Cor da borda (slate-200)
         doc.setLineWidth(0.3);
-        doc.roundedRect(margin - padding, yPos - padding, chartWidth + (padding * 2), chartHeight + (padding * 2), 3, 3, 'FD');
+        doc.roundedRect(margin - padding, yPos - paddingTop, chartWidth + (padding * 2), chartHeight + paddingTop + padding, 3, 3, 'FD');
         
         try {
             doc.addImage(lineChartImage, 'PNG', margin, yPos, chartWidth, chartHeight);
