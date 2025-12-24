@@ -2332,10 +2332,17 @@ const PDFReportModule = {
         
         const chartWidth = pageWidth - (margin * 2);
         const chartHeight = 80;
+        const padding = 3; // Espaçamento interno
+        
+        // Desenhar container com borda arredondada (similar ao glass-card)
+        doc.setFillColor(255, 255, 255); // Fundo branco
+        doc.setDrawColor(226, 232, 240); // Cor da borda (slate-200)
+        doc.setLineWidth(0.3);
+        doc.roundedRect(margin - padding, yPos - padding, chartWidth + (padding * 2), chartHeight + (padding * 2), 3, 3, 'FD');
         
         try {
             doc.addImage(lineChartImage, 'PNG', margin, yPos, chartWidth, chartHeight);
-            yPos += chartHeight + 10;
+            yPos += chartHeight + padding + 10;
         } catch (e) {
             console.error('Erro ao adicionar gráfico de linhas:', e);
         }
