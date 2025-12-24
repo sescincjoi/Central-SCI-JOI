@@ -2319,27 +2319,29 @@ const PDFReportModule = {
         if (!lineChartImage) return yPos;
         
         // Verificar se precisa de nova página
-        if (yPos + 90 > pageHeight - 20) {
+        if (yPos + 95 > pageHeight - 20) {
             doc.addPage();
             yPos = 20;
         }
         
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(15, 23, 42);
-        doc.text('EVOLUÇÃO DOS TEMPOS', margin, yPos);
-        yPos += 6;
-        
         const chartWidth = pageWidth - (margin * 2);
         const chartHeight = 80;
         const padding = 3; // Espaçamento lateral e inferior
-        const paddingTop = 8; // Espaçamento superior (ajuste este valor)
+        const paddingTop = 10; // Espaçamento superior para o título
         
         // Desenhar container com borda arredondada (similar ao glass-card)
         doc.setFillColor(255, 255, 255); // Fundo branco
         doc.setDrawColor(226, 232, 240); // Cor da borda (slate-200)
         doc.setLineWidth(0.3);
-        doc.roundedRect(margin - padding, yPos - paddingTop, chartWidth + (padding * 2), chartHeight + paddingTop + padding, 3, 3, 'FD');
+        doc.roundedRect(margin - padding, yPos - padding, chartWidth + (padding * 2), chartHeight + paddingTop + padding, 3, 3, 'FD');
+        
+        // Título dentro da borda
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('EVOLUÇÃO DOS TEMPOS', margin, yPos + 4);
+        
+        yPos += paddingTop;
         
         try {
             doc.addImage(lineChartImage, 'PNG', margin, yPos, chartWidth, chartHeight);
