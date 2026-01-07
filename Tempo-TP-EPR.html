@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indicadores de Vestimenta TP/EPR - Bombeiros de Aeródromo</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .metric-card {
+            transition: transform 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+        }
+        .status-pill {
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header & Filtros -->
+    <div class="max-w-7xl mx-auto mb-10 text-center">
+        <!-- Título em toda a largura -->
+        <div class="inline-flex items-center justify-center gap-4 mb-8">
+            <div class="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-200">
+                <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">Tempo de Vestimenta TP/EPR</h1>
+        </div>
+        
+        <!-- Filtros Centralizados -->
+        <div class="flex flex-wrap justify-center items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-100 max-w-fit mx-auto">
+            <!-- Filtro de Período -->
+            <div class="relative min-w-[180px]">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <select id="filterPeriodo" class="pl-10 pr-10 py-2.5 bg-slate-50 border-none rounded-xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none w-full cursor-pointer hover:bg-slate-100 transition-colors">
+                    <option value="todos">Todo o Período</option>
+                    <option value="ano">Último Ano</option>
+                    <option value="semestre">Último Semestre</option>
+                    <option value="trimestre">Último Trimestre</option>
+                </select>
+            </div>
+
+            <!-- Filtro de Equipe -->
+            <div class="relative min-w-[180px]">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <select id="filterEquipe" class="pl-10 pr-10 py-2.5 bg-slate-50 border-none rounded-xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none w-full cursor-pointer hover:bg-slate-100 transition-colors">
+                    <option value="Todas">Todas as Equipes</option>
+                </select>
+            </div>
+
+            <!-- Filtro de Bombeiro -->
+            <div class="relative min-w-[200px]">
+                <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <select id="filterBombeiro" class="pl-10 pr-10 py-2.5 bg-slate-50 border-none rounded-xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none w-full cursor-pointer hover:bg-slate-100 transition-colors">
+                    <option value="Todos">Todos os Bombeiros</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-emerald-500">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
+                <i data-lucide="trophy" class="w-5 h-5 text-emerald-500"></i>
+            </div>
+            <h3 id="kpiMelhorTempo" class="text-3xl font-bold text-emerald-600">--:--</h3>
+            <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando dados...</p>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-blue-500">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-medium text-slate-500">Melhor Evolução</p>
+                <i data-lucide="trending-up" class="w-5 h-5 text-blue-500"></i>
+            </div>
+            <h3 id="kpiEvolucao" class="text-3xl font-bold text-blue-600">--%</h3>
+            <p id="kpiEvolucaoNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Histórico individual</p>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-slate-400">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-medium text-slate-500">Média Geral</p>
+                <i data-lucide="clock" class="w-5 h-5 text-slate-400"></i>
+            </div>
+            <h3 id="kpiMedia" class="text-3xl font-bold text-slate-800">--:--</h3>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span class="text-xs text-slate-500">Objetivo: < 01:00</span>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-orange-500">
+            <div class="flex items-center justify-between mb-2">
+                <p class="text-sm font-medium text-slate-500">Exercícios Realizados</p>
+                <i data-lucide="list-checks" class="w-5 h-5 text-orange-500"></i>
+            </div>
+            <h3 id="kpiTotal" class="text-3xl font-bold text-slate-800">--</h3>
+            <p class="text-xs text-slate-400 mt-2">Registros válidos</p>
+        </div>
+    </div>
+
+    <!-- Gráficos e Alertas -->
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="lg:col-span-2 glass-card p-6 rounded-2xl">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-blue-600"></i>
+                    Histórico de Performance
+                </h4>
+                <div class="flex gap-4 text-[10px] uppercase font-bold tracking-wider">
+                    <span class="text-emerald-500 flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500 inline-block"></span> Objetivo (1m)</span>
+                    <span class="text-red-500 flex items-center gap-1"><span class="w-3 h-0.5 bg-red-500 inline-block"></span> Limite (1m30)</span>
+                </div>
+            </div>
+            <div id="chartHistory" class="w-full h-[350px]"></div>
+        </div>
+        
+        <div class="glass-card p-6 rounded-2xl flex flex-col">
+            <h4 class="font-bold text-slate-800 mb-6 flex items-center gap-2">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-blue-600"></i>
+                Pontos de Atenção & Melhoria
+            </h4>
+            <div id="alertsContainer" class="space-y-4 flex-1 overflow-y-auto pr-2">
+                <div class="flex items-center justify-center h-full text-slate-400 text-sm italic">Analisando dados...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela -->
+    <div class="max-w-7xl mx-auto glass-card rounded-2xl overflow-hidden mb-8">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white/50">
+            <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="database" class="w-5 h-5 text-slate-600"></i>
+                Histórico Detalhado
+            </h4>
+            <button onclick="PDFReportModule.generate()" class="bg-slate-50 hover:bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 border border-slate-200">
+                <i data-lucide="file-down" class="w-4 h-4 text-blue-600"></i>
+                Exportar Relatório
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50/50 text-slate-500 text-xs uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">Data</th>
+                        <th class="px-6 py-4 font-semibold">Bombeiro</th>
+                        <th class="px-6 py-4 font-semibold">Equipe</th>
+                        <th class="px-6 py-4 font-semibold text-center">Tempo Total</th>
+                        <th class="px-6 py-4 font-semibold text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody" class="divide-y divide-slate-100 text-sm text-slate-700">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div id="pdfPreviewModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-4xl h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-2xl">
+                <h3 class="font-bold text-slate-800">Pré-visualização</h3>
+                <div class="flex gap-2">
+                    <button onclick="PDFReportModule.download()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold">Download</button>
+                    <button onclick="PDFReportModule.close()" class="bg-white border text-slate-600 px-4 py-2 rounded-lg text-sm font-semibold">Fechar</button>
+                </div>
+            </div>
+            <iframe id="pdfPreviewFrame" class="flex-1 w-full rounded-b-2xl border-none"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const SPREADSHEET_ID = '1SIM3VeI1tFSyI0PA07O6QsYzDTt3nJmfEFJm9807mto';
+        const JSON_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+        const GOAL_S = 60; 
+        const LIMIT_S = 90;
+
+        let rawData = [];
+        let filteredData = [];
+
+        const DataLoader = {
+            async fetch() {
+                try {
+                    const response = await fetch(JSON_URL);
+                    const text = await response.text();
+                    const json = JSON.parse(text.substring(47).slice(0, -2));
+                    const rows = json.table.rows;
+
+                    rawData = rows.map(row => {
+                        const cellData = row.c[1]?.f || row.c[1]?.v || "";
+                        const cellNome = row.c[3]?.v || "";
+                        const cellEquipe = row.c[2]?.v || "";
+                        const timeVal = row.c[4]?.f || row.c[4]?.v || "00:00:00";
+                        
+                        return {
+                            data: cellData,
+                            dateObject: this.parseDate(cellData),
+                            equipe: cellEquipe,
+                            nome: cellNome,
+                            tempoStr: timeVal,
+                            tempoSegundos: this.parseTimeToSeconds(timeVal)
+                        };
+                    }).filter(d => 
+                        d.nome && 
+                        d.nome !== 'Nome' && 
+                        d.nome !== '' && 
+                        d.tempoSegundos > 0 
+                    );
+
+                    this.initFilters();
+                    this.updateUI();
+                } catch (error) {
+                    console.error("Erro na carga:", error);
+                }
+            },
+
+            parseDate(dateStr) {
+                if (!dateStr) return null;
+                const parts = dateStr.split('/');
+                if (parts.length === 3) {
+                    return new Date(parts[2], parts[1] - 1, parts[0]);
+                }
+                return null;
+            },
+
+            parseTimeToSeconds(val) {
+                if (!val) return 0;
+                if (typeof val === 'string' && val.includes('Date')) {
+                    const matches = val.match(/\d+/g);
+                    if (matches && matches.length >= 6) {
+                        return (parseInt(matches[3]) * 3600) + (parseInt(matches[4]) * 60) + parseInt(matches[5]);
+                    }
+                }
+                const parts = val.toString().split(':').map(Number);
+                if (parts.length === 3) return (parts[0] * 3600) + (parts[1] * 60) + parts[2];
+                if (parts.length === 2) return (parts[0] * 60) + parts[1];
+                if (!isNaN(val) && val < 1 && val > 0) return Math.round(val * 86400);
+                return 0;
+            },
+
+            formatTime(seconds) {
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = Math.floor(seconds % 60);
+                if (h > 0) return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            },
+
+            initFilters() {
+                const selectEq = document.getElementById('filterEquipe');
+                const selectBm = document.getElementById('filterBombeiro');
+                const selectPeriodo = document.getElementById('filterPeriodo');
+                
+                const equipes = [...new Set(rawData.map(d => d.equipe))].sort();
+                const bombeiros = [...new Set(rawData.map(d => d.nome))].sort();
+
+                const currentEq = selectEq.value;
+                const currentBm = selectBm.value;
+
+                selectEq.innerHTML = '<option value="Todas">Todas as Equipes</option>';
+                selectBm.innerHTML = '<option value="Todos">Todos os Bombeiros</option>';
+
+                equipes.forEach(eq => selectEq.innerHTML += `<option value="${eq}">${eq}</option>`);
+                bombeiros.forEach(bm => selectBm.innerHTML += `<option value="${bm}">${bm}</option>`);
+
+                selectEq.value = currentEq || 'Todas';
+                selectBm.value = currentBm || 'Todos';
+
+                selectEq.onchange = () => this.updateUI();
+                selectBm.onchange = () => this.updateUI();
+                selectPeriodo.onchange = () => this.updateUI();
+            },
+
+            updateUI() {
+                const eq = document.getElementById('filterEquipe').value;
+                const bm = document.getElementById('filterBombeiro').value;
+                const periodo = document.getElementById('filterPeriodo').value;
+
+                const hoje = new Date();
+                
+                filteredData = rawData.filter(d => {
+                    const matchEq = eq === 'Todas' || d.equipe === eq;
+                    const matchBm = bm === 'Todos' || d.nome === bm;
+                    
+                    let matchPeriodo = true;
+                    if (d.dateObject) {
+                        if (periodo === 'ano') {
+                            const umAnoAtras = new Date();
+                            umAnoAtras.setFullYear(hoje.getFullYear() - 1);
+                            matchPeriodo = d.dateObject >= umAnoAtras;
+                        } else if (periodo === 'semestre') {
+                            const seisMesesAtras = new Date();
+                            seisMesesAtras.setMonth(hoje.getMonth() - 6);
+                            matchPeriodo = d.dateObject >= seisMesesAtras;
+                        } else if (periodo === 'trimestre') {
+                            const tresMesesAtras = new Date();
+                            tresMesesAtras.setMonth(hoje.getMonth() - 3);
+                            matchPeriodo = d.dateObject >= tresMesesAtras;
+                        }
+                    }
+
+                    return matchEq && matchBm && matchPeriodo;
+                });
+
+                this.renderKPIs();
+                this.renderTable();
+                this.renderAlerts();
+                ChartModule.draw();
+                lucide.createIcons();
+            },
+
+            renderKPIs() {
+                if (filteredData.length === 0) {
+                    document.getElementById('kpiMelhorTempo').innerText = "--:--";
+                    document.getElementById('kpiMelhorNome').innerText = "Sem dados no período";
+                    document.getElementById('kpiEvolucao').innerText = "--%";
+                    document.getElementById('kpiEvolucaoNome').innerText = "Histórico individual";
+                    document.getElementById('kpiMedia').innerText = "--:--";
+                    document.getElementById('kpiTotal').innerText = "0";
+                    return;
+                }
+
+                const sorted = [...filteredData].sort((a, b) => a.tempoSegundos - b.tempoSegundos);
+                const melhor = sorted[0];
+                
+                document.getElementById('kpiMelhorTempo').innerText = this.formatTime(melhor.tempoSegundos);
+                document.getElementById('kpiMelhorNome').innerText = `${melhor.nome} (${melhor.equipe})`;
+
+                const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
+                document.getElementById('kpiMedia').innerText = this.formatTime(media);
+                document.getElementById('kpiTotal').innerText = filteredData.length;
+
+                this.calculateEvolution();
+            },
+
+            calculateEvolution() {
+                const inds = {};
+                filteredData.forEach(d => {
+                    if (!inds[d.nome]) inds[d.nome] = [];
+                    inds[d.nome].push(d);
+                });
+
+                let topEvo = 0, topNome = "N/A";
+                Object.keys(inds).forEach(n => {
+                    const h = inds[n];
+                    if (h.length > 1) {
+                        h.sort((a, b) => a.dateObject - b.dateObject);
+                        const ini = h[0].tempoSegundos, fim = h[h.length-1].tempoSegundos;
+                        const evo = ini > 0 ? ((ini - fim) / ini) * 100 : 0;
+                        if (evo > topEvo) { topEvo = evo; topNome = n; }
+                    }
+                });
+                document.getElementById('kpiEvolucao').innerText = topEvo > 0 ? `${topEvo.toFixed(1)}%` : "0%";
+                document.getElementById('kpiEvolucaoNome').innerText = topNome === "N/A" ? "Estável" : `Destaque: ${topNome}`;
+            },
+
+            renderTable() {
+                const body = document.getElementById('dataTableBody');
+                if (filteredData.length === 0) {
+                    body.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">Nenhum registro encontrado para os filtros selecionados.</td></tr>';
+                    return;
+                }
+
+                body.innerHTML = filteredData.slice().sort((a,b) => b.dateObject - a.dateObject).map(d => {
+                    let pill = "", label = "";
+                    if (d.tempoSegundos <= GOAL_S) { pill = "bg-emerald-100 text-emerald-700"; label = "Excelente"; }
+                    else if (d.tempoSegundos <= LIMIT_S) { pill = "bg-amber-100 text-amber-700"; label = "Aceitável"; }
+                    else { pill = "bg-red-100 text-red-700"; label = "Atenção"; }
+                    
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4">${d.data}</td>
+                            <td class="px-6 py-4 font-bold text-slate-800">${d.nome}</td>
+                            <td class="px-6 py-4 text-slate-500">${d.equipe}</td>
+                            <td class="px-6 py-4 text-center font-bold">${this.formatTime(d.tempoSegundos)}</td>
+                            <td class="px-6 py-4 text-center"><span class="status-pill ${pill}">${label}</span></td>
+                        </tr>`;
+                }).join('');
+            },
+
+            renderAlerts() {
+                const container = document.getElementById('alertsContainer');
+                if (filteredData.length === 0) {
+                    container.innerHTML = '<div class="text-slate-400 text-sm p-4 text-center h-full flex items-center justify-center italic">Sem dados para análise no período.</div>';
+                    return;
+                }
+                const alerts = [];
+                const criticos = filteredData.filter(d => d.tempoSegundos > LIMIT_S);
+                if (criticos.length > 0) {
+                    alerts.push({ title: 'Alerta Operacional', text: `Tempo acima do limite (1:30) em ${criticos.length} casos.`, color: 'red' });
+                }
+                const avg = filteredData.reduce((a, b) => a + b.tempoSegundos, 0) / filteredData.length;
+                if (avg > GOAL_S) {
+                    alerts.push({ title: 'Análise de Média', text: `Média coletiva (${this.formatTime(avg)}) acima do objetivo de 1min.`, color: 'amber' });
+                }
+                container.innerHTML = alerts.length ? alerts.map(a => `
+                    <div class="p-4 bg-${a.color}-50 border border-${a.color}-100 rounded-xl">
+                        <p class="text-xs font-bold text-${a.color}-700 uppercase mb-1">${a.title}</p>
+                        <p class="text-sm text-slate-600">${a.text}</p>
+                    </div>`).join('') : '<div class="text-emerald-600 text-sm p-4 font-medium bg-emerald-50 rounded-xl border border-emerald-100">Desempenho operacional excelente!</div>';
+            },
+
+            refresh() { this.fetch(); }
+        };
+
+        const ChartModule = {
+            draw() {
+                if (!google.visualization || filteredData.length === 0) {
+                    document.getElementById('chartHistory').innerHTML = '<div class="flex items-center justify-center h-full text-slate-400">Sem dados</div>';
+                    return;
+                }
+                const data = new google.visualization.DataTable();
+                data.addColumn('string', 'Data');
+                data.addColumn('number', 'Vestimenta (s)');
+                data.addColumn('number', 'Objetivo');
+                data.addColumn('number', 'Limite');
+                const chartSorted = [...filteredData].sort((a,b) => a.dateObject - b.dateObject).slice(-20);
+                chartSorted.forEach(d => data.addRow([d.data, d.tempoSegundos, GOAL_S, LIMIT_S]));
+                const options = {
+                    curveType: 'function', legend: 'none', colors: ['#3b82f6', '#10b981', '#ef4444'],
+                    chartArea: { width: '90%', height: '80%' }, backgroundColor: 'transparent',
+                    vAxis: { gridlines: { color: '#f1f5f9' }, minValue: 0 },
+                    hAxis: { textStyle: { fontSize: 10, color: '#64748b' } },
+                    series: { 1: { lineDashStyle: [4, 4] }, 2: { lineDashStyle: [4, 4] } }
+                };
+                new google.visualization.LineChart(document.getElementById('chartHistory')).draw(data, options);
+            }
+        };
+
+        const PDFReportModule = {
+            generate() {
+                if (filteredData.length === 0) return;
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const periodo = document.getElementById('filterPeriodo').options[document.getElementById('filterPeriodo').selectedIndex].text;
+                const equipe = document.getElementById('filterEquipe').value;
+                doc.setFontSize(16);
+                doc.text('Relatório Vestimenta TP/EPR', 15, 20);
+                doc.setFontSize(10);
+                doc.text(`Filtros: ${periodo} | Equipe: ${equipe}`, 15, 28);
+                const tableData = [...filteredData].sort((a,b) => b.dateObject - a.dateObject).map(d => [d.data, d.nome, d.equipe, DataLoader.formatTime(d.tempoSegundos)]);
+                doc.autoTable({ startY: 35, head: [['Data', 'Bombeiro', 'Equipe', 'Tempo']], body: tableData });
+                document.getElementById('pdfPreviewModal').classList.remove('hidden');
+                document.getElementById('pdfPreviewFrame').src = URL.createObjectURL(doc.output('blob'));
+                this.doc = doc;
+            },
+            close() { document.getElementById('pdfPreviewModal').classList.add('hidden'); },
+            download() { this.doc.save('Relatorio_Vestimenta.pdf'); }
+        };
+
+        window.onload = () => {
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(() => {
+                DataLoader.fetch();
+                lucide.createIcons();
+            });
+            window.onresize = () => ChartModule.draw();
+        };
+    </script>
+</body>
+</html>
