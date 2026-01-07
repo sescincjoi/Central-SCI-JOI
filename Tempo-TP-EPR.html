@@ -54,6 +54,19 @@
             background-position: right 0.75rem center;
             background-size: 1rem;
         }
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 48px;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -63,32 +76,37 @@
 <body class="p-4 md:p-8">
 
     <!-- Header Section -->
-    <div class="max-w-7xl mx-auto mb-10">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div class="flex items-center gap-4">
-                <div class="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-200">
-                    <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">Prontos para Salvar</h1>
-                    <p class="text-slate-500 text-sm">Monitorização de Vestimenta TP/EPR</p>
-                </div>
+    <div class="max-w-7xl mx-auto mb-6">
+        <div class="flex flex-col items-center text-center gap-4 mb-8">
+            <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200">
+                <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
             </div>
-
-            <div class="flex items-center gap-3">
-                <button onclick="UIController.toggleFilterModal(true)" class="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-700 font-semibold shadow-sm hover:bg-slate-50 transition-all">
-                    <i data-lucide="sliders-horizontal" class="w-4 h-4 text-blue-600"></i>
-                    Ajustar Dados
-                </button>
-                <button onclick="PDFReportModule.generate()" class="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white rounded-xl font-semibold shadow-lg hover:bg-slate-900 transition-all">
-                    <i data-lucide="file-down" class="w-4 h-4"></i>
-                    Exportar Relatório
-                </button>
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800 tracking-tight">Prontos para Salvar</h1>
+                <p class="text-slate-500 text-sm">Monitorização de Vestimenta TP/EPR</p>
             </div>
         </div>
 
-        <!-- At-a-glance status indicators -->
-        <div id="filterSummary" class="flex flex-wrap gap-2 mb-6">
+        <!-- Action Buttons Bar -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-10 w-full max-w-4xl mx-auto">
+            <button onclick="UIController.toggleFilterModal(true)" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
+                <i data-lucide="sliders-horizontal" class="w-5 h-5 text-blue-600"></i>
+                Ajustar Dados
+            </button>
+            
+            <a href="https://docs.google.com/spreadsheets/d/1SIM3VeI1tFSyI0PA07O6QsYzDTt3nJmfEFJm9807mto" target="_blank" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
+                <i data-lucide="table-properties" class="w-5 h-5 text-emerald-500"></i>
+                Acessar Planilha
+            </a>
+
+            <button onclick="PDFReportModule.generate()" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
+                <i data-lucide="file-text" class="w-5 h-5 text-red-500"></i>
+                Gerar Relatório PDF
+            </button>
+        </div>
+
+        <!-- Filter Status Summary -->
+        <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mb-6">
             <!-- Labels geradas via JS -->
         </div>
     </div>
@@ -256,12 +274,12 @@
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
                 <div class="flex items-center gap-3">
                     <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
-                    <h3 class="font-bold text-slate-800 text-lg">Relatório Gerado</h3>
+                    <h3 class="font-bold text-slate-800 text-lg">Visualização do PDF</h3>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="PDFReportModule.download()" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 hover:bg-blue-700 transition-all">
                         <i data-lucide="download" class="w-4 h-4"></i>
-                        Download PDF
+                        Baixar Agora
                     </button>
                     <button onclick="PDFReportModule.close()" class="bg-white border text-slate-600 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all">
                         Fechar
@@ -710,7 +728,7 @@
                 doc.setFontSize(9);
                 doc.text(filters || 'Todos os Registos', 15, 56);
 
-                // KPI Grid Simulation
+                // KPI Grid
                 doc.setDrawColor(230, 230, 230);
                 doc.line(15, 62, 195, 62);
                 
