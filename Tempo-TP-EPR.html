@@ -314,7 +314,17 @@
                 bombeiros.forEach(bm => selectBm.innerHTML += `<option value="${bm}">${bm}</option>`);
 
                 selectEq.onchange = () => { contextFilter = null; this.clearSelection(); this.updateUI(); };
-                selectBm.onchange = () => { contextFilter = null; this.clearSelection(); this.updateUI(); };
+                
+                // NOVIDADE: Ao selecionar um bombeiro específico, muda período para "Todos"
+                selectBm.onchange = () => { 
+                    if (selectBm.value !== 'Todos') {
+                        selectPeriodo.value = 'todos';
+                    }
+                    contextFilter = null; 
+                    this.clearSelection(); 
+                    this.updateUI(); 
+                };
+                
                 selectPeriodo.onchange = () => { contextFilter = null; this.clearSelection(); this.updateUI(); };
             },
 
@@ -545,16 +555,13 @@
                 
                 this.chart = new google.visualization.LineChart(container);
 
-                // Listener para detectar clique no gráfico
                 google.visualization.events.addListener(this.chart, 'select', () => {
                     const selection = this.chart.getSelection();
                     if (selection.length > 0 && selection[0].row !== null) {
-                        // Se clicou em um ponto, seleciona
                         const index = selection[0].row;
                         const dataId = this.currentSortedData[index].id;
                         this.focus(dataId, null);
                     } else {
-                        // Se a seleção for vazia (clique no fundo do gráfico), limpa
                         if (selectedDataId !== null) {
                             selectedDataId = null;
                             DataLoader.updateUI();
@@ -614,9 +621,7 @@
             download() { this.doc.save('Relatorio_Vestimenta.pdf'); }
         };
 
-        // Evento Global para limpar seleção ao clicar fora de elementos interativos
         document.body.onclick = (e) => {
-            // Verifica se o clique não foi na tabela nem no container do gráfico
             if (selectedDataId !== null && !e.target.closest('table') && !e.target.closest('#chartHistory')) {
                 selectedDataId = null;
                 DataLoader.updateUI();
