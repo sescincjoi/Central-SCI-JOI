@@ -36,6 +36,25 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
+        .alert-item {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .alert-item:hover {
+            transform: scale(1.02);
+            filter: brightness(0.95);
+        }
+        .table-row-highlight {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .table-row-highlight:hover {
+            background-color: #f1f5f9 !important;
+        }
+        .table-row-active {
+            background-color: #eff6ff !important;
+            border-left: 4px solid #3b82f6 !important;
+        }
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
@@ -49,17 +68,14 @@
 
     <!-- Header & Filtros -->
     <div class="max-w-7xl mx-auto mb-10 text-center">
-        <!-- Título em toda a largura -->
-        <div class="inline-flex items-center justify-center gap-4 mb-8">
+        <div class="inline-flex items-center justify-center gap-4 mb-8 w-full">
             <div class="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-200">
                 <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
             </div>
-            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">Tempo de Vestimenta TP/EPR</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800 tracking-tight">Prontos para Salvar: Vestimenta TP/EPR</h1>
         </div>
         
-        <!-- Filtros Centralizados -->
         <div class="flex flex-wrap justify-center items-center gap-4 bg-white p-3 rounded-2xl shadow-sm border border-slate-100 max-w-fit mx-auto">
-            <!-- Filtro de Período -->
             <div class="relative min-w-[180px]">
                 <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
@@ -68,11 +84,10 @@
                     <option value="todos">Todo o Período</option>
                     <option value="ano">Último Ano</option>
                     <option value="semestre">Último Semestre</option>
-                    <option value="trimestre">Último Trimestre</option>
+                    <option value="trimestre" selected>Último Trimestre</option>
                 </select>
             </div>
 
-            <!-- Filtro de Equipe -->
             <div class="relative min-w-[180px]">
                 <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
@@ -82,7 +97,6 @@
                 </select>
             </div>
 
-            <!-- Filtro de Bombeiro -->
             <div class="relative min-w-[200px]">
                 <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                     <i data-lucide="user" class="w-4 h-4 text-slate-400"></i>
@@ -91,6 +105,8 @@
                     <option value="Todos">Todos os Bombeiros</option>
                 </select>
             </div>
+
+            <button onclick="DataLoader.resetAllFilters()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 px-3">Limpar Filtros</button>
         </div>
     </div>
 
@@ -137,19 +153,25 @@
     </div>
 
     <!-- Gráficos e Alertas -->
-    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="lg:col-span-2 glass-card p-6 rounded-2xl">
-            <div class="flex items-center justify-between mb-6">
+    <div id="visualSection" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 scroll-mt-6">
+        <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col relative">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-2 gap-4">
                 <h4 class="font-bold text-slate-800 flex items-center gap-2">
                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-blue-600"></i>
                     Histórico de Performance
                 </h4>
                 <div class="flex gap-4 text-[10px] uppercase font-bold tracking-wider">
-                    <span class="text-emerald-500 flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500 inline-block"></span> Objetivo (1m)</span>
-                    <span class="text-red-500 flex items-center gap-1"><span class="w-3 h-0.5 bg-red-500 inline-block"></span> Limite (1m30)</span>
+                    <span class="text-emerald-500 flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-500 inline-block"></span> Objetivo</span>
+                    <span class="text-red-500 flex items-center gap-1"><span class="w-3 h-0.5 bg-red-500 inline-block"></span> Limite</span>
                 </div>
             </div>
             <div id="chartHistory" class="w-full h-[350px]"></div>
+            <div class="flex justify-center mt-2">
+                <div id="chartDateRange" class="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border border-slate-200 shadow-sm">
+                    <i data-lucide="calendar-range" class="w-3.5 h-3.5"></i>
+                    <span>Carregando período...</span>
+                </div>
+            </div>
         </div>
         
         <div class="glass-card p-6 rounded-2xl flex flex-col">
@@ -157,6 +179,7 @@
                 <i data-lucide="alert-circle" class="w-5 h-5 text-blue-600"></i>
                 Pontos de Atenção & Melhoria
             </h4>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-4 italic">Clique no alerta para filtrar a lista e gráfico</p>
             <div id="alertsContainer" class="space-y-4 flex-1 overflow-y-auto pr-2">
                 <div class="flex items-center justify-center h-full text-slate-400 text-sm italic">Analisando dados...</div>
             </div>
@@ -164,12 +187,15 @@
     </div>
 
     <!-- Tabela -->
-    <div class="max-w-7xl mx-auto glass-card rounded-2xl overflow-hidden mb-8">
+    <div id="tabelaRegisto" class="max-w-7xl mx-auto glass-card rounded-2xl overflow-hidden mb-8 scroll-mt-8">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white/50">
-            <h4 class="font-bold text-slate-800 flex items-center gap-2">
-                <i data-lucide="database" class="w-5 h-5 text-slate-600"></i>
-                Histórico Detalhado
-            </h4>
+            <div class="flex flex-col">
+                <h4 class="font-bold text-slate-800 flex items-center gap-2">
+                    <i data-lucide="database" class="w-5 h-5 text-slate-600"></i>
+                    Histórico Detalhado
+                </h4>
+                <div id="filterStatusLabel" class="text-xs text-blue-600 font-bold mt-1 hidden"></div>
+            </div>
             <button onclick="PDFReportModule.generate()" class="bg-slate-50 hover:bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 border border-slate-200">
                 <i data-lucide="file-down" class="w-4 h-4 text-blue-600"></i>
                 Exportar Relatório
@@ -186,8 +212,7 @@
                         <th class="px-6 py-4 font-semibold text-center">Status</th>
                     </tr>
                 </thead>
-                <tbody id="dataTableBody" class="divide-y divide-slate-100 text-sm text-slate-700">
-                </tbody>
+                <tbody id="dataTableBody" class="divide-y divide-slate-100 text-sm text-slate-700"></tbody>
             </table>
         </div>
     </div>
@@ -214,6 +239,8 @@
 
         let rawData = [];
         let filteredData = [];
+        let contextFilter = null; 
+        let selectedDataId = null;
 
         const DataLoader = {
             async fetch() {
@@ -223,13 +250,14 @@
                     const json = JSON.parse(text.substring(47).slice(0, -2));
                     const rows = json.table.rows;
 
-                    rawData = rows.map(row => {
+                    rawData = rows.map((row, index) => {
                         const cellData = row.c[1]?.f || row.c[1]?.v || "";
                         const cellNome = row.c[3]?.v || "";
                         const cellEquipe = row.c[2]?.v || "";
                         const timeVal = row.c[4]?.f || row.c[4]?.v || "00:00:00";
                         
                         return {
+                            id: index,
                             data: cellData,
                             dateObject: this.parseDate(cellData),
                             equipe: cellEquipe,
@@ -237,12 +265,7 @@
                             tempoStr: timeVal,
                             tempoSegundos: this.parseTimeToSeconds(timeVal)
                         };
-                    }).filter(d => 
-                        d.nome && 
-                        d.nome !== 'Nome' && 
-                        d.nome !== '' && 
-                        d.tempoSegundos > 0 
-                    );
+                    }).filter(d => d.nome && d.nome !== 'Nome' && d.nome !== '' && d.tempoSegundos > 0);
 
                     this.initFilters();
                     this.updateUI();
@@ -254,19 +277,14 @@
             parseDate(dateStr) {
                 if (!dateStr) return null;
                 const parts = dateStr.split('/');
-                if (parts.length === 3) {
-                    return new Date(parts[2], parts[1] - 1, parts[0]);
-                }
-                return null;
+                return parts.length === 3 ? new Date(parts[2], parts[1] - 1, parts[0]) : null;
             },
 
             parseTimeToSeconds(val) {
                 if (!val) return 0;
                 if (typeof val === 'string' && val.includes('Date')) {
                     const matches = val.match(/\d+/g);
-                    if (matches && matches.length >= 6) {
-                        return (parseInt(matches[3]) * 3600) + (parseInt(matches[4]) * 60) + parseInt(matches[5]);
-                    }
+                    if (matches && matches.length >= 6) return (parseInt(matches[3]) * 3600) + (parseInt(matches[4]) * 60) + parseInt(matches[5]);
                 }
                 const parts = val.toString().split(':').map(Number);
                 if (parts.length === 3) return (parts[0] * 3600) + (parts[1] * 60) + parts[2];
@@ -276,10 +294,8 @@
             },
 
             formatTime(seconds) {
-                const h = Math.floor(seconds / 3600);
-                const m = Math.floor((seconds % 3600) / 60);
+                const m = Math.floor(seconds / 60);
                 const s = Math.floor(seconds % 60);
-                if (h > 0) return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
                 return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             },
 
@@ -291,92 +307,105 @@
                 const equipes = [...new Set(rawData.map(d => d.equipe))].sort();
                 const bombeiros = [...new Set(rawData.map(d => d.nome))].sort();
 
-                const currentEq = selectEq.value;
-                const currentBm = selectBm.value;
-
                 selectEq.innerHTML = '<option value="Todas">Todas as Equipes</option>';
                 selectBm.innerHTML = '<option value="Todos">Todos os Bombeiros</option>';
 
                 equipes.forEach(eq => selectEq.innerHTML += `<option value="${eq}">${eq}</option>`);
                 bombeiros.forEach(bm => selectBm.innerHTML += `<option value="${bm}">${bm}</option>`);
 
-                selectEq.value = currentEq || 'Todas';
-                selectBm.value = currentBm || 'Todos';
+                selectEq.onchange = () => { contextFilter = null; this.clearSelection(); this.updateUI(); };
+                selectBm.onchange = () => { contextFilter = null; this.clearSelection(); this.updateUI(); };
+                selectPeriodo.onchange = () => { contextFilter = null; this.clearSelection(); this.updateUI(); };
+            },
 
-                selectEq.onchange = () => this.updateUI();
-                selectBm.onchange = () => this.updateUI();
-                selectPeriodo.onchange = () => this.updateUI();
+            resetAllFilters() {
+                document.getElementById('filterEquipe').value = 'Todas';
+                document.getElementById('filterBombeiro').value = 'Todos';
+                document.getElementById('filterPeriodo').value = 'todos';
+                contextFilter = null;
+                this.clearSelection();
+                this.updateUI();
+            },
+
+            setContextFilter(type) {
+                contextFilter = (contextFilter === type) ? null : type;
+                this.clearSelection();
+                this.updateUI();
+                if (contextFilter) {
+                    document.getElementById('visualSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            },
+
+            clearSelection() {
+                selectedDataId = null;
             },
 
             updateUI() {
                 const eq = document.getElementById('filterEquipe').value;
                 const bm = document.getElementById('filterBombeiro').value;
                 const periodo = document.getElementById('filterPeriodo').value;
-
                 const hoje = new Date();
                 
                 filteredData = rawData.filter(d => {
                     const matchEq = eq === 'Todas' || d.equipe === eq;
                     const matchBm = bm === 'Todos' || d.nome === bm;
-                    
                     let matchPeriodo = true;
                     if (d.dateObject) {
                         if (periodo === 'ano') {
-                            const umAnoAtras = new Date();
-                            umAnoAtras.setFullYear(hoje.getFullYear() - 1);
-                            matchPeriodo = d.dateObject >= umAnoAtras;
+                            const date = new Date(); date.setFullYear(hoje.getFullYear() - 1); matchPeriodo = d.dateObject >= date;
                         } else if (periodo === 'semestre') {
-                            const seisMesesAtras = new Date();
-                            seisMesesAtras.setMonth(hoje.getMonth() - 6);
-                            matchPeriodo = d.dateObject >= seisMesesAtras;
+                            const date = new Date(); date.setMonth(hoje.getMonth() - 6); matchPeriodo = d.dateObject >= date;
                         } else if (periodo === 'trimestre') {
-                            const tresMesesAtras = new Date();
-                            tresMesesAtras.setMonth(hoje.getMonth() - 3);
-                            matchPeriodo = d.dateObject >= tresMesesAtras;
+                            const date = new Date(); date.setMonth(hoje.getMonth() - 3); matchPeriodo = d.dateObject >= date;
                         }
                     }
-
                     return matchEq && matchBm && matchPeriodo;
                 });
 
                 this.renderKPIs();
-                this.renderTable();
                 this.renderAlerts();
+                
+                let tableData = [...filteredData];
+                const statusLabel = document.getElementById('filterStatusLabel');
+                
+                if (contextFilter === 'critical') {
+                    tableData = tableData.filter(d => d.tempoSegundos > LIMIT_S);
+                    statusLabel.innerText = "Mostrando apenas: Acima do Limite (01:30)";
+                    statusLabel.classList.remove('hidden');
+                } else if (contextFilter === 'above_goal') {
+                    tableData = tableData.filter(d => d.tempoSegundos > GOAL_S);
+                    statusLabel.innerText = "Mostrando apenas: Acima do Objetivo (01:00)";
+                    statusLabel.classList.remove('hidden');
+                } else {
+                    statusLabel.classList.add('hidden');
+                }
+
+                this.renderTable(tableData);
                 ChartModule.draw();
                 lucide.createIcons();
             },
 
             renderKPIs() {
+                const sorted = [...filteredData].sort((a, b) => a.tempoSegundos - b.tempoSegundos);
                 if (filteredData.length === 0) {
                     document.getElementById('kpiMelhorTempo').innerText = "--:--";
-                    document.getElementById('kpiMelhorNome').innerText = "Sem dados no período";
-                    document.getElementById('kpiEvolucao').innerText = "--%";
-                    document.getElementById('kpiEvolucaoNome').innerText = "Histórico individual";
+                    document.getElementById('kpiMelhorNome').innerText = "Sem dados";
                     document.getElementById('kpiMedia').innerText = "--:--";
                     document.getElementById('kpiTotal').innerText = "0";
                     return;
                 }
-
-                const sorted = [...filteredData].sort((a, b) => a.tempoSegundos - b.tempoSegundos);
                 const melhor = sorted[0];
-                
                 document.getElementById('kpiMelhorTempo').innerText = this.formatTime(melhor.tempoSegundos);
                 document.getElementById('kpiMelhorNome').innerText = `${melhor.nome} (${melhor.equipe})`;
-
                 const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
                 document.getElementById('kpiMedia').innerText = this.formatTime(media);
                 document.getElementById('kpiTotal').innerText = filteredData.length;
-
                 this.calculateEvolution();
             },
 
             calculateEvolution() {
                 const inds = {};
-                filteredData.forEach(d => {
-                    if (!inds[d.nome]) inds[d.nome] = [];
-                    inds[d.nome].push(d);
-                });
-
+                filteredData.forEach(d => { if (!inds[d.nome]) inds[d.nome] = []; inds[d.nome].push(d); });
                 let topEvo = 0, topNome = "N/A";
                 Object.keys(inds).forEach(n => {
                     const h = inds[n];
@@ -391,90 +420,190 @@
                 document.getElementById('kpiEvolucaoNome').innerText = topNome === "N/A" ? "Estável" : `Destaque: ${topNome}`;
             },
 
-            renderTable() {
+            renderTable(data) {
                 const body = document.getElementById('dataTableBody');
-                if (filteredData.length === 0) {
-                    body.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">Nenhum registro encontrado para os filtros selecionados.</td></tr>';
+                if (data.length === 0) {
+                    body.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">Nenhum registo encontrado para este filtro.</td></tr>';
                     return;
                 }
-
-                body.innerHTML = filteredData.slice().sort((a,b) => b.dateObject - a.dateObject).map(d => {
-                    let pill = "", label = "";
-                    if (d.tempoSegundos <= GOAL_S) { pill = "bg-emerald-100 text-emerald-700"; label = "Excelente"; }
-                    else if (d.tempoSegundos <= LIMIT_S) { pill = "bg-amber-100 text-amber-700"; label = "Aceitável"; }
-                    else { pill = "bg-red-100 text-red-700"; label = "Atenção"; }
+                body.innerHTML = data.slice().sort((a,b) => b.dateObject - a.dateObject).map((d, index) => {
+                    let pill = (d.tempoSegundos <= GOAL_S) ? "bg-emerald-100 text-emerald-700" : (d.tempoSegundos <= LIMIT_S) ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
+                    let label = (d.tempoSegundos <= GOAL_S) ? "Excelente" : (d.tempoSegundos <= LIMIT_S) ? "Aceitável" : "Atenção";
+                    let activeClass = (selectedDataId === d.id) ? 'table-row-active' : 'table-row-highlight';
                     
-                    return `
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4">${d.data}</td>
-                            <td class="px-6 py-4 font-bold text-slate-800">${d.nome}</td>
-                            <td class="px-6 py-4 text-slate-500">${d.equipe}</td>
-                            <td class="px-6 py-4 text-center font-bold">${this.formatTime(d.tempoSegundos)}</td>
-                            <td class="px-6 py-4 text-center"><span class="status-pill ${pill}">${label}</span></td>
-                        </tr>`;
+                    return `<tr class="${activeClass}" 
+                                onmouseover="ChartModule.highlight(${d.id})" 
+                                onmouseout="ChartModule.clearHighlight()"
+                                onclick="ChartModule.focus(${d.id}, event)">
+                        <td class="px-6 py-4">${d.data}</td>
+                        <td class="px-6 py-4 font-bold text-slate-800">${d.nome}</td>
+                        <td class="px-6 py-4 text-slate-500">${d.equipe}</td>
+                        <td class="px-6 py-4 text-center font-bold">${this.formatTime(d.tempoSegundos)}</td>
+                        <td class="px-6 py-4 text-center"><span class="status-pill ${pill}">${label}</span></td>
+                    </tr>`;
                 }).join('');
             },
 
             renderAlerts() {
                 const container = document.getElementById('alertsContainer');
                 if (filteredData.length === 0) {
-                    container.innerHTML = '<div class="text-slate-400 text-sm p-4 text-center h-full flex items-center justify-center italic">Sem dados para análise no período.</div>';
+                    container.innerHTML = '<div class="text-slate-400 text-sm p-4 text-center h-full flex items-center justify-center italic">Sem dados.</div>';
                     return;
                 }
                 const alerts = [];
                 const criticos = filteredData.filter(d => d.tempoSegundos > LIMIT_S);
+                
                 if (criticos.length > 0) {
-                    alerts.push({ title: 'Alerta Operacional', text: `Tempo acima do limite (1:30) em ${criticos.length} casos.`, color: 'red' });
+                    alerts.push({ 
+                        id: 'critical',
+                        title: 'Alerta Operacional', 
+                        text: `Tempo acima do limite (01:30) em ${criticos.length} casos.`, 
+                        color: 'red',
+                        active: contextFilter === 'critical'
+                    });
                 }
+                
                 const avg = filteredData.reduce((a, b) => a + b.tempoSegundos, 0) / filteredData.length;
                 if (avg > GOAL_S) {
-                    alerts.push({ title: 'Análise de Média', text: `Média coletiva (${this.formatTime(avg)}) acima do objetivo de 1min.`, color: 'amber' });
+                    alerts.push({ 
+                        id: 'above_goal',
+                        title: 'Análise de Média', 
+                        text: `Média coletiva (${this.formatTime(avg)}) acima do objetivo.`, 
+                        color: 'amber',
+                        active: contextFilter === 'above_goal'
+                    });
                 }
-                container.innerHTML = alerts.length ? alerts.map(a => `
-                    <div class="p-4 bg-${a.color}-50 border border-${a.color}-100 rounded-xl">
-                        <p class="text-xs font-bold text-${a.color}-700 uppercase mb-1">${a.title}</p>
-                        <p class="text-sm text-slate-600">${a.text}</p>
-                    </div>`).join('') : '<div class="text-emerald-600 text-sm p-4 font-medium bg-emerald-50 rounded-xl border border-emerald-100">Desempenho operacional excelente!</div>';
-            },
 
-            refresh() { this.fetch(); }
+                container.innerHTML = alerts.length ? alerts.map(a => `
+                <div onclick="DataLoader.setContextFilter('${a.id}')" 
+                     class="alert-item p-4 bg-${a.color}-50 border ${a.active ? 'border-' + a.color + '-400 ring-2 ring-' + a.color + '-100' : 'border-' + a.color + '-100'} rounded-xl relative overflow-hidden">
+                    ${a.active ? `<div class="absolute top-0 right-0 p-1"><i data-lucide="check-circle-2" class="w-3 h-3 text-${a.color}-500"></i></div>` : ''}
+                    <p class="text-xs font-bold text-${a.color}-700 uppercase mb-1">${a.title}</p>
+                    <p class="text-sm text-slate-600 font-medium">${a.text}</p>
+                    <p class="text-[9px] mt-2 text-${a.color}-600/70 font-bold tracking-widest uppercase">Clique para filtrar</p>
+                </div>`).join('') : '<div class="text-emerald-600 text-sm p-4 font-medium bg-emerald-50 rounded-xl border border-emerald-100">Desempenho dentro dos parâmetros!</div>';
+            }
         };
 
         const ChartModule = {
+            chart: null,
+            dataView: null,
+            currentSortedData: [],
+
             draw() {
+                const container = document.getElementById('chartHistory');
+                const rangeLabel = document.querySelector('#chartDateRange span');
                 if (!google.visualization || filteredData.length === 0) {
-                    document.getElementById('chartHistory').innerHTML = '<div class="flex items-center justify-center h-full text-slate-400">Sem dados</div>';
+                    container.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400 italic">Dados insuficientes</div>';
                     return;
                 }
                 const data = new google.visualization.DataTable();
                 data.addColumn('string', 'Data');
-                data.addColumn('number', 'Vestimenta (s)');
                 data.addColumn('number', 'Objetivo');
                 data.addColumn('number', 'Limite');
-                const chartSorted = [...filteredData].sort((a,b) => a.dateObject - b.dateObject).slice(-20);
-                chartSorted.forEach(d => data.addRow([d.data, d.tempoSegundos, GOAL_S, LIMIT_S]));
+                data.addColumn('number', 'Vestimenta (s)');
+                data.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
+                data.addColumn({type: 'string', role: 'style'});
+
+                this.currentSortedData = [...filteredData].sort((a,b) => a.dateObject - b.dateObject);
+                rangeLabel.innerText = `Dados de ${this.currentSortedData[0].data} até ${this.currentSortedData[this.currentSortedData.length-1].data}`;
+
+                this.currentSortedData.forEach(d => {
+                    const tooltipHtml = `<div class="p-2 min-w-[150px]"><p class="text-[10px] text-slate-400 uppercase font-bold mb-1">${d.data}</p><p class="text-sm font-bold text-slate-800 mb-1">${d.nome}</p><p class="text-xs text-blue-600 font-semibold mb-2">${d.equipe}</p><div class="flex items-center justify-between border-t pt-2 mt-1"><span class="text-[10px] text-slate-500">TEMPO:</span><span class="text-sm font-black text-slate-800">${DataLoader.formatTime(d.tempoSegundos)}</span></div></div>`;
+                    
+                    let pointStyle = null;
+                    if (selectedDataId === d.id) {
+                         pointStyle = 'point { size: 10; shape-type: circle; fill-color: #3b82f6; stroke-color: #1e3a8a; stroke-width: 3; }';
+                    } else if (contextFilter === 'critical' && d.tempoSegundos > LIMIT_S) {
+                        pointStyle = 'point { size: 6; shape-type: circle; fill-color: #fee2e2; stroke-color: #ef4444; stroke-width: 2; }';
+                    } else if (contextFilter === 'above_goal' && d.tempoSegundos > GOAL_S) {
+                        pointStyle = 'point { size: 6; shape-type: circle; fill-color: #fef3c7; stroke-color: #f59e0b; stroke-width: 2; }';
+                    }
+
+                    data.addRow([
+                        d.data, 
+                        { v: GOAL_S, f: DataLoader.formatTime(GOAL_S) }, 
+                        { v: LIMIT_S, f: DataLoader.formatTime(LIMIT_S) }, 
+                        { v: d.tempoSegundos, f: DataLoader.formatTime(d.tempoSegundos) }, 
+                        tooltipHtml,
+                        pointStyle
+                    ]);
+                });
+
                 const options = {
-                    curveType: 'function', legend: 'none', colors: ['#3b82f6', '#10b981', '#ef4444'],
-                    chartArea: { width: '90%', height: '80%' }, backgroundColor: 'transparent',
-                    vAxis: { gridlines: { color: '#f1f5f9' }, minValue: 0 },
-                    hAxis: { textStyle: { fontSize: 10, color: '#64748b' } },
-                    series: { 1: { lineDashStyle: [4, 4] }, 2: { lineDashStyle: [4, 4] } }
+                    curveType: 'function', legend: 'none', colors: ['#10b981', '#ef4444', '#3b82f6'], chartArea: { width: '90%', height: '80%', top: 20 },
+                    tooltip: { isHtml: true, trigger: 'both' },
+                    vAxis: { viewWindow: { min: 20, max: 120 }, ticks: [{v: 20, f: '0:20'}, {v: 40, f: '0:40'}, {v: 60, f: '1:00'}, {v: 80, f: '1:20'}, {v: 100, f: '1:40'}, {v: 120, f: '2:00'}], gridlines: { color: '#f1f5f9' }, textStyle: { fontSize: 11, color: '#64748b' } },
+                    hAxis: { textPosition: 'none', gridlines: { color: 'transparent' }, baselineColor: '#e2e8f0' },
+                    series: { 
+                        0: { lineDashStyle: [4, 4], lineWidth: 2, pointSize: 0 }, 
+                        1: { lineDashStyle: [4, 4], lineWidth: 2, pointSize: 0 }, 
+                        2: { pointSize: 4, pointShape: 'circle', lineWidth: 3 } 
+                    },
+                    animation: { duration: 400, easing: 'out' }, focusTarget: 'datum'
                 };
-                new google.visualization.LineChart(document.getElementById('chartHistory')).draw(data, options);
+                
+                this.chart = new google.visualization.LineChart(container);
+
+                // Listener para detectar clique no gráfico
+                google.visualization.events.addListener(this.chart, 'select', () => {
+                    const selection = this.chart.getSelection();
+                    if (selection.length > 0 && selection[0].row !== null) {
+                        // Se clicou em um ponto, seleciona
+                        const index = selection[0].row;
+                        const dataId = this.currentSortedData[index].id;
+                        this.focus(dataId, null);
+                    } else {
+                        // Se a seleção for vazia (clique no fundo do gráfico), limpa
+                        if (selectedDataId !== null) {
+                            selectedDataId = null;
+                            DataLoader.updateUI();
+                        }
+                    }
+                });
+
+                this.chart.draw(data, options);
+            },
+
+            highlight(dataId) {
+                if (!this.chart || selectedDataId !== null) return;
+                const rowIndex = this.currentSortedData.findIndex(d => d.id === dataId);
+                if (rowIndex !== -1) {
+                    this.chart.setSelection([{row: rowIndex, column: 3}]);
+                }
+            },
+
+            clearHighlight() {
+                if (this.chart && selectedDataId === null) this.chart.setSelection([]);
+            },
+
+            focus(dataId, event) {
+                if (event) event.stopPropagation(); 
+                
+                if (selectedDataId === dataId) {
+                    selectedDataId = null;
+                } else {
+                    selectedDataId = dataId;
+                    document.getElementById('visualSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                
+                DataLoader.renderTable(filteredData); 
+                this.draw(); 
+                
+                if (selectedDataId !== null) {
+                    const rowIndex = this.currentSortedData.findIndex(d => d.id === dataId);
+                    if (rowIndex !== -1) this.chart.setSelection([{row: rowIndex, column: 3}]);
+                }
             }
         };
 
         const PDFReportModule = {
             generate() {
-                if (filteredData.length === 0) return;
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
                 const periodo = document.getElementById('filterPeriodo').options[document.getElementById('filterPeriodo').selectedIndex].text;
-                const equipe = document.getElementById('filterEquipe').value;
-                doc.setFontSize(16);
-                doc.text('Relatório Vestimenta TP/EPR', 15, 20);
-                doc.setFontSize(10);
-                doc.text(`Filtros: ${periodo} | Equipe: ${equipe}`, 15, 28);
+                doc.setFontSize(16); doc.text('Relatório Vestimenta TP/EPR', 15, 20);
+                doc.setFontSize(10); doc.text(`Período: ${periodo}`, 15, 28);
                 const tableData = [...filteredData].sort((a,b) => b.dateObject - a.dateObject).map(d => [d.data, d.nome, d.equipe, DataLoader.formatTime(d.tempoSegundos)]);
                 doc.autoTable({ startY: 35, head: [['Data', 'Bombeiro', 'Equipe', 'Tempo']], body: tableData });
                 document.getElementById('pdfPreviewModal').classList.remove('hidden');
@@ -485,12 +614,18 @@
             download() { this.doc.save('Relatorio_Vestimenta.pdf'); }
         };
 
+        // Evento Global para limpar seleção ao clicar fora de elementos interativos
+        document.body.onclick = (e) => {
+            // Verifica se o clique não foi na tabela nem no container do gráfico
+            if (selectedDataId !== null && !e.target.closest('table') && !e.target.closest('#chartHistory')) {
+                selectedDataId = null;
+                DataLoader.updateUI();
+            }
+        };
+
         window.onload = () => {
             google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(() => {
-                DataLoader.fetch();
-                lucide.createIcons();
-            });
+            google.charts.setOnLoadCallback(() => { DataLoader.fetch(); });
             window.onresize = () => ChartModule.draw();
         };
     </script>
