@@ -60,14 +60,12 @@
             justify-content: center;
             gap: 10px;
             height: 48px;
-            padding: 0 24px;
             border-radius: 12px;
             font-weight: 600;
             font-size: 0.875rem;
             transition: all 0.2s ease;
             white-space: nowrap;
         }
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -75,7 +73,7 @@
 </head>
 <body class="p-4 md:p-8">
 
-    <!-- Header Section -->
+    <!-- Cabeçalho -->
     <div class="max-w-7xl mx-auto mb-6">
         <div class="flex flex-col items-center text-center gap-4 mb-8">
             <div class="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200">
@@ -87,31 +85,34 @@
             </div>
         </div>
 
-        <!-- Action Buttons Bar -->
-        <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-10 w-full max-w-4xl mx-auto">
-            <button onclick="UIController.toggleFilterModal(true)" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
-                <i data-lucide="sliders-horizontal" class="w-5 h-5 text-blue-600"></i>
-                Ajustar Dados
-            </button>
+        <!-- Botões de Ação -->
+        <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-10 w-full max-w-5xl mx-auto px-4">
             
+            <!-- 1. Botão Acessar Planilha -->
             <a href="https://docs.google.com/spreadsheets/d/1SIM3VeI1tFSyI0PA07O6QsYzDTt3nJmfEFJm9807mto" target="_blank" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
                 <i data-lucide="table-properties" class="w-5 h-5 text-emerald-500"></i>
                 Acessar Planilha
             </a>
 
+            <!-- 2. Botão Gerar Relatório PDF -->
             <button onclick="PDFReportModule.generate()" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
                 <i data-lucide="file-text" class="w-5 h-5 text-red-500"></i>
                 Gerar Relatório PDF
             </button>
+
+            <!-- 3. Botão Ajustar Dados -->
+            <button onclick="UIController.toggleFilterModal(true)" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
+                <i data-lucide="sliders-horizontal" class="w-5 h-5 text-blue-600"></i>
+                Ajustar Dados
+            </button>
+            
         </div>
 
-        <!-- Filter Status Summary -->
-        <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mb-6">
-            <!-- Labels geradas via JS -->
-        </div>
+        <!-- Resumo de Filtros -->
+        <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mb-6"></div>
     </div>
 
-    <!-- KPI Cards -->
+    <!-- Cards de KPI -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-emerald-500">
             <div class="flex items-center justify-between mb-2">
@@ -153,7 +154,7 @@
         </div>
     </div>
 
-    <!-- Charts & Alerts -->
+    <!-- Gráficos e Alertas -->
     <div id="visualSection" class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 scroll-mt-6">
         <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col relative">
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-2 gap-4">
@@ -185,7 +186,7 @@
         </div>
     </div>
 
-    <!-- Detailed Table -->
+    <!-- Tabela Detalhada -->
     <div id="tabelaRegisto" class="max-w-7xl mx-auto glass-card rounded-2xl overflow-hidden mb-8 scroll-mt-8">
         <div class="p-6 border-b border-slate-100 bg-white/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -205,8 +206,8 @@
                 <thead class="bg-slate-50/50 text-slate-500 text-[11px] uppercase tracking-widest">
                     <tr>
                         <th class="px-6 py-4 font-bold">Data</th>
-                        <th class="px-6 py-4 font-bold">Bombeiro</th>
-                        <th class="px-6 py-4 font-bold">Equipa</th>
+                        <th class="px-6 py-4 font-bold">BA</th>
+                        <th class="px-6 py-4 font-bold">Equipe</th>
                         <th class="px-6 py-4 font-bold text-center">Tempo</th>
                         <th class="px-6 py-4 font-bold text-center">Avaliação</th>
                     </tr>
@@ -216,7 +217,7 @@
         </div>
     </div>
 
-    <!-- FILTER MODAL -->
+    <!-- MODAL DE FILTROS -->
     <div id="filterModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden transform transition-all">
             <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
@@ -233,27 +234,25 @@
             <div class="p-6 space-y-6">
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Filtrar por Período</label>
-                    <div class="relative">
-                        <select id="filterPeriodo" class="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                            <option value="todos">Todo o Período</option>
-                            <option value="ano">Último Ano</option>
-                            <option value="semestre">Último Semestre</option>
-                            <option value="trimestre" selected>Último Trimestre</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Filtrar por Equipa</label>
-                    <select id="filterEquipe" class="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                        <option value="Todas">Todas as Equipas</option>
+                    <select id="filterPeriodo" class="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="todos">Todo o Período</option>
+                        <option value="ano">Último Ano</option>
+                        <option value="semestre">Último Semestre</option>
+                        <option value="trimestre" selected>Último Trimestre</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Filtrar por Bombeiro</label>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Filtrar por Equipe</label>
+                    <select id="filterEquipe" class="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="Todas">Todas as Equipes</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Filtrar por BA</label>
                     <select id="filterBombeiro" class="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                        <option value="Todos">Todos os Bombeiros</option>
+                        <option value="Todos">Todos os BAs</option>
                     </select>
                 </div>
             </div>
@@ -268,7 +267,7 @@
         </div>
     </div>
 
-    <!-- PDF Preview Modal -->
+    <!-- Modal de Previsão de PDF -->
     <div id="pdfPreviewModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[200] hidden flex items-center justify-center p-4 md:p-10">
         <div class="bg-white rounded-3xl w-full h-full max-w-5xl flex flex-col shadow-2xl overflow-hidden">
             <div class="p-6 border-b flex justify-between items-center bg-slate-50">
@@ -330,7 +329,7 @@
                 };
 
                 addLabel(pd, 'calendar');
-                if (eq !== 'Todas') addLabel(`Equipa: ${eq}`, 'users');
+                if (eq !== 'Todas') addLabel(`Equipe: ${eq}`, 'users');
                 if (bm !== 'Todos') addLabel(bm, 'user');
                 
                 lucide.createIcons();
@@ -402,8 +401,8 @@
                 const equipes = [...new Set(rawData.map(d => d.equipe))].sort();
                 const bombeiros = [...new Set(rawData.map(d => d.nome))].sort();
 
-                selectEq.innerHTML = '<option value="Todas">Todas as Equipas</option>';
-                selectBm.innerHTML = '<option value="Todos">Todos os Bombeiros</option>';
+                selectEq.innerHTML = '<option value="Todas">Todas as Equipes</option>';
+                selectBm.innerHTML = '<option value="Todos">Todos os BAs</option>';
 
                 equipes.forEach(eq => selectEq.innerHTML += `<option value="${eq}">${eq}</option>`);
                 bombeiros.forEach(bm => selectBm.innerHTML += `<option value="${bm}">${bm}</option>`);
@@ -526,7 +525,7 @@
                     }
                 });
                 document.getElementById('kpiEvolucao').innerText = topEvo > 0 ? `${topEvo.toFixed(1)}%` : "0%";
-                document.getElementById('kpiEvolucaoNome').innerText = topNome === "N/A" ? "Estabilidade" : `Militar: ${topNome}`;
+                document.getElementById('kpiEvolucaoNome').innerText = topNome === "N/A" ? "Estabilidade" : `BA: ${topNome}`;
             },
 
             renderTable(data, search = "") {
@@ -585,7 +584,7 @@
                 if (avg > GOAL_S) {
                     alerts.push({ 
                         id: 'above_goal',
-                        title: 'Objetivo de Equipa', 
+                        title: 'Objetivo de Equipe', 
                         text: `Média (${this.formatTime(avg)}) superior ao objetivo.`, 
                         color: 'amber',
                         active: contextFilter === 'above_goal'
@@ -712,7 +711,6 @@
                 const p = (txt) => document.getElementById(txt).innerText;
                 const filters = document.getElementById('filterSummary').innerText.replace(/\n/g, ' | ');
                 
-                // Header
                 doc.setFillColor(30, 64, 175);
                 doc.rect(0, 0, 210, 40, 'F');
                 doc.setTextColor(255, 255, 255);
@@ -721,14 +719,12 @@
                 doc.setFontSize(10);
                 doc.text(`Gerado em: ${new Date().toLocaleString()}`, 15, 32);
 
-                // Summary Block
                 doc.setTextColor(50, 50, 50);
                 doc.setFontSize(12);
                 doc.text('Parâmetros Atuais:', 15, 50);
                 doc.setFontSize(9);
                 doc.text(filters || 'Todos os Registos', 15, 56);
 
-                // KPI Grid
                 doc.setDrawColor(230, 230, 230);
                 doc.line(15, 62, 195, 62);
                 
@@ -752,7 +748,6 @@
                 doc.setFont(undefined, 'bold');
                 doc.text(p('kpiTotal'), 140, 78);
 
-                // Table
                 doc.setFont(undefined, 'normal');
                 doc.setFontSize(12);
                 doc.text('Histórico Detalhado:', 15, 95);
@@ -763,14 +758,13 @@
 
                 doc.autoTable({
                     startY: 100,
-                    head: [['Data', 'Bombeiro', 'Equipa', 'Tempo']],
+                    head: [['Data', 'BA', 'Equipe', 'Tempo']],
                     body: tableData,
                     theme: 'striped',
                     headStyles: { fillColor: [30, 64, 175] },
                     styles: { fontSize: 8 }
                 });
 
-                // Footer
                 const pageCount = doc.internal.getNumberOfPages();
                 for(let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
