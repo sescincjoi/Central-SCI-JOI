@@ -88,19 +88,16 @@
         <!-- Botões de Ação -->
         <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-10 w-full max-w-5xl mx-auto px-4">
             
-            <!-- 1. Botão Acessar Planilha -->
             <a href="https://docs.google.com/spreadsheets/d/1SIM3VeI1tFSyI0PA07O6QsYzDTt3nJmfEFJm9807mto" target="_blank" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
                 <i data-lucide="table-properties" class="w-5 h-5 text-emerald-500"></i>
                 Acessar Planilha
             </a>
 
-            <!-- 2. Botão Gerar Relatório PDF -->
             <button onclick="PDFReportModule.generate()" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
                 <i data-lucide="file-text" class="w-5 h-5 text-red-500"></i>
                 Gerar Relatório PDF
             </button>
 
-            <!-- 3. Botão Ajustar Dados -->
             <button onclick="UIController.toggleFilterModal(true)" class="action-button w-full md:w-1/3 bg-white border border-slate-200 text-slate-700 shadow-sm hover:bg-slate-50">
                 <i data-lucide="sliders-horizontal" class="w-5 h-5 text-blue-600"></i>
                 Ajustar Dados
@@ -114,7 +111,7 @@
 
     <!-- Cards de KPI -->
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-emerald-500">
+        <div class="glass-card p-6 rounded-2xl metric-card">
             <div class="flex items-center justify-between mb-2">
                 <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
                 <i data-lucide="trophy" class="w-5 h-5 text-emerald-500"></i>
@@ -123,7 +120,7 @@
             <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando...</p>
         </div>
 
-        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-blue-500">
+        <div class="glass-card p-6 rounded-2xl metric-card">
             <div class="flex items-center justify-between mb-2">
                 <p class="text-sm font-medium text-slate-500">Melhor Evolução</p>
                 <i data-lucide="trending-up" class="w-5 h-5 text-blue-500"></i>
@@ -132,7 +129,7 @@
             <p id="kpiEvolucaoNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Histórico individual</p>
         </div>
 
-        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-slate-400">
+        <div class="glass-card p-6 rounded-2xl metric-card">
             <div class="flex items-center justify-between mb-2">
                 <p class="text-sm font-medium text-slate-500">Média Geral</p>
                 <i data-lucide="clock" class="w-5 h-5 text-slate-400"></i>
@@ -144,7 +141,7 @@
             </div>
         </div>
 
-        <div class="glass-card p-6 rounded-2xl metric-card border-l-4 border-l-orange-500">
+        <div class="glass-card p-6 rounded-2xl metric-card">
             <div class="flex items-center justify-between mb-2">
                 <p class="text-sm font-medium text-slate-500">Registos</p>
                 <i data-lucide="list-checks" class="w-5 h-5 text-orange-500"></i>
@@ -584,7 +581,7 @@
                 if (avg > GOAL_S) {
                     alerts.push({ 
                         id: 'above_goal',
-                        title: 'Objetivo de Equipe', 
+                        title: 'Objetivo Operacional', 
                         text: `Média (${this.formatTime(avg)}) superior ao objetivo.`, 
                         color: 'amber',
                         active: contextFilter === 'above_goal'
@@ -593,12 +590,13 @@
 
                 container.innerHTML = alerts.length ? alerts.map(a => `
                 <div onclick="DataLoader.setContextFilter('${a.id}')" 
-                     class="group p-4 bg-${a.color}-50 border ${a.active ? 'border-' + a.color + '-400 ring-4 ring-' + a.color + '-50' : 'border-' + a.color + '-100'} rounded-2xl cursor-pointer transition-all hover:scale-[1.02] relative">
+                     class="group p-4 bg-${a.color}-50 border ${a.active ? 'border-' + a.color + '-400 ring-4 ring-' + a.color + '-50' : 'border-transparent'} rounded-2xl cursor-pointer transition-all hover:scale-[1.02] relative pb-8">
                     <div class="flex justify-between items-start">
                         <p class="text-[10px] font-black text-${a.color}-600 uppercase tracking-widest mb-1">${a.title}</p>
                         ${a.active ? `<i data-lucide="check-circle-2" class="w-4 h-4 text-${a.color}-500"></i>` : `<i data-lucide="chevron-right" class="w-3 h-3 text-${a.color}-300 opacity-0 group-hover:opacity-100 transition-opacity"></i>`}
                     </div>
-                    <p class="text-sm text-slate-700 font-semibold leading-tight">${a.text}</p>
+                    <p class="text-sm text-slate-700 font-semibold leading-tight mb-2">${a.text}</p>
+                    <div class="absolute bottom-2 left-4 text-[9px] font-bold text-${a.color}-400 uppercase tracking-tighter">CLIQUE PARA FILTRAR</div>
                 </div>`).join('') : '<div class="text-emerald-700 text-sm p-5 font-bold bg-emerald-50 rounded-2xl border border-emerald-100 flex items-center gap-3"><i data-lucide="check-circle" class="w-5 h-5"></i> Performance dentro do objetivo!</div>';
                 lucide.createIcons();
             }
@@ -631,8 +629,16 @@
                     const tooltipHtml = `<div class="p-3 shadow-xl rounded-xl border border-slate-100 bg-white min-w-[140px]"><p class="text-[10px] text-slate-400 uppercase font-black mb-2">${d.data}</p><p class="text-sm font-bold text-slate-800 mb-1">${d.nome}</p><p class="text-xs text-blue-600 font-bold mb-3">${d.equipe}</p><div class="flex items-center justify-between border-t pt-2 border-slate-50"><span class="text-[10px] text-slate-400 font-bold">TEMPO</span><span class="text-sm font-black text-slate-800">${DataLoader.formatTime(d.tempoSegundos)}</span></div></div>`;
                     
                     let pointStyle = null;
+
+                    const isCritical = d.tempoSegundos > LIMIT_S;
+                    const isAboveGoal = d.tempoSegundos > GOAL_S;
+
                     if (selectedDataId === d.id) {
-                         pointStyle = 'point { size: 10; shape-type: circle; fill-color: #3b82f6; stroke-color: #1e3a8a; stroke-width: 3; }';
+                         pointStyle = 'point { size: 8; shape-type: circle; fill-color: #3b82f6; stroke-color: #1e3a8a; stroke-width: 2; }';
+                    } else if (contextFilter === 'critical' && isCritical) {
+                         pointStyle = 'point { size: 6; fill-color: #ef4444; stroke-color: #7f1d1d; stroke-width: 1.5; }';
+                    } else if (contextFilter === 'above_goal' && isAboveGoal) {
+                         pointStyle = 'point { size: 6; fill-color: #f59e0b; stroke-color: #78350f; stroke-width: 1.5; }';
                     }
 
                     data.addRow([
@@ -657,9 +663,9 @@
                     },
                     hAxis: { textPosition: 'none', gridlines: { color: 'transparent' }, baselineColor: '#f1f5f9' },
                     series: { 
-                        0: { lineDashStyle: [6, 6], lineWidth: 1.5, opacity: 0.6, pointSize: 0 }, 
-                        1: { lineDashStyle: [6, 6], lineWidth: 1.5, opacity: 0.6, pointSize: 0 }, 
-                        2: { pointSize: 5, pointShape: 'circle', lineWidth: 3 } 
+                        0: { lineDashStyle: [6, 6], lineWidth: 1.2, opacity: 0.5, pointSize: 0 }, 
+                        1: { lineDashStyle: [6, 6], lineWidth: 1.2, opacity: 0.5, pointSize: 0 }, 
+                        2: { pointSize: 3, pointShape: 'circle', lineWidth: 1.5 } 
                     },
                     animation: { duration: 500, easing: 'out' },
                     focusTarget: 'datum'
