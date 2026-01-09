@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central SCI JOI - Indicadores Operacionais</title>
+    <style>
+        /* Reset e Fontes */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a1a; /* Fundo escuro para evitar flash branco */
+        }
+
+        /* Header com Gradiente Profissional */
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+            position: relative;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* Efeito de iluminação no LOGO */
+        .logo {
+            height: 60px;
+            width: auto;
+            border-radius: 4px;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+            animation: logoGlow 3s infinite alternate ease-in-out;
+            transition: filter 0.3s ease;
+        }
+
+        .logo:hover {
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+        }
+
+        @keyframes logoGlow {
+            from {
+                filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.1));
+            }
+            to {
+                filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4));
+            }
+        }
+
+        .title-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .sub-title {
+            font-size: 1.15rem; /* Aumentado de 1rem para 1.15rem */
+            color: #e0e0e0; /* Tom de off-white ligeiramente mais claro */
+            font-weight: 300;
+            margin-top: 2px;
+        }
+
+        /* Navegação no lado direito */
+        nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        nav button {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        nav button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        nav button.active {
+            background: #ffffff;
+            color: #1a1a1a;
+            border-color: #ffffff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+        }
+
+        /* Conteúdo das Abas com Animação */
+        .tab-content {
+            height: calc(100vh - 92px);
+            width: 100%;
+            display: none;
+            background: white;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeInSlide 0.5s ease-out forwards;
+        }
+
+        /* Keyframes para a transição */
+        @keyframes fadeInSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Mensagem de Erro amigável para Imagens */
+        .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            background: #444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            text-align: center;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-left">
+        <img src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
+             alt="Logo Central SCI" 
+             class="logo" 
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+        <div class="logo-placeholder" style="display:none;">LOGO</div>
+        
+        <div class="title-container">
+            <span class="main-title">Central SCI JOI</span>
+            <span class="sub-title">Indicadores Operacionais</span>
+        </div>
+    </div>
+
+    <nav>
+        <button id="btn-s1" class="active" onclick="openTab('s1')">Tempo Resposta</button>
+        <button id="btn-s2" onclick="openTab('s2')">Tempo TP-EPR</button>
+    </nav>
+</header>
+
+<div id="s1" class="tab-content active">
+    <iframe src="https://sescincjoi.github.io/Central-SCI-JOI/Tempo"></iframe>
+</div>
+
+<div id="s2" class="tab-content">
+    <iframe src="https://sescincjoi.github.io/Central-SCI-JOI/Tempo-TP-EPR"></iframe>
+</div>
+
+<script>
+    function openTab(tabId) {
+        const contents = document.querySelectorAll('.tab-content');
+        const buttons = document.querySelectorAll('nav button');
+        const targetTab = document.getElementById(tabId);
+        
+        // Se a aba já estiver ativa, não faz nada para não reiniciar a animação à toa
+        if (targetTab.classList.contains('active')) return;
+
+        // Esconder todos os conteúdos e remover estados ativos
+        contents.forEach(content => {
+            content.classList.remove('active');
+        });
+
+        buttons.forEach(btn => btn.classList.remove('active'));
+
+        // Mostrar a aba selecionada (a animação CSS fadeInSlide iniciará automaticamente)
+        targetTab.classList.add('active');
+
+        // Adicionar classe ativa no botão clicado
+        document.getElementById('btn-' + tabId).classList.add('active');
+    }
+</script>
+
+</body>
+</html>
