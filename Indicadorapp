@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Central SCI JOI - Indicadores</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #1a1a1a;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+      color: #fff;
+      padding: 0.8rem 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      transition: transform 0.25s ease;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header.hide {
+      transform: translateY(-100%);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    nav button {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    nav button.active {
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    /* ===== ÁREA SCROLLÁVEL ===== */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: #fff;
+    }
+
+    /* ===== ABAS ===== */
+    .tab-content {
+      min-height: 100%;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+    }
+
+    .tab-content.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      border: none;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 0.8rem;
+      }
+
+      nav {
+        width: 100%;
+        justify-content: center;
+      }
+
+      nav button {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header id="appHeader">
+  <div class="header-content">
+    <strong>Central SCI JOI</strong>
+
+    <nav>
+      <button class="active" onclick="openTab('s1')">Tempo Resposta</button>
+      <button onclick="openTab('s2')">Tempo TP-EPR</button>
+    </nav>
+  </div>
+</header>
+
+<main id="scrollArea">
+  <div id="s1" class="tab-content active">
+    <iframe src="Tempo/index.html"></iframe>
+  </div>
+
+  <div id="s2" class="tab-content">
+    <iframe src="Tempo-TP-EPR/index.html"></iframe>
+  </div>
+</main>
+
+<script>
+  const scrollArea = document.getElementById('scrollArea');
+  const header = document.getElementById('appHeader');
+
+  let lastScroll = 0;
+
+  scrollArea.addEventListener('scroll', () => {
+    const current = scrollArea.scrollTop;
+
+    if (current > lastScroll + 10) {
+      header.classList.add('hide');
+    } else if (current < lastScroll - 10) {
+      header.classList.remove('hide');
+    }
+
+    lastScroll = current <= 0 ? 0 : current;
+  });
+
+  function openTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+    document.getElementById(tabId).classList.add('active');
+    event.target.classList.add('active');
+
+    scrollArea.scrollTop = 0;
+    header.classList.remove('hide');
+  }
+</script>
+
+</body>
+</html>
