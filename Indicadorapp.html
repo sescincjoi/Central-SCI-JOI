@@ -1,184 +1,110 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Central SCI JOI - Indicadores</title>
+  <meta charset="UTF-8" />
+  <title>Central SCI</title>
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    }
-
     html, body {
       height: 100%;
+      margin: 0;
     }
 
     body {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: #1a1a1a;
+      overflow: hidden; /* bloqueia scroll global */
+      font-family: Arial, sans-serif;
     }
 
-    /* ===== HEADER ===== */
+    /* viewport com SCROLL ÚNICO */
+    main {
+      height: 100vh;
+      overflow-y: auto;
+    }
+
     header {
-      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+      height: 64px;
+      background: #0f172a;
       color: #fff;
-      padding: 0.8rem 1.5rem;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-      transition: transform 0.25s ease;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header.hide {
-      transform: translateY(-100%);
-    }
-
-    .header-content {
       display: flex;
-      justify-content: space-between;
       align-items: center;
       gap: 12px;
-      flex-wrap: wrap;
+      padding: 0 16px;
     }
 
-    nav {
-      display: flex;
-      gap: 8px;
-    }
-
-    nav button {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
+    header button {
       padding: 8px 14px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      border: none;
+      background: #1e293b;
+      color: #fff;
       cursor: pointer;
+      border-radius: 4px;
     }
 
-    nav button.active {
-      background: #fff;
-      color: #1a1a1a;
+    header button:hover {
+      background: #334155;
     }
 
-    /* ===== ÁREA SCROLLÁVEL ===== */
-    main {
-      flex: 1;
-      position: relative;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    /* ===== ABAS ===== */
-    .tabs-wrapper {
-      position: relative;
-      height: 100%;
-    }
-    .tab-content {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      pointer-events: none;
-    }
-    
-    .tab-content.active {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-      z-index: 1;
+    section {
+      padding: 0;
     }
 
     iframe {
       width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
+      border: 0;
+      display: none; /* apenas um por vez */
     }
 
-    @media (max-width: 768px) {
-      header {
-        padding: 0.8rem;
-      }
-
-      nav {
-        width: 100%;
-        justify-content: center;
-      }
-
-      nav button {
-        flex: 1;
-      }
+    iframe.ativo {
+      display: block;
     }
   </style>
 </head>
 
 <body>
-  <main>
-    <header id="appHeader">
-      <div class="header-content">
-        <strong>Central SCI JOI</strong>
-    
-        <nav>
-          <button class="active" onclick="openTab('s1')">Tempo Resposta</button>
-          <button onclick="openTab('s2')">Tempo TP-EPR</button>
-        </nav>
-      </div>
-    </header>
-    
-    <div class="tabs-wrapper">
-      <div id="s1" class="tab-content active">
-        <iframe src="https://sescincjoi.github.io/Central-SCI-JOI/Tempo"></iframe>
-      </div>
-    
-      <div id="s2" class="tab-content">
-        <iframe src="https://sescincjoi.github.io/Central-SCI-JOI/Tempo-TP-EPR"></iframe>
-      </div>
-    </div>
-  </main>
+
+<main>
+
+  <header>
+    <button onclick="abrir('tempo')">Tempo Resposta</button>
+    <button onclick="abrir('epr')">Tempo Resposta EPR</button>
+  </header>
+
+  <section>
+    <iframe
+      data-id="tempo"
+      src="https://sescincjoi.github.io/Central-SCI-JOI/Tempo">
+    </iframe>
+
+    <iframe
+      data-id="epr"
+      src="https://sescincjoi.github.io/Central-SCI-JOI/Tempo-TP/EPR">
+    </iframe>
+  </section>
+
+</main>
 
 <script>
-  const scrollArea = document.getElementById('scrollArea');
-  const header = document.getElementById('appHeader');
+  const iframes = document.querySelectorAll('iframe');
 
-  let lastScroll = 0;
+  function abrir(id) {
+    iframes.forEach(iframe => {
+      iframe.classList.toggle('ativo', iframe.dataset.id === id);
+    });
+  }
 
-  scrollArea.addEventListener('scroll', () => {
-    const current = scrollArea.scrollTop;
+  // recebe altura dos iframes
+  window.addEventListener('message', e => {
+    if (e.origin !== location.origin) return;
 
-    if (current > lastScroll + 10) {
-      header.classList.add('hide');
-    } else if (current < lastScroll - 10) {
-      header.classList.remove('hide');
+    const { id, altura } = e.data;
+    const iframe = document.querySelector(`iframe[data-id="${id}"]`);
+    if (iframe) {
+      iframe.style.height = altura + 'px';
     }
-
-    lastScroll = current <= 0 ? 0 : current;
   });
 
-  function openTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-
-    document.getElementById(tabId).classList.add('active');
-    event.target.classList.add('active');
-
-    scrollArea.scrollTop = 0;
-    header.classList.remove('hide');
-  }
+  // iframe inicial
+  abrir('tempo');
 </script>
 
 </body>
