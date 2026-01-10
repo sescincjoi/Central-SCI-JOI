@@ -17,6 +17,10 @@
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #f8fafc;
         }
+        html, body {
+          height: auto;
+          overflow: hidden; /* REMOVE SCROLL INTERNO */
+        }
         header { display:none !important; }
         .xl\:px-14 { padding-top: 2rem; )
         .glass-card {
@@ -275,7 +279,7 @@
         }
     </style>
 </head>
-<body class="text-slate-900 antialiased pb-20 md:pb-0">
+<body class="text-slate-900 antialiased pb-20 md:pb-0" data-page-id="tempo">
 
     <!-- <div id="rotationWarning" class="hidden fixed top-4 left-4 right-4 z-[100] bg-blue-600 text-white p-4 rounded-2xl shadow-2xl items-center justify-between animate-bounce">
         <div class="flex items-center gap-3">
@@ -2625,6 +2629,27 @@ const PDFPreviewModule = {
         }
     }
 };
+
+/* MANDA ALTURA PARA PÁGINA PAI */
+  const PAGE_ID = document.body.dataset.pageId;
+
+  function enviarAltura() {
+    const altura = document.documentElement.scrollHeight;
+    window.parent.postMessage(
+      { id: PAGE_ID, altura },
+      window.location.origin
+    );
+  }
+
+  window.addEventListener('load', enviarAltura);
+  window.addEventListener('resize', enviarAltura);
+
+  // detecta mudanças dinâmicas
+  const observer = new MutationObserver(enviarAltura);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
     </script>
 </body>
 </html>
