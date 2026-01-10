@@ -18,6 +18,10 @@
             font-family: 'Plus Jakarta Sans', sans-serif; 
             background-color: #f8fafc;
         }
+        html, body {
+          height: auto;
+          overflow: hidden; /* REMOVE SCROLL INTERNO */
+        }
         .header { display: none !important; }
         .glass-card {
             background: rgba(255, 255, 255, 0.9);
@@ -72,7 +76,7 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="p-4 md:p-8" data-page-id="epr">
 
     <!-- Cabeçalho -->
     <div class="max-w-7xl mx-auto mb-6">
@@ -793,6 +797,27 @@
             google.charts.setOnLoadCallback(() => { DataLoader.fetch(); });
             window.onresize = () => ChartModule.draw();
         };
+
+/* MANDA ALTURA PARA PÁGINA PAI */
+  const PAGE_ID = document.body.dataset.pageId;
+
+  function enviarAltura() {
+    const altura = document.documentElement.scrollHeight;
+    window.parent.postMessage(
+      { id: PAGE_ID, altura },
+      window.location.origin
+    );
+  }
+
+  window.addEventListener('load', enviarAltura);
+  window.addEventListener('resize', enviarAltura);
+
+  // detecta mudanças dinâmicas
+  const observer = new MutationObserver(enviarAltura);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
     </script>
 </body>
 </html>
