@@ -103,8 +103,24 @@
     }
   });
 
-  // iframe inicial
+  // envia altura para os iframes
   abrir('tempo');
+
+  function enviarViewport() {
+  const vh = window.innerHeight;
+  const vw = window.innerWidth;
+
+  document.querySelectorAll('iframe').forEach(iframe => {
+    iframe.contentWindow.postMessage(
+      { type: 'viewport', vh, vw },
+      location.origin
+    );
+  });
+}
+
+window.addEventListener('load', enviarViewport);
+window.addEventListener('resize', enviarViewport);
+
 </script>
 
 </body>
