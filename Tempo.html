@@ -2650,6 +2650,20 @@ const PDFPreviewModule = {
     childList: true,
     subtree: true
   });
+
+ //recebe altura do pai       
+    let viewport = { vh: window.innerHeight, vw: window.innerWidth };
+    
+    window.addEventListener('message', e => {
+      if (e.origin !== location.origin) return;
+    
+      if (e.data.type === 'viewport') {
+        viewport = e.data;
+        document.documentElement.style.setProperty('--vh', viewport.vh + 'px');
+        document.documentElement.style.setProperty('--vw', viewport.vw + 'px');
+      }
+    });
+
     </script>
 </body>
 </html>
