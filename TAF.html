@@ -932,7 +932,7 @@ input:focus-visible {
 
                         const flexaoSeg = this.parseTimeToSeconds(cellFlexao);
                         const abdominalSeg = this.parseTimeToSeconds(cellAbdominal);
-                        const polichinelo Seg = this.parseTimeToSeconds(cellPolichinelo);
+                        const polichineloSeg = this.parseTimeToSeconds(cellPolichinelo);
                         const tempoTotalSeg = this.parseTimeToSeconds(cellTempoTotal);
                         const notaCalculada = this.calcularNota(tempoTotalSeg, cellIdade);
 
@@ -948,8 +948,8 @@ input:focus-visible {
                             flexaoSeg: flexaoSeg,
                             abdominalStr: cellAbdominal,
                             abdominalSeg: abdominalSeg,
-                            polichinelo Str: cellPolichinelo,
-                            polichinelo Seg: polichinelo Seg,
+                            polichineloStr: cellPolichinelo,
+                            polichineloSeg: polichineloSeg,
                             tempoTotalStr: cellTempoTotal,
                             tempoTotalSeg: tempoTotalSeg,
                             notaPlanilha: cellNotaPlanilha,
@@ -1238,7 +1238,7 @@ input:focus-visible {
                         <td class="px-6 py-4 text-center font-semibold text-slate-700">${d.idade}</td>
                         <td class="px-6 py-4 text-center text-slate-700">${this.formatTime(d.flexaoSeg)}</td>
                         <td class="px-6 py-4 text-center text-slate-700">${this.formatTime(d.abdominalSeg)}</td>
-                        <td class="px-6 py-4 text-center text-slate-700">${this.formatTime(d.polichinelo Seg)}</td>
+                        <td class="px-6 py-4 text-center text-slate-700">${this.formatTime(d.polichineloSeg)}</td>
                         <td class="px-6 py-4 text-center font-bold text-slate-900">${this.formatTime(d.tempoTotalSeg)}</td>
                         <td class="px-6 py-4 text-center font-bold text-lg ${d.notaCalculada >= 7 ? 'text-emerald-600' : 'text-red-600'}">${d.notaCalculada}</td>
                         <td class="px-6 py-4 text-center"><span class="status-pill ${pill}">${label}</span></td>
@@ -1354,7 +1354,7 @@ input:focus-visible {
                 const allDataForAverage = rawData;
                 const avgFlexao = allDataForAverage.reduce((acc, d) => acc + d.flexaoSeg, 0) / allDataForAverage.length;
                 const avgAbdominal = allDataForAverage.reduce((acc, d) => acc + d.abdominalSeg, 0) / allDataForAverage.length;
-                const avgPolichinelo = allDataForAverage.reduce((acc, d) => acc + d.polichinelo Seg, 0) / allDataForAverage.length;
+                const avgPolichinelo = allDataForAverage.reduce((acc, d) => acc + d.polichineloSeg, 0) / allDataForAverage.length;
 
                 // Pegar último teste do BA selecionado
                 const latestTest = [...filteredData].sort((a, b) => b.dateObject - a.dateObject)[0];
@@ -1393,7 +1393,7 @@ input:focus-visible {
                         datasets: [
                             {
                                 label: baData.nome,
-                                data: [baData.flexaoSeg, baData.abdominalSeg, baData.polichinelo Seg],
+                                data: [baData.flexaoSeg, baData.abdominalSeg, baData.polichineloSeg],
                                 backgroundColor: 'rgba(59, 130, 246, 0.2)',
                                 borderColor: 'rgb(59, 130, 246)',
                                 borderWidth: 2,
@@ -1463,7 +1463,7 @@ input:focus-visible {
             const exercises = [
                 { name: 'Flexão', ba: baData.flexaoSeg, avg: averages.avgFlexao },
                 { name: 'Abdominal', ba: baData.abdominalSeg, avg: averages.avgAbdominal },
-                { name: 'Polichinelo', ba: baData.polichinelo Seg, avg: averages.avgPolichinelo }
+                { name: 'Polichinelo', ba: baData.polichineloSeg, avg: averages.avgPolichinelo }
             ];
 
             container.innerHTML = exercises.map(ex => {
@@ -1502,7 +1502,7 @@ input:focus-visible {
             const exercises = [
                 { name: 'Flexão', ba: baData.flexaoSeg, avg: averages.avgFlexao },
                 { name: 'Abdominal', ba: baData.abdominalSeg, avg: averages.avgAbdominal },
-                { name: 'Polichinelo', ba: baData.polichinelo Seg, avg: averages.avgPolichinelo }
+                { name: 'Polichinelo', ba: baData.polichineloSeg, avg: averages.avgPolichinelo }
             ];
 
             const strengths = exercises.filter(ex => ex.ba < ex.avg).map(ex => {
