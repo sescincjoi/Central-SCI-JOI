@@ -1253,10 +1253,19 @@ input:focus-visible {
                     return;
                 }
 
+                // Obter apenas o último teste de cada bombeiro
+                const latestTestsByBA = {};
+                filteredData.forEach(d => {
+                    if (!latestTestsByBA[d.nome] || d.dateObject > latestTestsByBA[d.nome].dateObject) {
+                        latestTestsByBA[d.nome] = d;
+                    }
+                });
+                const latestTests = Object.values(latestTestsByBA);
+
                 const alerts = [];
                 
                 // Alerta 1: Reprovações
-                const reprovados = filteredData.filter(d => d.notaCalculada < 7);
+                const reprovados = latestTests.filter(d => d.notaCalculada < 7);
                 if (reprovados.length > 0) {
                     alerts.push({ 
                         id: 'reprovados', 
@@ -1268,7 +1277,7 @@ input:focus-visible {
                 }
 
                 // Alerta 2: Desempenho Limítrofe
-                const limitrofe = filteredData.filter(d => d.notaCalculada === 7);
+                const limitrofe = latestTests.filter(d => d.notaCalculada === 7);
                 if (limitrofe.length > 0) {
                     alerts.push({ 
                         id: 'limitrofe', 
@@ -1281,7 +1290,7 @@ input:focus-visible {
 
                 // Alerta 3: Testes Vencidos
                 const hoje = new Date();
-                const vencidos = filteredData.filter(d => {
+                const vencidos = latestTests.filter(d => {
                     if (!d.dateObject) return false;
                     const diffDays = Math.floor((hoje - d.dateObject) / (1000 * 60 * 60 * 24));
                     return diffDays > 90;
@@ -1297,7 +1306,7 @@ input:focus-visible {
                 }
 
                 // Alerta 4: Faixa Etária Crítica
-                const critico40 = filteredData.filter(d => d.idade > 40 && d.notaCalculada >= 7 && d.notaCalculada <= 8);
+                const critico40 = latestTests.filter(d => d.idade > 40 && d.notaCalculada >= 7 && d.notaCalculada <= 8);
                 if (critico40.length > 0) {
                     alerts.push({ 
                         id: 'critico40', 
@@ -1309,8 +1318,8 @@ input:focus-visible {
                 }
 
                 // Alerta 5: Excelência
-                const aprovados = filteredData.filter(d => d.notaCalculada >= 7).length;
-                if (aprovados === filteredData.length && filteredData.length > 0) {
+                const aprovados = latestTests.filter(d => d.notaCalculada >= 7).length;
+                if (aprovados === latestTests.length && latestTests.length > 0) {
                     alerts.push({ 
                         id: 'excelencia', 
                         title: 'Excelência Operacional', 
