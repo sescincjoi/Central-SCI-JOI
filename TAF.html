@@ -538,7 +538,7 @@ input:focus-visible {
     </div>
 
     <!-- Container Principal -->
-    <div class="max-w-7xl mx-auto px-8">
+    <div class="mx-auto px-10">
         
         <!-- Botões de Ação -->
         <div class="flex flex-col tablet:flex-row items-center justify-center gap-y-4 gap-x-10 px-8 mb-10 w-full">
@@ -559,7 +559,7 @@ input:focus-visible {
         </div>
 
         <!-- Badge de Análise Individual -->
-        <div id="individualBadge" class="hidden mb-8 glass-card p-4 rounded-2xl">
+        <div id="individualBadge" class="hidden mx-4 mb-8 glass-card p-4 rounded-2xl">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="bg-blue-100 p-2 rounded-lg">
@@ -578,10 +578,10 @@ input:focus-visible {
         </div>
 
         <!-- Resumo de Filtros -->
-        <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mb-10"></div>
+        <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mx-4 mb-10"></div>
 
         <!-- Cards de KPI -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-4 mb-8">
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-medium text-slate-500">Melhor Desempenho</p>
@@ -623,7 +623,7 @@ input:focus-visible {
         </div>
 
         <!-- Gráficos e Alertas -->
-        <div id="visualSection" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 scroll-mt-6">
+        <div id="visualSection" class="grid grid-cols-1 lg:grid-cols-3 gap-6 mx-4 mb-8 scroll-mt-6">
             <div class="lg:col-span-2 glass-card p-6 rounded-2xl flex flex-col relative">
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-2 gap-4">
                     <h4 class="font-bold text-slate-800 flex items-center gap-2 text-lg">
@@ -656,7 +656,7 @@ input:focus-visible {
         </div>
 
         <!-- Seção de Análise Individual (Gráficos Comparativos) -->
-        <div id="individualAnalysis" class="hidden mb-8">
+        <div id="individualAnalysis" class="hidden mx-4 mb-8">
             <div class="glass-card p-6 rounded-2xl mb-6">
                 <h4 class="font-bold text-slate-800 mb-6 flex items-center gap-2 text-lg">
                     <i data-lucide="bar-chart-3" class="w-5 h-5 text-purple-600"></i>
@@ -708,7 +708,7 @@ input:focus-visible {
         </div>
 
         <!-- Tabela Detalhada -->
-        <div id="tabelaRegisto" class="glass-card rounded-2xl overflow-hidden mb-12 scroll-mt-8">
+        <div id="tabelaRegisto" class="glass-card rounded-2xl overflow-hidden mx-4 mb-12 scroll-mt-8">
             <div class="p-6 border-b border-slate-100 bg-white/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h4 class="font-bold text-slate-800 flex items-center gap-2">
@@ -1628,7 +1628,7 @@ input:focus-visible {
                 curveType: 'function', 
                 legend: 'none', 
                 colors: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'], 
-                chartArea: { width: '90%', height: '80%', top: 20 },
+                chartArea: { width: '95%', height: '90%', top: 10, left: 40, right: 10, bottom: 30 },
                 tooltip: { isHtml: true, trigger: 'both' },
                 vAxis: { 
                     viewWindow: { min: 6.5, max: 10.5 }, 
