@@ -1123,15 +1123,28 @@ input:focus-visible {
                 this.renderAlerts();
                 
                 let tableData = [...filteredData];
+                let tableData = [...filteredData];
                 const statusLabel = document.getElementById('filterStatusLabel');
-                
+
+                // Se houver filtro de contexto ativo, mostrar apenas último teste de cada bombeiro
+                if (contextFilter) {
+                    // Obter apenas o último teste de cada bombeiro para a tabela
+                    const latestTestsByBA = {};
+                    filteredData.forEach(d => {
+                        if (!latestTestsByBA[d.nome] || d.dateObject > latestTestsByBA[d.nome].dateObject) {
+                            latestTestsByBA[d.nome] = d;
+                        }
+                    });
+                    tableData = Object.values(latestTestsByBA);
+                }
+
                 if (contextFilter === 'reprovados') {
                     tableData = tableData.filter(d => d.notaCalculada < 7);
-                    statusLabel.innerText = "Filtro Ativo: Reprovados";
+                    statusLabel.innerText = "Filtro Ativo: Reprovados (último teste)";
                     statusLabel.classList.remove('hidden');
                 } else if (contextFilter === 'limitrofe') {
                     tableData = tableData.filter(d => d.notaCalculada === 7);
-                    statusLabel.innerText = "Filtro Ativo: Limítrofe (Nota 7)";
+                    statusLabel.innerText = "Filtro Ativo: Limítrofe (último teste)";
                     statusLabel.classList.remove('hidden');
                 } else if (contextFilter === 'vencidos') {
                     tableData = tableData.filter(d => {
@@ -1139,11 +1152,11 @@ input:focus-visible {
                         const diffDays = Math.floor((hoje - d.dateObject) / (1000 * 60 * 60 * 24));
                         return diffDays > 90;
                     });
-                    statusLabel.innerText = "Filtro Ativo: Testes Vencidos (>90 dias)";
+                    statusLabel.innerText = "Filtro Ativo: Testes Vencidos (último teste)";
                     statusLabel.classList.remove('hidden');
                 } else if (contextFilter === 'critico40') {
                     tableData = tableData.filter(d => d.idade > 40 && d.notaCalculada >= 7 && d.notaCalculada <= 8);
-                    statusLabel.innerText = "Filtro Ativo: +40 anos com Nota 7-8";
+                    statusLabel.innerText = "Filtro Ativo: +40 anos (último teste)";
                     statusLabel.classList.remove('hidden');
                 } else {
                     statusLabel.classList.add('hidden');
