@@ -1442,12 +1442,12 @@ input:focus-visible {
                         maintainAspectRatio: true,
                         scales: {
                             r: {
-                                display: false,
+                                /*display: false,*/
                                 beginAtZero: true,
                                 ticks: {callback: function(value) {
                                     return DataLoader.formatTime(value);
                                 },
-                                font: { size: 10, weight: 'bold' },
+                                font: { size: 0, weight: 'bold' },
                                 color: '#64748b'
                             },
                             pointLabels: {
