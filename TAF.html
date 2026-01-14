@@ -1018,24 +1018,32 @@ input:focus-visible {
                 const equipes = [...new Set(rawData.map(d => d.equipe))].sort();
                 const bombeiros = [...new Set(rawData.map(d => d.nome))].sort();
                 const funcoes = [...new Set(rawData.map(d => d.funcao))].sort();
-
+            
                 selectEq.innerHTML = '<option value="Todas">Todas as Equipes</option>';
                 selectBm.innerHTML = '<option value="Todos">Todos os BAs</option>';
                 selectFn.innerHTML = '<option value="Todas">Todas as Funções</option>';
-
+            
                 equipes.forEach(eq => selectEq.innerHTML += `<option value="${eq}">${eq}</option>`);
                 bombeiros.forEach(bm => selectBm.innerHTML += `<option value="${bm}">${bm}</option>`);
                 funcoes.forEach(fn => selectFn.innerHTML += `<option value="${fn}">${fn}</option>`);
-
+            
                 const onChange = () => { contextFilter = null; this.clearSelection(); this.updateUI(); };
                 
                 selectEq.onchange = onChange;
-                selectBm.onchange = onChange;
+                selectBm.onchange = () => {
+                    // Quando seleciona um BA específico, muda para "Todo o Período"
+                    if (selectBm.value !== 'Todos') {
+                        selectPeriodo.value = 'todos';
+                    }
+                    contextFilter = null;
+                    this.clearSelection();
+                    this.updateUI();
+                };
                 selectFn.onchange = onChange;
                 selectPeriodo.onchange = onChange;
                 selectIdade.onchange = onChange;
                 selectStatus.onchange = onChange;
-
+            
                 document.getElementById('tableSearch').oninput = (e) => {
                     this.renderTable(filteredData, e.target.value);
                 };
