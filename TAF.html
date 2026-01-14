@@ -1624,7 +1624,7 @@ input:focus-visible {
             });
 
             const options = {
-                curveType: 'none', 
+                curveType: 'function', 
                 legend: 'none', 
                 colors: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'], 
                 chartArea: { width: '95%', height: '90%', top: 10, left: 40, right: 10, bottom: 30 },
@@ -1673,8 +1673,17 @@ input:focus-visible {
         },
 
         focus(dataId, event) { 
-            if (event) event.stopPropagation(); 
-            selectedDataId = dataId; // Remove o toggle, sempre define
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            
+            // Se clicar no mesmo ponto, mantém selecionado (não desmarca)
+            if (selectedDataId === dataId) {
+                return; // Mantém a seleção
+            }
+            
+            selectedDataId = dataId;
             if (selectedDataId) {
                 document.getElementById('visualSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -1752,10 +1761,14 @@ input:focus-visible {
         lucide.createIcons();
         };
         document.addEventListener('click', function(e) {
-            // Verifica se o clique não foi na tabela, no gráfico ou em seus elementos
-            if (!e.target.closest('#chartHistory') && 
-                !e.target.closest('table') && 
-                selectedDataId !== null) {
+            // Ignora se clicou no gráfico ou tabela
+            if (e.target.closest('#chartHistory') || 
+                e.target.closest('table') ||
+                e.target.closest('svg')) {  // Adiciona SVG do gráfico
+                return;
+            }
+            
+            if (selectedDataId !== null) {
                 selectedDataId = null;
                 DataLoader.updateUI();
             }
