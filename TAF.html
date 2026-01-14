@@ -581,19 +581,9 @@ input:focus-visible {
         <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mx-4 mb-10"></div>
 
         <!-- Cards de KPI -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-4 mb-8">
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
-                    <i data-lucide="zap" class="w-5 h-5 text-amber-500"></i>
-                </div>
-                <h3 id="kpiMelhorTempo" class="text-3xl font-bold text-amber-600">--:--</h3>
-                <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando...</p>
-            </div>
-        
-            <div class="glass-card p-6 rounded-2xl metric-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-slate-500">Melhor Desempenho</p>
+                    <p class="text-sm font-medium text-slate-500">Melhor Desempenho Relativo</p>
                     <i data-lucide="trophy" class="w-5 h-5 text-emerald-500"></i>
                 </div>
                 <div id="kpiPodium" class="space-y-2 mt-2">
@@ -610,6 +600,16 @@ input:focus-visible {
                         <p id="podium3" class="text-xs font-medium text-slate-600 truncate flex-1">--</p>
                     </div>
                 </div>
+            </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-4 mb-8">
+            <div class="glass-card p-6 rounded-2xl metric-card">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
+                    <i data-lucide="zap" class="w-5 h-5 text-amber-500"></i>
+                </div>
+                <h3 id="kpiMelhorTempo" class="text-3xl font-bold text-amber-600">--:--</h3>
+                <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando...</p>
             </div>   
         
             <div class="glass-card p-6 rounded-2xl metric-card">
