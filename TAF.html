@@ -1057,7 +1057,7 @@ input:focus-visible {
                 this.clearSelection();
                 this.updateUI();
                 if (contextFilter) {
-                    document.getElementById('visualSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.getElementById('tabelaRegisto').scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             },
 
@@ -1674,7 +1674,7 @@ input:focus-visible {
 
         focus(dataId, event) { 
             if (event) event.stopPropagation(); 
-            selectedDataId = (selectedDataId === dataId) ? null : dataId; 
+            selectedDataId = dataId; // Remove o toggle, sempre define
             if (selectedDataId) {
                 document.getElementById('visualSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
@@ -1751,6 +1751,15 @@ input:focus-visible {
         window.onresize = () => ChartModule.draw();
         lucide.createIcons();
         };
+        document.addEventListener('click', function(e) {
+            // Verifica se o clique não foi na tabela, no gráfico ou em seus elementos
+            if (!e.target.closest('#chartHistory') && 
+                !e.target.closest('table') && 
+                selectedDataId !== null) {
+                selectedDataId = null;
+                DataLoader.updateUI();
+            }
+        });
         const PAGE_ID = document.body.dataset.pageId;
         function enviarAltura() {
         window.parent.postMessage({ id: PAGE_ID, altura: document.documentElement.scrollHeight }, window.location.origin);
