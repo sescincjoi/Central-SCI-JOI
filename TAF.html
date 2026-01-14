@@ -581,7 +581,7 @@ input:focus-visible {
         <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mx-4 mb-10"></div>
 
         <!-- Cards de KPI -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mx-4 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-4 mb-8">
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
@@ -640,15 +640,6 @@ input:focus-visible {
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     <span class="text-xs text-slate-500">Meta: ≥ 8.0</span>
                 </div>
-            </div>
-        
-            <div class="glass-card p-6 rounded-2xl metric-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-slate-500">Próximos Vencimentos</p>
-                    <i data-lucide="calendar-clock" class="w-5 h-5 text-orange-500"></i>
-                </div>
-                <h3 id="kpiVencimentos" class="text-3xl font-bold text-slate-800">--</h3>
-                <p class="text-xs text-slate-400 mt-2 italic font-medium">Testes vencendo em 30 dias</p>
             </div>
         </div>
 
@@ -1124,6 +1115,7 @@ input:focus-visible {
                 const status = document.getElementById('filterStatus').value;
                 const hoje = new Date();
                 
+                // Primeiro aplica filtros gerais
                 filteredData = rawData.filter(d => {
                     const matchEq = eq === 'Todas' || d.equipe === eq;
                     const matchBm = bm === 'Todos' || d.nome === bm;
@@ -1133,14 +1125,8 @@ input:focus-visible {
                     if (idade === 'ate40') matchIdade = d.idade <= 40;
                     if (idade === 'acima40') matchIdade = d.idade > 40;
             
-                    let matchStatus = true;
-                    if (status === 'Aprovados') matchStatus = d.notaCalculada >= 7;
-                    if (status === 'Reprovados') matchStatus = d.notaCalculada < 7;
-                    if (status === 'Excelencia') matchStatus = d.notaCalculada === 10;
-                    if (status === 'Limitrofe') matchStatus = d.notaCalculada === 7;
-            
                     let matchPeriodo = true;
-                    if (d.dateObject && periodo !== 'ultimo_teste') {
+                    if (d.dateObject && periodo !== 'todos' && periodo !== 'ultimo_teste') {
                         if (periodo === 'ano') {
                             const date = new Date(); date.setFullYear(hoje.getFullYear() - 1); matchPeriodo = d.dateObject >= date;
                         } else if (periodo === 'semestre') {
@@ -1149,7 +1135,8 @@ input:focus-visible {
                             const date = new Date(); date.setMonth(hoje.getMonth() - 3); matchPeriodo = d.dateObject >= date;
                         }
                     }
-                    return matchEq && matchBm && matchFn && matchIdade && matchStatus && matchPeriodo;
+                    
+                    return matchEq && matchBm && matchFn && matchIdade && matchPeriodo;
                 });
             
                 // Se filtro "Último Teste" estiver ativo, pegar apenas o teste mais recente de cada BA
@@ -1161,6 +1148,14 @@ input:focus-visible {
                         }
                     });
                     filteredData = Object.values(latestTestsByBA);
+                }
+            
+                // Aplica filtro de status DEPOIS de ter os dados filtrados
+                if (status !== 'Todos') {
+                    if (status === 'Aprovados') filteredData = filteredData.filter(d => d.notaCalculada >= 7);
+                    if (status === 'Reprovados') filteredData = filteredData.filter(d => d.notaCalculada < 7);
+                    if (status === 'Excelencia') filteredData = filteredData.filter(d => d.notaCalculada === 10);
+                    if (status === 'Limitrofe') filteredData = filteredData.filter(d => d.notaCalculada === 7);
                 }
             
                 // Verificar se é análise individual
@@ -1201,6 +1196,14 @@ input:focus-visible {
                     tableData = tableData.filter(d => d.notaCalculada === 7);
                     statusLabel.innerText = "Filtro Ativo: Limítrofe (último teste)";
                     statusLabel.classList.remove('hidden');
+                } else if (contextFilter === 'vencendo') {
+                    tableData = tableData.filter(d => {
+                        if (!d.dateObject) return false;
+                        const diffDays = Math.floor((hoje - d.dateObject) / (1000 * 60 * 60 * 24));
+                        return diffDays >= 60 && diffDays <= 90;
+                    });
+                    statusLabel.innerText = "Filtro Ativo: Próximos Vencimentos (último teste)";
+                    statusLabel.classList.remove('hidden');
                 } else if (contextFilter === 'vencidos') {
                     tableData = tableData.filter(d => {
                         if (!d.dateObject) return false;
@@ -1220,7 +1223,7 @@ input:focus-visible {
                 this.renderTable(tableData);
                 ChartModule.draw();
                 lucide.createIcons();
-            },
+            }
 
             renderKPIs() {
                 if (filteredData.length === 0) {
@@ -1270,15 +1273,6 @@ input:focus-visible {
                 // Média de Nota
                 const mediaNota = filteredData.reduce((acc, curr) => acc + curr.notaCalculada, 0) / filteredData.length;
                 document.getElementById('kpiMediaNota').innerText = mediaNota.toFixed(1);
-            
-                // Próximos Vencimentos
-                const hoje = new Date();
-                const vencendo = filteredData.filter(d => {
-                    if (!d.dateObject) return false;
-                    const diffDays = Math.floor((hoje - d.dateObject) / (1000 * 60 * 60 * 24));
-                    return diffDays >= 60 && diffDays <= 90;
-                }).length;
-                document.getElementById('kpiVencimentos').innerText = vencendo;
             },
 
             renderTable(data, search = "") {
@@ -1375,6 +1369,22 @@ input:focus-visible {
                         text: `${limitrofe.length} bombeiro(s) com nota mínima (7) - Atenção!`, 
                         color: 'amber', 
                         active: contextFilter === 'limitrofe' 
+                    });
+                }
+
+                 // NOVO ALERTA: Próximos Vencimentos (60-90 dias)
+                const vencendo = latestTests.filter(d => {
+                    if (!d.dateObject) return false;
+                    const diffDays = Math.floor((hoje - d.dateObject) / (1000 * 60 * 60 * 24));
+                    return diffDays >= 60 && diffDays <= 90;
+                });
+                if (vencendo.length > 0) {
+                    alerts.push({ 
+                        id: 'vencendo', 
+                        title: 'Próximos Vencimentos', 
+                        text: `${vencendo.length} bombeiro(s) com teste vencendo em breve (60-90 dias).`, 
+                        color: 'orange', 
+                        active: contextFilter === 'vencendo' 
                     });
                 }
 
