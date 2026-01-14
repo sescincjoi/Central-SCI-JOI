@@ -596,30 +596,21 @@ input:focus-visible {
                     <p class="text-sm font-medium text-slate-500">Melhor Desempenho</p>
                     <i data-lucide="trophy" class="w-5 h-5 text-emerald-500"></i>
                 </div>
-                <div id="kpiPodium" class="space-y-1 mt-2">
+                <div id="kpiPodium" class="space-y-2 mt-2">
                     <div class="flex items-center gap-2">
                         <span class="text-lg">🥇</span>
-                        <div class="flex-1">
-                            <p id="podium1" class="text-xs font-bold text-slate-700 truncate">--</p>
-                            <p id="podium1Perf" class="text-xs text-emerald-600 font-bold">--%</p>
-                        </div>
+                        <p id="podium1" class="text-xs font-bold text-slate-700 truncate flex-1">--</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-sm">🥈</span>
-                        <div class="flex-1">
-                            <p id="podium2" class="text-xs font-medium text-slate-600 truncate">--</p>
-                            <p id="podium2Perf" class="text-xs text-slate-500 font-bold">--%</p>
-                        </div>
+                        <p id="podium2" class="text-xs font-medium text-slate-600 truncate flex-1">--</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="text-sm">🥉</span>
-                        <div class="flex-1">
-                            <p id="podium3" class="text-xs font-medium text-slate-600 truncate">--</p>
-                            <p id="podium3Perf" class="text-xs text-slate-500 font-bold">--%</p>
-                        </div>
+                        <p id="podium3" class="text-xs font-medium text-slate-600 truncate flex-1">--</p>
                     </div>
                 </div>
-            </div>
+            </div>    
         
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
@@ -1251,17 +1242,26 @@ input:focus-visible {
                 // Top 3 Melhor Desempenho (percentual comparativo)
                 const sortedByPerf = [...filteredData].sort((a, b) => b.desempenhoPercentual - a.desempenhoPercentual);
                 
+                // Função auxiliar para pegar apenas os 2 primeiros nomes
+                const getDoisPrimeirosNomes = (nomeCompleto) => {
+                    const partes = nomeCompleto.trim().split(' ');
+                    return partes.slice(0, 2).join(' ');
+                };
+                
                 if (sortedByPerf.length >= 1) {
-                    document.getElementById('podium1').innerText = `${sortedByPerf[0].nome} (${sortedByPerf[0].idade}a)`;
-                    document.getElementById('podium1Perf').innerText = `${sortedByPerf[0].desempenhoPercentual.toFixed(1)}%`;
+                    const nome1 = getDoisPrimeirosNomes(sortedByPerf[0].nome);
+                    document.getElementById('podium1').innerText = `${sortedByPerf[0].desempenhoPercentual.toFixed(1)}% - ${nome1} (${sortedByPerf[0].idade}a)`;
+                    document.getElementById('podium1Perf').innerText = ''; // Remove a linha de percentual separada
                 }
                 if (sortedByPerf.length >= 2) {
-                    document.getElementById('podium2').innerText = `${sortedByPerf[1].nome} (${sortedByPerf[1].idade}a)`;
-                    document.getElementById('podium2Perf').innerText = `${sortedByPerf[1].desempenhoPercentual.toFixed(1)}%`;
+                    const nome2 = getDoisPrimeirosNomes(sortedByPerf[1].nome);
+                    document.getElementById('podium2').innerText = `${sortedByPerf[1].desempenhoPercentual.toFixed(1)}% - ${nome2} (${sortedByPerf[1].idade}a)`;
+                    document.getElementById('podium2Perf').innerText = '';
                 }
                 if (sortedByPerf.length >= 3) {
-                    document.getElementById('podium3').innerText = `${sortedByPerf[2].nome} (${sortedByPerf[2].idade}a)`;
-                    document.getElementById('podium3Perf').innerText = `${sortedByPerf[2].desempenhoPercentual.toFixed(1)}%`;
+                    const nome3 = getDoisPrimeirosNomes(sortedByPerf[2].nome);
+                    document.getElementById('podium3').innerText = `${sortedByPerf[2].desempenhoPercentual.toFixed(1)}% - ${nome3} (${sortedByPerf[2].idade}a)`;
+                    document.getElementById('podium3Perf').innerText = '';
                 }
             
                 // Taxa de Aprovação
