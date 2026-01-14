@@ -1040,7 +1040,7 @@ input:focus-visible {
 
             calcularDesempenhoPercentual(tempoSegundos, idade) {
                 const tempoIdeal = idade <= 40 ? 120 : 180;
-                return Math.min((tempoIdeal / tempoSegundos) * 100, 100); // Max 100%
+                return (tempoIdeal / tempoSegundos) * 100; // SEM limite máximo
             },
 
             initFilters() {
