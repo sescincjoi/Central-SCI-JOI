@@ -581,16 +581,46 @@ input:focus-visible {
         <div id="filterSummary" class="flex flex-wrap justify-center gap-2 mx-4 mb-10"></div>
 
         <!-- Cards de KPI -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-4 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mx-4 mb-8">
+            <div class="glass-card p-6 rounded-2xl metric-card">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
+                    <i data-lucide="zap" class="w-5 h-5 text-amber-500"></i>
+                </div>
+                <h3 id="kpiMelhorTempo" class="text-3xl font-bold text-amber-600">--:--</h3>
+                <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando...</p>
+            </div>
+        
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-medium text-slate-500">Melhor Desempenho</p>
                     <i data-lucide="trophy" class="w-5 h-5 text-emerald-500"></i>
                 </div>
-                <h3 id="kpiMelhorTempo" class="text-3xl font-bold text-emerald-600">--:--</h3>
-                <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando...</p>
+                <div id="kpiPodium" class="space-y-1 mt-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">🥇</span>
+                        <div class="flex-1">
+                            <p id="podium1" class="text-xs font-bold text-slate-700 truncate">--</p>
+                            <p id="podium1Perf" class="text-xs text-emerald-600 font-bold">--%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm">🥈</span>
+                        <div class="flex-1">
+                            <p id="podium2" class="text-xs font-medium text-slate-600 truncate">--</p>
+                            <p id="podium2Perf" class="text-xs text-slate-500 font-bold">--%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm">🥉</span>
+                        <div class="flex-1">
+                            <p id="podium3" class="text-xs font-medium text-slate-600 truncate">--</p>
+                            <p id="podium3Perf" class="text-xs text-slate-500 font-bold">--%</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-
+        
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-medium text-slate-500">Taxa de Aprovação</p>
@@ -599,7 +629,7 @@ input:focus-visible {
                 <h3 id="kpiAprovacao" class="text-3xl font-bold text-blue-600">--%</h3>
                 <p id="kpiAprovacaoDetalhes" class="text-xs text-slate-400 mt-2 italic font-medium">De X aprovados</p>
             </div>
-
+        
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-medium text-slate-500">Média de Nota</p>
@@ -611,7 +641,7 @@ input:focus-visible {
                     <span class="text-xs text-slate-500">Meta: ≥ 8.0</span>
                 </div>
             </div>
-
+        
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-medium text-slate-500">Próximos Vencimentos</p>
@@ -955,6 +985,7 @@ input:focus-visible {
                             tempoTotalSeg: tempoTotalSeg,
                             notaPlanilha: cellNotaPlanilha,
                             notaCalculada: notaCalculada,
+                            desempenhoPercentual: this.calcularDesempenhoPercentual(tempoTotalSeg, cellIdade), // ADICIONE AQUI
                             observacoes: cellObservacoes
                         };
                     }).filter(d => d.nome && d.nome !== '' && d.tempoTotalSeg > 0);
@@ -1005,6 +1036,11 @@ input:focus-visible {
                     if (tempoSegundos <= 240) return 7;       // 3:40-4:00
                     return 0; // Reprovado
                 }
+            },
+
+            calcularDesempenhoPercentual(tempoSegundos, idade) {
+                const tempoIdeal = idade <= 40 ? 120 : 180;
+                return Math.min((tempoIdeal / tempoSegundos) * 100, 100); // Max 100%
             },
 
             initFilters() {
@@ -1190,30 +1226,52 @@ input:focus-visible {
                 if (filteredData.length === 0) {
                     document.getElementById('kpiMelhorTempo').innerText = "--:--";
                     document.getElementById('kpiMelhorNome').innerText = "Sem dados";
+                    document.getElementById('podium1').innerText = "--";
+                    document.getElementById('podium1Perf').innerText = "--%";
+                    document.getElementById('podium2').innerText = "--";
+                    document.getElementById('podium2Perf').innerText = "--%";
+                    document.getElementById('podium3').innerText = "--";
+                    document.getElementById('podium3Perf').innerText = "--%";
                     document.getElementById('kpiAprovacao').innerText = "--%";
                     document.getElementById('kpiAprovacaoDetalhes').innerText = "0 de 0";
                     document.getElementById('kpiMediaNota').innerText = "--";
                     document.getElementById('kpiVencimentos').innerText = "0";
                     return;
                 }
-
-                // Melhor Desempenho
-                const sorted = [...filteredData].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
-                const melhor = sorted[0];
+            
+                // Melhor Tempo (absoluto)
+                const sortedByTime = [...filteredData].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
+                const melhor = sortedByTime[0];
                 document.getElementById('kpiMelhorTempo').innerText = this.formatTime(melhor.tempoTotalSeg);
-                document.getElementById('kpiMelhorNome').innerText = `${melhor.nome} - Nota ${melhor.notaCalculada}`;
-
+                document.getElementById('kpiMelhorNome').innerText = `${melhor.nome} - ${melhor.idade} anos`;
+            
+                // Top 3 Melhor Desempenho (percentual comparativo)
+                const sortedByPerf = [...filteredData].sort((a, b) => b.desempenhoPercentual - a.desempenhoPercentual);
+                
+                if (sortedByPerf.length >= 1) {
+                    document.getElementById('podium1').innerText = `${sortedByPerf[0].nome} (${sortedByPerf[0].idade}a)`;
+                    document.getElementById('podium1Perf').innerText = `${sortedByPerf[0].desempenhoPercentual.toFixed(1)}%`;
+                }
+                if (sortedByPerf.length >= 2) {
+                    document.getElementById('podium2').innerText = `${sortedByPerf[1].nome} (${sortedByPerf[1].idade}a)`;
+                    document.getElementById('podium2Perf').innerText = `${sortedByPerf[1].desempenhoPercentual.toFixed(1)}%`;
+                }
+                if (sortedByPerf.length >= 3) {
+                    document.getElementById('podium3').innerText = `${sortedByPerf[2].nome} (${sortedByPerf[2].idade}a)`;
+                    document.getElementById('podium3Perf').innerText = `${sortedByPerf[2].desempenhoPercentual.toFixed(1)}%`;
+                }
+            
                 // Taxa de Aprovação
                 const aprovados = filteredData.filter(d => d.notaCalculada >= 7).length;
                 const taxaAprovacao = ((aprovados / filteredData.length) * 100).toFixed(1);
                 document.getElementById('kpiAprovacao').innerText = `${taxaAprovacao}%`;
                 document.getElementById('kpiAprovacaoDetalhes').innerText = `${aprovados} de ${filteredData.length} aprovados`;
-
+            
                 // Média de Nota
                 const mediaNota = filteredData.reduce((acc, curr) => acc + curr.notaCalculada, 0) / filteredData.length;
                 document.getElementById('kpiMediaNota').innerText = mediaNota.toFixed(1);
-
-                // Próximos Vencimentos (testes com mais de 60 dias)
+            
+                // Próximos Vencimentos
                 const hoje = new Date();
                 const vencendo = filteredData.filter(d => {
                     if (!d.dateObject) return false;
@@ -1221,7 +1279,7 @@ input:focus-visible {
                     return diffDays >= 60 && diffDays <= 90;
                 }).length;
                 document.getElementById('kpiVencimentos').innerText = vencendo;
-            },
+            }
 
             renderTable(data, search = "") {
                 const body = document.getElementById('dataTableBody');
