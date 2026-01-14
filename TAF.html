@@ -1134,7 +1134,8 @@ input:focus-visible {
                 if (periodo === 'ultimo_teste') {
                     const latestTestsByBA = {};
                     filteredData.forEach(d => {
-                        if (!latestTestsByBA[d.nome] || d.dateObject > latestTestsByBA[d.nome].dateObject) {
+                        // Verifica se não existe registro OU se a data atual é MAIOR (mais recente)
+                        if (!latestTestsByBA[d.nome] || !d.dateObject || !latestTestsByBA[d.nome].dateObject || d.dateObject > latestTestsByBA[d.nome].dateObject) {
                             latestTestsByBA[d.nome] = d;
                         }
                     });
