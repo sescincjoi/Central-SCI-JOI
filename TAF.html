@@ -763,10 +763,11 @@ input:focus-visible {
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Filtrar por Período</label>
                     <select id="filterPeriodo" class="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="ultimo_teste" selected>Último Teste</option>
                         <option value="todos">Todo o Período</option>
                         <option value="ano">Último Ano</option>
                         <option value="semestre">Último Semestre</option>
-                        <option value="trimestre" selected>Último Trimestre</option>
+                        <option value="trimestre">Último Trimestre</option>
                     </select>
                 </div>
 
@@ -1044,7 +1045,7 @@ input:focus-visible {
                 document.getElementById('filterEquipe').value = 'Todas';
                 document.getElementById('filterBombeiro').value = 'Todos';
                 document.getElementById('filterFuncao').value = 'Todas';
-                document.getElementById('filterPeriodo').value = 'trimestre';
+                document.getElementById('filterPeriodo').value = 'ultimo_teste';  // Alterado aqui
                 document.getElementById('filterIdade').value = 'Todas';
                 document.getElementById('filterStatus').value = 'Todos';
                 contextFilter = null;
@@ -1087,15 +1088,15 @@ input:focus-visible {
                     let matchIdade = true;
                     if (idade === 'ate40') matchIdade = d.idade <= 40;
                     if (idade === 'acima40') matchIdade = d.idade > 40;
-
+            
                     let matchStatus = true;
                     if (status === 'Aprovados') matchStatus = d.notaCalculada >= 7;
                     if (status === 'Reprovados') matchStatus = d.notaCalculada < 7;
                     if (status === 'Excelencia') matchStatus = d.notaCalculada === 10;
                     if (status === 'Limitrofe') matchStatus = d.notaCalculada === 7;
-
+            
                     let matchPeriodo = true;
-                    if (d.dateObject) {
+                    if (d.dateObject && periodo !== 'ultimo_teste') {
                         if (periodo === 'ano') {
                             const date = new Date(); date.setFullYear(hoje.getFullYear() - 1); matchPeriodo = d.dateObject >= date;
                         } else if (periodo === 'semestre') {
@@ -1106,7 +1107,18 @@ input:focus-visible {
                     }
                     return matchEq && matchBm && matchFn && matchIdade && matchStatus && matchPeriodo;
                 });
-
+            
+                // Se filtro "Último Teste" estiver ativo, pegar apenas o teste mais recente de cada BA
+                if (periodo === 'ultimo_teste') {
+                    const latestTestsByBA = {};
+                    filteredData.forEach(d => {
+                        if (!latestTestsByBA[d.nome] || d.dateObject > latestTestsByBA[d.nome].dateObject) {
+                            latestTestsByBA[d.nome] = d;
+                        }
+                    });
+                    filteredData = Object.values(latestTestsByBA);
+                }
+            
                 // Verificar se é análise individual
                 const isIndividual = bm !== 'Todos';
                 if (isIndividual && filteredData.length > 0) {
@@ -1117,14 +1129,14 @@ input:focus-visible {
                     UIController.hideIndividualBadge();
                     this.hideIndividualAnalysis();
                 }
-
+            
                 UIController.renderSummaryLabels();
                 this.renderKPIs();
                 this.renderAlerts();
                 
                 let tableData = [...filteredData];
                 const statusLabel = document.getElementById('filterStatusLabel');
-
+            
                 // Se houver filtro de contexto ativo, mostrar apenas último teste de cada bombeiro
                 if (contextFilter) {
                     // Obter apenas o último teste de cada bombeiro para a tabela
@@ -1136,7 +1148,7 @@ input:focus-visible {
                     });
                     tableData = Object.values(latestTestsByBA);
                 }
-
+            
                 if (contextFilter === 'reprovados') {
                     tableData = tableData.filter(d => d.notaCalculada < 7);
                     statusLabel.innerText = "Filtro Ativo: Reprovados (último teste)";
@@ -1160,11 +1172,11 @@ input:focus-visible {
                 } else {
                     statusLabel.classList.add('hidden');
                 }
-
+            
                 this.renderTable(tableData);
                 ChartModule.draw();
                 lucide.createIcons();
-            },
+            }
 
             renderKPIs() {
                 if (filteredData.length === 0) {
