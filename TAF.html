@@ -1134,16 +1134,8 @@ input:focus-visible {
                 if (periodo === 'ultimo_teste') {
                     const latestTestsByBA = {};
                     filteredData.forEach(d => {
-                        // Só considera registros com data válida
-                        if (d.dateObject) {
-                            if (!latestTestsByBA[d.nome]) {
-                                latestTestsByBA[d.nome] = d;
-                            } else {
-                                // Compara as datas - pega a mais recente (maior)
-                                if (d.dateObject > latestTestsByBA[d.nome].dateObject) {
-                                    latestTestsByBA[d.nome] = d;
-                                }
-                            }
+                        if (!latestTestsByBA[d.nome] || d.dateObject > latestTestsByBA[d.nome].dateObject) {
+                            latestTestsByBA[d.nome] = d;
                         }
                     });
                     filteredData = Object.values(latestTestsByBA);
