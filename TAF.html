@@ -610,7 +610,7 @@ input:focus-visible {
                         <p id="podium3" class="text-xs font-medium text-slate-600 truncate flex-1">--</p>
                     </div>
                 </div>
-            </div>    
+            </div>   
         
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
@@ -1248,20 +1248,23 @@ input:focus-visible {
                     return partes.slice(0, 2).join(' ');
                 };
                 
+                // Limpa todos primeiro
+                document.getElementById('podium1').innerText = '--';
+                document.getElementById('podium2').innerText = '--';
+                document.getElementById('podium3').innerText = '--';
+                
+                // Preenche conforme disponibilidade
                 if (sortedByPerf.length >= 1) {
                     const nome1 = getDoisPrimeirosNomes(sortedByPerf[0].nome);
                     document.getElementById('podium1').innerText = `${sortedByPerf[0].desempenhoPercentual.toFixed(1)}% - ${nome1} (${sortedByPerf[0].idade}a)`;
-                    document.getElementById('podium1Perf').innerText = ''; // Remove a linha de percentual separada
                 }
                 if (sortedByPerf.length >= 2) {
                     const nome2 = getDoisPrimeirosNomes(sortedByPerf[1].nome);
                     document.getElementById('podium2').innerText = `${sortedByPerf[1].desempenhoPercentual.toFixed(1)}% - ${nome2} (${sortedByPerf[1].idade}a)`;
-                    document.getElementById('podium2Perf').innerText = '';
                 }
                 if (sortedByPerf.length >= 3) {
                     const nome3 = getDoisPrimeirosNomes(sortedByPerf[2].nome);
                     document.getElementById('podium3').innerText = `${sortedByPerf[2].desempenhoPercentual.toFixed(1)}% - ${nome3} (${sortedByPerf[2].idade}a)`;
-                    document.getElementById('podium3Perf').innerText = '';
                 }
             
                 // Taxa de Aprovação
