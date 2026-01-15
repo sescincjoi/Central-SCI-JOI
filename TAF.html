@@ -1668,6 +1668,7 @@ input:focus-visible {
             data.addColumn('number', 'Excelência');
             data.addColumn('number', 'Bom');
             data.addColumn('number', 'Limite');
+            data.addColumn('number', 'Média Geral');
             data.addColumn('number', 'Nota');
             data.addColumn({type: 'string', role: 'tooltip', p: {html: true}});
             data.addColumn({type: 'string', role: 'style'});
@@ -1677,6 +1678,8 @@ input:focus-visible {
             if (this.currentSortedData.length > 0) {
                 rangeLabel.innerText = `${this.currentSortedData[0].data} ➔ ${this.currentSortedData[this.currentSortedData.length-1].data}`;
             }
+            // Calcula a média geral do período filtrado
+            const mediaGeralPeriodo = this.currentSortedData.reduce((acc, d) => acc + d.notaCalculada, 0) / this.currentSortedData.length;
 
             this.currentSortedData.forEach(d => {
                 const tooltipHtml = `<div class="p-3 shadow-xl rounded-xl border border-slate-100 bg-white min-w-[180px]">
@@ -1709,7 +1712,8 @@ input:focus-visible {
                     d.data, 
                     10, 
                     8, 
-                    7, 
+                    7,
+                    mediaGeralPeriodo,
                     d.notaCalculada, 
                     tooltipHtml, 
                     pointStyle
@@ -1719,7 +1723,7 @@ input:focus-visible {
             const options = {
                 curveType: 'function', 
                 legend: 'none', 
-                colors: ['#10b981', '#f59e0b', '#ef4444', '#3b82f6'], 
+                colors: ['#10b981', '#f59e0b', '#ef4444', '#94a3b8', '#3b82f6'],
                 chartArea: { width: '95%', height: '90%', top: 10, left: 40, right: 10, bottom: 30 },
                 tooltip: { isHtml: true, trigger: 'both' },
                 vAxis: { 
@@ -1736,8 +1740,9 @@ input:focus-visible {
                 series: { 
                     0: { lineDashStyle: [6, 6], lineWidth: 1.2, opacity: 0.5, visibleInLegend: false }, 
                     1: { lineDashStyle: [6, 6], lineWidth: 1.2, opacity: 0.5, visibleInLegend: false }, 
-                    2: { lineDashStyle: [6, 6], lineWidth: 1.2, opacity: 0.5, visibleInLegend: false }, 
-                    3: { pointSize: 4, lineWidth: 2 } 
+                    2: { lineDashStyle: [6, 6], lineWidth: 1.2, opacity: 0.5, visibleInLegend: false },
+                    3: { lineDashStyle: [4, 4], lineWidth: 2, opacity: 0.6, visibleInLegend: false, pointSize: 0 },
+                    4: { pointSize: 4, lineWidth: 2 } 
                 },
                 animation: { duration: 500, easing: 'out' }
             };
