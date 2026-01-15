@@ -402,7 +402,7 @@
             </div>
 
             <!-- Card Vestimenta TP/EPR -->
-            <div class="glass-card rounded-3xl p-6 sistema-card fade-in cursor-pointer" onclick="abrirSistema('vestimenta')">
+            <div class="glass-card rounded-3xl p-6 sistema-card fade-in cursor-pointer flex flex-col" onclick="abrirSistema('vestimenta')">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-3 rounded-xl">
                         <i data-lucide="shield" class="w-6 h-6 text-white"></i>
@@ -413,7 +413,7 @@
                     </div>
                 </div>
                 
-                <div class="space-y-3 mb-4">
+                <div class="space-y-3 mb-4 flex-1">
                     <div class="flex justify-between items-center">
                         <span class="text-xs font-bold text-slate-400 uppercase">Melhor Tempo</span>
                         <span id="vestMelhorTempo" class="text-sm font-black text-emerald-600 truncate max-w-[140px]">--:--</span>
@@ -432,7 +432,7 @@
                     </div>
                 </div>
                 
-                <button class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3 rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <button class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3 rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2 mt-auto">
                     <span>Abrir Sistema</span>
                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
