@@ -475,10 +475,10 @@
         ];
         
         const REFERENCIA = {
-            data: new Date('2026-01-15T18:53:00'),
-            equipe: 'CHARLIE',
-            proximaEquipe: 'DELTA',
-            proximaHora: 17
+            data: new Date('2026-01-15T17:00:00'),  // ← DELTA entrou às 17:00 de hoje
+            equipe: 'DELTA',                         // ← Equipe atual
+            proximaEquipe: 'ALFA',                   // ← Próxima na sequência
+            proximaHora: 5                           // ← Próxima troca será às 05:00
         };
         
         function calcularEquipeAtual() {
