@@ -474,38 +474,53 @@
             { hora: 17, minuto: 0 }
         ];
         
-        const REFERENCIA = {
-            data: new Date('2026-01-15T17:00:00'),  // ← DELTA entrou às 17:00 de hoje
-            equipe: 'DELTA',                         // ← Equipe atual
-            proximaEquipe: 'ALFA',                   // ← Próxima na sequência
-            proximaHora: 5                           // ← Próxima troca será às 05:00
-        };
+        // Data de referência FIXA - nunca mude isso!
+        // 15/01/2026 às 17:00 - DELTA entrou de plantão
+        const DATA_REF_FIXA = new Date('2026-01-15T17:00:00');
+        const EQUIPE_REF_FIXA = 'DELTA';
         
         function calcularEquipeAtual() {
             const agora = new Date();
-            const diffMs = agora - REFERENCIA.data;
+            
+            // Calcula quantas horas passaram desde a referência fixa
+            const diffMs = agora - DATA_REF_FIXA;
             const diffHoras = diffMs / (1000 * 60 * 60);
+            
+            // Cada equipe fica 12 horas
             const horasPorTroca = 12;
-            let trocasDesdeRef = Math.floor(diffHoras / horasPorTroca);
-            const indiceRef = EQUIPES.indexOf(REFERENCIA.equipe);
+            
+            // Quantas trocas aconteceram desde a referência
+            const trocasDesdeRef = Math.floor(diffHoras / horasPorTroca);
+            
+            // Encontra o índice da equipe de referência
+            const indiceRef = EQUIPES.indexOf(EQUIPE_REF_FIXA);
+            
+            // Calcula o índice atual (circular)
             const indiceAtual = (indiceRef + trocasDesdeRef) % EQUIPES.length;
+            
             return EQUIPES[indiceAtual];
         }
         
         function calcularProximaTroca() {
             const agora = new Date();
             const hora = agora.getHours();
+            
+            // Cria data da próxima troca
             let proximaTroca = new Date(agora);
             
             if (hora < 5) {
+                // Se for antes das 05:00, próxima troca é às 05:00 de hoje
                 proximaTroca.setHours(5, 0, 0, 0);
             } else if (hora < 17) {
+                // Se for entre 05:00 e 17:00, próxima troca é às 17:00 de hoje
                 proximaTroca.setHours(17, 0, 0, 0);
             } else {
+                // Se for depois das 17:00, próxima troca é às 05:00 de amanhã
                 proximaTroca.setDate(proximaTroca.getDate() + 1);
                 proximaTroca.setHours(5, 0, 0, 0);
             }
             
+            // Calcula qual equipe entra na próxima troca
             const equipeAtual = calcularEquipeAtual();
             const indiceAtual = EQUIPES.indexOf(equipeAtual);
             const proximaEquipe = EQUIPES[(indiceAtual + 1) % EQUIPES.length];
@@ -523,7 +538,7 @@
             
             document.getElementById('equipeAtual').textContent = equipeAtual;
             document.getElementById('proximaEquipe').textContent = 
-                `Próxima: ${proximaTroca.equipe} às ${proximaTroca.horario}`;
+                `${proximaTroca.equipe} às ${proximaTroca.horario}`;
             
             atualizarContadorTroca(proximaTroca.data);
         }
@@ -533,6 +548,7 @@
             const diff = proximaTroca - agora;
             
             if (diff <= 0) {
+                // Se o tempo acabou, recalcula tudo
                 atualizarEquipePlantao();
                 return;
             }
