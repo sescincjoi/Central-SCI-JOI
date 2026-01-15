@@ -243,48 +243,48 @@
         <!-- Container Principal -->
 <div class="max-w-7xl mx-auto px-6 py-8">
 
-    <!-- Banner de Equipe de Plantão (Tarja Full Width) -->
-    <div class="glass-card rounded-2xl p-6 fade-in mb-8 relative overflow-hidden">
-        <!-- Efeito de fundo animado -->
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5 animate-pulse"></div>
+    <!-- Banner de Equipe de Plantão (Tarja Slim) -->
+        <div class="glass-card rounded-2xl p-4 fade-in mb-8 relative overflow-hidden">
+            <!-- Efeito de fundo animado -->
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 via-purple-600/5 to-blue-600/5 animate-pulse"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                <!-- Lado Esquerdo: Info da Equipe -->
+                <div class="flex items-center gap-4">
+                    <div class="bg-gradient-to-br from-blue-100 to-purple-100 p-3 rounded-xl">
+                        <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Equipe de Plantão</h2>
+                            <div class="status-badge w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        </div>
+                        <div id="equipeAtual" class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                            CHARLIE
+                        </div>
+                    </div>
+                </div>
         
-        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <!-- Lado Esquerdo: Info da Equipe -->
-            <div class="flex items-center gap-6">
-                <div class="bg-gradient-to-br from-blue-100 to-purple-100 p-4 rounded-2xl">
-                    <i data-lucide="users" class="w-8 h-8 text-blue-600"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-3 mb-1">
-                        <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest">Equipe de Plantão</h2>
-                        <div class="status-badge w-2.5 h-2.5 bg-emerald-500 rounded-full"></div>
-                    </div>
-                    <div id="equipeAtual" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                        CHARLIE
+                <!-- Centro: Contador -->
+                <div class="flex flex-col items-center text-center px-6 py-2 bg-white/50 rounded-xl border border-slate-200">
+                    <p class="text-[10px] text-slate-500 font-bold mb-1 uppercase tracking-wider">Troca em</p>
+                    <div id="proximaTroca" class="text-2xl font-black text-slate-800 tabular-nums">
+                        --:--:--
                     </div>
                 </div>
-            </div>
-
-            <!-- Centro: Contador -->
-            <div class="flex flex-col items-center text-center px-8 py-4 bg-white/50 rounded-xl border border-slate-200">
-                <p class="text-xs text-slate-500 font-bold mb-2 uppercase tracking-wider">Troca de equipe em</p>
-                <div id="proximaTroca" class="text-4xl font-black text-slate-800 tabular-nums">
-                    --:--:--
-                </div>
-            </div>
-
-            <!-- Lado Direito: Próxima Equipe -->
-            <div class="flex items-center gap-4 px-6 py-4 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-blue-100">
-                <i data-lucide="arrow-right-circle" class="w-6 h-6 text-blue-600"></i>
-                <div>
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-wider">Próxima</p>
-                    <p id="proximaEquipe" class="text-lg font-black text-blue-700">
-                        DELTA às 17:00
-                    </p>
+        
+                <!-- Lado Direito: Próxima Equipe -->
+                <div class="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border border-blue-100">
+                    <i data-lucide="arrow-right-circle" class="w-5 h-5 text-blue-600"></i>
+                    <div>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Próxima</p>
+                        <p id="proximaEquipe" class="text-sm font-black text-blue-700">
+                            DELTA às 17:00
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <!-- Primeira Linha: PTR-BA Hoje (agora sozinho) -->
     <div class="grid grid-cols-1 gap-6 mb-8">
