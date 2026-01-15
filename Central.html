@@ -401,22 +401,41 @@
                 </button>
             </div>
 
-            <!-- Card Sistema 3 -->
-            <div class="glass-card rounded-3xl p-6 sistema-card fade-in cursor-pointer opacity-50">
+            <!-- Card Vestimenta TP/EPR -->
+            <div class="glass-card rounded-3xl p-6 sistema-card fade-in cursor-pointer" onclick="abrirSistema('vestimenta')">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-3 rounded-xl">
-                        <i data-lucide="bar-chart" class="w-6 h-6 text-white"></i>
+                        <i data-lucide="shield" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
-                        <h3 class="font-black text-slate-800 text-lg">Sistema 3</h3>
-                        <p class="text-xs text-slate-500 font-semibold">Em desenvolvimento</p>
+                        <h3 class="font-black text-slate-800 text-lg">Vestimenta TP/EPR</h3>
+                        <p class="text-xs text-slate-500 font-semibold">Prontidão Operacional</p>
                     </div>
                 </div>
                 
-                <div class="py-8 text-center">
-                    <i data-lucide="clock" class="w-12 h-12 text-slate-300 mx-auto mb-2"></i>
-                    <p class="text-xs text-slate-400 font-semibold">Em breve</p>
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Melhor Tempo</span>
+                        <span id="vestMelhorTempo" class="text-sm font-black text-emerald-600 truncate max-w-[140px]">--:--</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Média Geral</span>
+                        <span id="vestMediaGeral" class="text-lg font-black text-blue-600">--:--</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Total</span>
+                        <span id="vestTotalExercicios" class="text-lg font-black text-slate-700">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Alertas</span>
+                        <span id="vestAlertas" class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full">0</span>
+                    </div>
                 </div>
+                
+                <button class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white py-3 rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span>Abrir Sistema</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
             </div>
 
         </div>
@@ -434,11 +453,16 @@
         // Sistema 2 - Tempo Resposta
         const TR_SPREADSHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
         const TR_JSON_URL = `https://docs.google.com/spreadsheets/d/${TR_SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+
+        // Sistema 3 - Vestimenta TP/EPR
+        const VEST_SPREADSHEET_ID = '1SIM3VeI1tFSyI0PA07O6QsYzDTt3nJmfEFJm9807mto';
+        const VEST_JSON_URL = `https://docs.google.com/spreadsheets/d/${VEST_SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
         
         // Variáveis globais
         let dadosTAF = [];
         let dadosPTR = [];
         let dadosTR = [];
+        let dadosVEST = [];
         
         // ============================================
         // SISTEMA DE EQUIPES DE PLANTÃO
@@ -906,6 +930,139 @@
                 sistema: el.dataset.sistema || 'TAF'
             })).concat(alertas));
         }
+
+        // ============================================
+        // CARREGAR DADOS VESTIMENTA TP/EPR (Sistema 3)
+        // ============================================
+        
+        async function carregarDadosVEST() {
+            try {
+                const response = await fetch(VEST_JSON_URL);
+                const text = await response.text();
+                const json = JSON.parse(text.substring(47).slice(0, -2));
+                const rows = json.table.rows;
+                
+                dadosVEST = rows.slice(1).map((row) => {
+                    const rawDate = row.c[1] ? (row.c[1].f || row.c[1].v) : null;
+                    const rawEquipe = row.c[2] ? row.c[2].v : null;
+                    const rawNome = row.c[3] ? row.c[3].v : null;
+                    const rawTempo = row.c[4] ? (row.c[4].f || row.c[4].v) : null;
+                    
+                    return {
+                        dataStr: rawDate,
+                        dataObj: parseDateTR(rawDate),
+                        equipe: rawEquipe,
+                        nome: rawNome,
+                        tempoSegundos: parseDurationTR(row.c[4])
+                    };
+                }).filter(d => 
+                    d.nome !== null && 
+                    d.nome !== 'Nome' &&
+                    d.nome !== '' &&
+                    d.dataObj !== null && 
+                    d.tempoSegundos > 0
+                );
+                
+                processarDadosVEST();
+            } catch (error) {
+                console.error("Erro ao carregar Vestimenta TP/EPR:", error);
+            }
+        }
+        
+        function processarDadosVEST() {
+            if (dadosVEST.length === 0) {
+                document.getElementById('vestMelhorTempo').textContent = '--:--';
+                document.getElementById('vestMediaGeral').textContent = '--:--';
+                document.getElementById('vestTotalExercicios').textContent = '0';
+                document.getElementById('vestAlertas').textContent = '0';
+                return;
+            }
+        
+            // Calcular estatísticas
+            const bombeiros = [...new Set(dadosVEST.map(d => d.nome))];
+            
+            let melhorTempo = Infinity;
+            let melhorBA = '--';
+            let somaMedias = 0;
+            
+            bombeiros.forEach(ba => {
+                const items = dadosVEST.filter(f => f.nome === ba);
+                const media = items.reduce((s, x) => s + x.tempoSegundos, 0) / items.length;
+                somaMedias += media;
+                
+                if (media < melhorTempo) {
+                    melhorTempo = media;
+                    melhorBA = ba;
+                }
+            });
+            
+            const mediaGeral = somaMedias / bombeiros.length;
+            
+            // Atualizar UI
+            document.getElementById('vestMelhorTempo').textContent = 
+                `${melhorBA} (${formatTimeTR(melhorTempo)})`;
+            document.getElementById('vestMediaGeral').textContent = formatTimeTR(mediaGeral);
+            document.getElementById('vestTotalExercicios').textContent = dadosVEST.length;
+            
+            // Gerar alertas
+            gerarAlertasVEST(dadosVEST, mediaGeral);
+        }
+        
+        function gerarAlertasVEST(dados, mediaGeral) {
+            const alertas = [];
+            const OBJETIVO_VEST = 60; // 1 minuto
+            
+            // Alerta: Tempos acima da média
+            const acimaDaMedia = dados.filter(d => d.tempoSegundos > mediaGeral);
+            if (acimaDaMedia.length > 0) {
+                alertas.push({
+                    sistema: 'Vestimenta TP/EPR',
+                    tipo: 'acima_media',
+                    prioridade: 'media',
+                    icone: 'clock',
+                    cor: 'amber',
+                    titulo: 'Tempos Acima da Média',
+                    mensagem: `${acimaDaMedia.length} exercício(s) acima da média geral`,
+                    quantidade: acimaDaMedia.length
+                });
+            }
+            
+            // Alerta: Tempos críticos (>1:30min)
+            const criticos = dados.filter(d => d.tempoSegundos > 90);
+            if (criticos.length > 0) {
+                alertas.push({
+                    sistema: 'Vestimenta TP/EPR',
+                    tipo: 'criticos',
+                    prioridade: 'alta',
+                    icone: 'alert-circle',
+                    cor: 'red',
+                    titulo: 'Tempos Críticos',
+                    mensagem: `${criticos.length} exercício(s) acima de 1:30`,
+                    quantidade: criticos.length
+                });
+            }
+            
+            // Alerta: Média acima do objetivo
+            if (mediaGeral > OBJETIVO_VEST) {
+                alertas.push({
+                    sistema: 'Vestimenta TP/EPR',
+                    tipo: 'objetivo',
+                    prioridade: 'media',
+                    icone: 'target',
+                    cor: 'orange',
+                    titulo: 'Objetivo Operacional',
+                    mensagem: `Média geral (${formatTimeTR(mediaGeral)}) acima do objetivo (01:00)`,
+                    quantidade: 1
+                });
+            }
+            
+            const totalAlertas = alertas.length;
+            document.getElementById('vestAlertas').textContent = totalAlertas;
+            
+            // Consolidar alertas (adiciona aos existentes)
+            const alertasExistentes = [];
+            renderizarAlertas([...alertasExistentes].concat(alertas));
+        }
         
         // ============================================
         // RENDERIZAR ALERTAS CONSOLIDADOS
@@ -956,6 +1113,8 @@
                 window.location.href = 'taf.html';
             } else if (sistema === 'tempo-resposta') {
                 window.location.href = 'tempo-resposta.html';
+            } else if (sistema === 'vestimenta') {
+                window.location.href = 'vestimenta.html';
             }
         }
         
@@ -972,11 +1131,13 @@
             
             carregarDadosTAF();
             carregarPTR();
-            carregarDadosTR(); // ← NOVO
+            carregarDadosTR();
+            carregarDadosVEST(); // ← NOVO
             
             setInterval(carregarDadosTAF, 5 * 60 * 1000);
             setInterval(carregarPTR, 5 * 60 * 1000);
-            setInterval(carregarDadosTR, 5 * 60 * 1000); // ← NOVO
+            setInterval(carregarDadosTR, 5 * 60 * 1000);
+            setInterval(carregarDadosVEST, 5 * 60 * 1000); // ← NOVO
             
             lucide.createIcons();
         }
