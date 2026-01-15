@@ -994,25 +994,14 @@
                 return;
             }
         
-            // Calcular estatísticas
-            const bombeiros = [...new Set(dadosVEST.map(d => d.nome))];
+            // Calcular melhor tempo absoluto (mesmo critério da página do sistema)
+            const sorted = [...dadosVEST].sort((a, b) => a.tempoSegundos - b.tempoSegundos);
+            const melhorRegistro = sorted[0];
+            const melhorTempo = melhorRegistro.tempoSegundos;
+            const melhorBA = melhorRegistro.nome;
             
-            let melhorTempo = Infinity;
-            let melhorBA = '--';
-            let somaMedias = 0;
-            
-            bombeiros.forEach(ba => {
-                const items = dadosVEST.filter(f => f.nome === ba);
-                const media = items.reduce((s, x) => s + x.tempoSegundos, 0) / items.length;
-                somaMedias += media;
-                
-                if (media < melhorTempo) {
-                    melhorTempo = media;
-                    melhorBA = ba;
-                }
-            });
-            
-            const mediaGeral = somaMedias / bombeiros.length;
+            // Calcular média geral
+            const mediaGeral = dadosVEST.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / dadosVEST.length;
             
             // Atualizar UI
             document.getElementById('vestMelhorTempo').textContent = 
