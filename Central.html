@@ -318,22 +318,41 @@
                 </button>
             </div>
 
-            <!-- Card Sistema 2 -->
-            <div class="glass-card rounded-3xl p-6 sistema-card fade-in cursor-pointer opacity-50">
+            <!-- Card Tempo Resposta -->
+            <div class="glass-card rounded-3xl p-6 sistema-card fade-in cursor-pointer" onclick="abrirSistema('tempo-resposta')">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-xl">
-                        <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                        <i data-lucide="timer" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
-                        <h3 class="font-black text-slate-800 text-lg">Sistema 2</h3>
-                        <p class="text-xs text-slate-500 font-semibold">Em desenvolvimento</p>
+                        <h3 class="font-black text-slate-800 text-lg">Tempo Resposta</h3>
+                        <p class="text-xs text-slate-500 font-semibold">Exercício CCI</p>
                     </div>
                 </div>
                 
-                <div class="py-8 text-center">
-                    <i data-lucide="clock" class="w-12 h-12 text-slate-300 mx-auto mb-2"></i>
-                    <p class="text-xs text-slate-400 font-semibold">Em breve</p>
+                <div class="space-y-3 mb-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Melhor Tempo</span>
+                        <span id="trMelhorTempo" class="text-sm font-black text-emerald-600 truncate max-w-[140px]">--:--</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Média Geral</span>
+                        <span id="trMediaGeral" class="text-lg font-black text-blue-600">--:--</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Total</span>
+                        <span id="trTotalExercicios" class="text-lg font-black text-slate-700">0</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Alertas</span>
+                        <span id="trAlertas" class="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full">0</span>
+                    </div>
                 </div>
+                
+                <button class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-xl font-bold text-sm hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                    <span>Abrir Sistema</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </button>
             </div>
 
             <!-- Card Sistema 3 -->
@@ -362,83 +381,64 @@
         // URLs das fontes de dados
         const TAF_SPREADSHEET_ID = '1AQvblyoMbIjvoafUx92QQnBEj-DWERvDwwlMy7Q1xSo';
         const TAF_JSON_URL = `https://docs.google.com/spreadsheets/d/${TAF_SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
-
+        
         const PTR_SPREADSHEET_ID = '1_UJdUt466IFbupbkX1ucMcsOnfbLoPp7W_B0hfbdl6o';
         const PTR_JSON_URL = `https://docs.google.com/spreadsheets/d/${PTR_SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
-
+        
+        // Sistema 2 - Tempo Resposta
+        const TR_SPREADSHEET_ID = '1MB0Q-vQ_dv27LiB0Jfblj5g5bcpLEJAMG2mE59uQ5Rg';
+        const TR_JSON_URL = `https://docs.google.com/spreadsheets/d/${TR_SPREADSHEET_ID}/gviz/tq?tqx=out:json&gid=0`;
+        
         // Variáveis globais
         let dadosTAF = [];
         let dadosPTR = [];
-
+        let dadosTR = [];
+        
         // ============================================
         // SISTEMA DE EQUIPES DE PLANTÃO
         // ============================================
-
-        // Referência: Agora (15/01/2026 às 18:53) = CHARLIE
-        // Próxima troca: 17:00 = DELTA
+        
         const EQUIPES = ['ALFA', 'BRAVO', 'CHARLIE', 'DELTA'];
         const HORARIOS_TROCA = [
-            { hora: 5, minuto: 0 },   // 05:00
-            { hora: 17, minuto: 0 }   // 17:00
+            { hora: 5, minuto: 0 },
+            { hora: 17, minuto: 0 }
         ];
-
-        // Data/hora de referência fornecida pelo usuário
+        
         const REFERENCIA = {
-            data: new Date('2026-01-15T18:53:00'),  // 15/01/2026 às 18:53
-            equipe: 'CHARLIE',                       // Equipe atual neste momento
-            proximaEquipe: 'DELTA',                  // Próxima às 17:00
+            data: new Date('2026-01-15T18:53:00'),
+            equipe: 'CHARLIE',
+            proximaEquipe: 'DELTA',
             proximaHora: 17
         };
-
+        
         function calcularEquipeAtual() {
             const agora = new Date();
-            
-            // Calcular quantas trocas aconteceram desde a referência
             const diffMs = agora - REFERENCIA.data;
             const diffHoras = diffMs / (1000 * 60 * 60);
-            
-            // Cada ciclo completo = 12 horas (05:00 → 17:00 → 05:00)
-            const trocasPorDia = 2;
             const horasPorTroca = 12;
-            
-            // Quantas trocas completas desde a referência?
             let trocasDesdeRef = Math.floor(diffHoras / horasPorTroca);
-            
-            // Índice da equipe de referência
             const indiceRef = EQUIPES.indexOf(REFERENCIA.equipe);
-            
-            // Calcular índice atual (rotação circular)
             const indiceAtual = (indiceRef + trocasDesdeRef) % EQUIPES.length;
-            
             return EQUIPES[indiceAtual];
         }
-
+        
         function calcularProximaTroca() {
             const agora = new Date();
             const hora = agora.getHours();
-            const minuto = agora.getMinutes();
-            
             let proximaTroca = new Date(agora);
-            let proximaEquipe = '';
             
-            // Se for antes das 05:00, próxima troca é às 05:00 de hoje
             if (hora < 5) {
                 proximaTroca.setHours(5, 0, 0, 0);
-            }
-            // Se for entre 05:00 e 17:00, próxima troca é às 17:00 de hoje
-            else if (hora < 17) {
+            } else if (hora < 17) {
                 proximaTroca.setHours(17, 0, 0, 0);
-            }
-            // Se for depois das 17:00, próxima troca é às 05:00 de amanhã
-            else {
+            } else {
                 proximaTroca.setDate(proximaTroca.getDate() + 1);
                 proximaTroca.setHours(5, 0, 0, 0);
             }
             
-            // Calcular qual será a próxima equipe
             const equipeAtual = calcularEquipeAtual();
             const indiceAtual = EQUIPES.indexOf(equipeAtual);
-            proximaEquipe = EQUIPES[(indiceAtual + 1) % EQUIPES.length];
+            const proximaEquipe = EQUIPES[(indiceAtual + 1) % EQUIPES.length];
             
             return { 
                 data: proximaTroca, 
@@ -446,28 +446,23 @@
                 horario: proximaTroca.getHours() === 5 ? '05:00' : '17:00'
             };
         }
-
+        
         function atualizarEquipePlantao() {
             const equipeAtual = calcularEquipeAtual();
             const proximaTroca = calcularProximaTroca();
             
-            // Atualizar display da equipe atual
             document.getElementById('equipeAtual').textContent = equipeAtual;
-            
-            // Atualizar próxima equipe
             document.getElementById('proximaEquipe').textContent = 
                 `Próxima: ${proximaTroca.equipe} às ${proximaTroca.horario}`;
             
-            // Atualizar contador regressivo
             atualizarContadorTroca(proximaTroca.data);
         }
-
+        
         function atualizarContadorTroca(proximaTroca) {
             const agora = new Date();
             const diff = proximaTroca - agora;
             
             if (diff <= 0) {
-                // Se passou da hora, recalcular
                 atualizarEquipePlantao();
                 return;
             }
@@ -479,11 +474,11 @@
             document.getElementById('proximaTroca').textContent = 
                 `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
         }
-
+        
         // ============================================
         // RELÓGIO E DATA
         // ============================================
-
+        
         function atualizarRelogio() {
             const agora = new Date();
             
@@ -503,27 +498,27 @@
             document.getElementById('currentDate').textContent = data;
             document.getElementById('currentTime').textContent = hora;
         }
-
+        
         // ============================================
         // CARREGAR DADOS DO TAF
         // ============================================
-
+        
         async function carregarDadosTAF() {
             try {
                 const response = await fetch(TAF_JSON_URL);
                 const text = await response.text();
                 const json = JSON.parse(text.substring(47).slice(0, -2));
                 const rows = json.table.rows;
-
+        
                 dadosTAF = rows.slice(1).map((row) => {
                     const cellData = row.c[0]?.f || row.c[0]?.v || "";
                     const cellNome = row.c[1]?.v || "";
                     const cellTempoTotal = row.c[8]?.f || row.c[8]?.v || "00:00:00";
                     const cellIdade = row.c[4]?.v || 0;
-
+        
                     const tempoSeg = parseTimeToSeconds(cellTempoTotal);
                     const nota = calcularNota(tempoSeg, cellIdade);
-
+        
                     return {
                         data: cellData,
                         dateObject: parseDate(cellData),
@@ -533,19 +528,19 @@
                         nota: nota
                     };
                 }).filter(d => d.nome && d.nome !== '' && d.tempoSeg > 0);
-
+        
                 processarDadosTAF();
             } catch (error) {
                 console.error("Erro ao carregar TAF:", error);
             }
         }
-
+        
         function parseDate(dateStr) {
             if (!dateStr) return null;
             const parts = dateStr.split('/');
             return parts.length === 3 ? new Date(parts[2], parts[1] - 1, parts[0]) : null;
         }
-
+        
         function parseTimeToSeconds(val) {
             if (!val) return 0;
             const parts = val.toString().split(':').map(Number);
@@ -553,7 +548,7 @@
             if (parts.length === 2) return (parts[0] * 60) + parts[1];
             return 0;
         }
-
+        
         function calcularNota(tempoSegundos, idade) {
             if (idade <= 40) {
                 if (tempoSegundos <= 120) return 10;
@@ -569,9 +564,8 @@
                 return 0;
             }
         }
-
+        
         function processarDadosTAF() {
-            // Pegar apenas último teste de cada BA
             const ultimosTestes = {};
             dadosTAF.forEach(d => {
                 if (!ultimosTestes[d.nome] || d.dateObject > ultimosTestes[d.nome].dateObject) {
@@ -579,24 +573,21 @@
                 }
             });
             const dados = Object.values(ultimosTestes);
-
-            // Calcular KPIs
+        
             const aprovados = dados.filter(d => d.nota >= 7).length;
             const taxaAprovacao = ((aprovados / dados.length) * 100).toFixed(1);
             const mediaNota = (dados.reduce((acc, d) => acc + d.nota, 0) / dados.length).toFixed(1);
-
+        
             document.getElementById('tafAprovacao').textContent = `${taxaAprovacao}%`;
             document.getElementById('tafMedia').textContent = mediaNota;
-
-            // Gerar alertas
+        
             gerarAlertasTAF(dados);
         }
-
+        
         function gerarAlertasTAF(dados) {
             const alertas = [];
             const hoje = new Date();
-
-            // Reprovados
+        
             const reprovados = dados.filter(d => d.nota < 7);
             if (reprovados.length > 0) {
                 alertas.push({
@@ -610,8 +601,7 @@
                     quantidade: reprovados.length
                 });
             }
-
-            // Limítrofes
+        
             const limitrofe = dados.filter(d => d.nota === 7);
             if (limitrofe.length > 0) {
                 alertas.push({
@@ -625,8 +615,7 @@
                     quantidade: limitrofe.length
                 });
             }
-
-            // Vencidos
+        
             const vencidos = dados.filter(d => {
                 if (!d.dateObject) return false;
                 const diffDias = Math.floor((hoje - d.dateObject) / (1000 * 60 * 60 * 24));
@@ -644,156 +633,308 @@
                     quantidade: vencidos.length
                 });
             }
-
-            // Atualizar badge de alertas
+        
             const totalAlertas = alertas.length;
             document.getElementById('tafAlertas').textContent = totalAlertas;
-
-            // Renderizar alertas
+        
             renderizarAlertas(alertas);
         }
-
+        
         // ============================================
         // CARREGAR PTR-BA (Treinamentos)
         // ============================================
-
+        
         async function carregarPTR() {
             try {
                 const response = await fetch(PTR_JSON_URL);
                 const text = await response.text();
                 const json = JSON.parse(text.substring(47).slice(0, -2));
                 const rows = json.table.rows;
-
-                // Primeira linha = cabeçalho com mês
+        
                 const headerRow = rows[0];
                 const mesAtual = headerRow.c[0]?.v || "";
-
-                // Obter dia atual
+        
                 const hoje = new Date();
                 const diaHoje = hoje.getDate();
-
-                // Encontrar linha do dia atual
+        
                 let treinamentosHoje = [];
                 for (let i = 1; i < rows.length; i++) {
                     const row = rows[i];
                     const dia = row.c[0]?.v || "";
                     
                     if (parseInt(dia) === diaHoje) {
-                        // Coletar até 4 treinamentos (colunas 1, 2, 3, 4)
                         for (let col = 1; col <= 4; col++) {
                             const treinamento = row.c[col]?.v || "";
                             if (treinamento && treinamento.trim() !== "") {
-        treinamentosHoje.push(treinamento);
+                                treinamentosHoje.push(treinamento);
+                            }
+                        }
+                        break;
+                    }
+                }
+        
+                document.getElementById('ptrData').textContent = 
+                    `${diaHoje}/${mesAtual.split('/')[0]}`;
+                
+                renderizarTreinamentos(treinamentosHoje);
+            } catch (error) {
+                console.error("Erro ao carregar PTR:", error);
+                document.getElementById('treinamentosHoje').innerHTML = 
+                    '<div class="p-4 bg-red-50 rounded-xl text-sm text-red-700">Erro ao carregar treinamentos</div>';
+            }
         }
-        }
-        break;
-        }
-        }
-            // Atualizar UI
-            document.getElementById('ptrData').textContent = 
-                `${diaHoje}/${mesAtual.split('/')[0]}`;
-            
-            renderizarTreinamentos(treinamentosHoje);
-        } catch (error) {
-            console.error("Erro ao carregar PTR:", error);
-            document.getElementById('treinamentosHoje').innerHTML = 
-                '<div class="p-4 bg-red-50 rounded-xl text-sm text-red-700">Erro ao carregar treinamentos</div>';
-        }
-        }
+        
         function renderizarTreinamentos(treinamentos) {
-        const container = document.getElementById('treinamentosHoje');
-        if (treinamentos.length === 0) {
-            container.innerHTML = `
-                <div class="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
-                    <p class="text-sm text-emerald-700 font-semibold">Sem treinamentos agendados para hoje</p>
+            const container = document.getElementById('treinamentosHoje');
+            
+            if (treinamentos.length === 0) {
+                container.innerHTML = `
+                    <div class="flex items-center gap-3 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600"></i>
+                        <p class="text-sm text-emerald-700 font-semibold">Sem treinamentos agendados para hoje</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+        
+            const cores = ['blue', 'purple', 'emerald', 'amber'];
+            
+            container.innerHTML = treinamentos.map((t, index) => `
+                <div class="flex items-start gap-3 p-4 bg-${cores[index]}-50 rounded-xl border border-${cores[index]}-100">
+                    <div class="bg-${cores[index]}-100 p-2 rounded-lg flex-shrink-0">
+                        <i data-lucide="bookmark" class="w-4 h-4 text-${cores[index]}-600"></i>
+                    </div>
+                    <p class="text-sm text-${cores[index]}-900 font-semibold leading-relaxed">${t}</p>
                 </div>
-            `;
+            `).join('');
+            
             lucide.createIcons();
-            return;
         }
-
-        const cores = ['blue', 'purple', 'emerald', 'amber'];
-
-        container.innerHTML = treinamentos.map((t, index) => `
-            <div class="flex items-start gap-3 p-4 bg-${cores[index]}-50 rounded-xl border border-${cores[index]}-100">
-                <div class="bg-${cores[index]}-100 p-2 rounded-lg flex-shrink-0">
-                    <i data-lucide="bookmark" class="w-4 h-4 text-${cores[index]}-600"></i>
-                </div>
-                <p class="text-sm text-${cores[index]}-900 font-semibold leading-relaxed">${t}</p>
-            </div>
-        `).join('');
-
-        lucide.createIcons();
+        
+        // ============================================
+        // CARREGAR DADOS DO TEMPO RESPOSTA (Sistema 2)
+        // ============================================
+        
+        async function carregarDadosTR() {
+            try {
+                const query = encodeURIComponent('Select B, C, D, G, H offset 2');
+                const url = `https://docs.google.com/spreadsheets/d/${TR_SPREADSHEET_ID}/gviz/tq?tq=${query}&headers=0`;
+                
+                const response = await fetch(url);
+                const text = await response.text();
+                const json = JSON.parse(text.substring(47, text.length - 2));
+                
+                dadosTR = json.table.rows.map((row) => {
+                    const rawDate = row.c[0] ? (row.c[0].f || row.c[0].v) : null;
+                    return {
+                        dataStr: rawDate,
+                        dataObj: parseDateTR(rawDate),
+                        equipe: row.c[1] ? row.c[1].v : null,
+                        local: row.c[2] ? row.c[2].v : 'N/A',
+                        tempo1: parseDurationTR(row.c[3]),
+                        tempoFinal: parseDurationTR(row.c[4])
+                    };
+                }).filter(d => 
+                    d.equipe !== null && 
+                    d.dataObj !== null && 
+                    (d.tempo1 > 0 || d.tempoFinal > 0)
+                );
+                
+                processarDadosTR();
+            } catch (error) {
+                console.error("Erro ao carregar Tempo Resposta:", error);
+            }
         }
+        
+        function parseDateTR(dateStr) {
+            if (!dateStr) return null;
+            const parts = dateStr.split('/');
+            return parts.length === 3 
+                ? new Date(parts[2], parts[1] - 1, parts[0], 12, 0, 0)
+                : new Date(dateStr);
+        }
+        
+        function parseDurationTR(cell) {
+            if (!cell) return 0;
+            if (cell.f && cell.f.includes(':')) {
+                const parts = cell.f.split(':');
+                if (parts.length === 3) {
+                    return (+parts[0]) * 3600 + (+parts[1]) * 60 + (+parts[2]);
+                }
+                if (parts.length === 2) {
+                    return (+parts[0]) * 60 + (+parts[1]);
+                }
+            }
+            if (typeof cell.v === 'number') {
+                return cell.v < 1 ? Math.round(cell.v * 86400) : Math.round(cell.v);
+            }
+            return 0;
+        }
+        
+        function formatTimeTR(totalSeconds) {
+            if (isNaN(totalSeconds) || totalSeconds < 0) return "0:00";
+            const m = Math.floor(totalSeconds / 60);
+            const s = Math.round(totalSeconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+        
+        function processarDadosTR() {
+            if (dadosTR.length === 0) {
+                document.getElementById('trMelhorTempo').textContent = '--:--';
+                document.getElementById('trMediaGeral').textContent = '--:--';
+                document.getElementById('trTotalExercicios').textContent = '0';
+                document.getElementById('trAlertas').textContent = '0';
+                return;
+            }
+        
+            // Calcular estatísticas
+            const equipes = [...new Set(dadosTR.map(d => d.equipe))];
+            
+            let melhorTempo = Infinity;
+            let melhorEquipe = '--';
+            let somaMedias = 0;
+            
+            equipes.forEach(eq => {
+                const items = dadosTR.filter(f => f.equipe === eq);
+                const media = items.reduce((s, x) => s + x.tempoFinal, 0) / items.length;
+                somaMedias += media;
+                
+                if (media < melhorTempo) {
+                    melhorTempo = media;
+                    melhorEquipe = eq;
+                }
+            });
+            
+            const mediaGeral = somaMedias / equipes.length;
+            
+            // Atualizar UI
+            document.getElementById('trMelhorTempo').textContent = 
+                `${melhorEquipe} (${formatTimeTR(melhorTempo)})`;
+            document.getElementById('trMediaGeral').textContent = formatTimeTR(mediaGeral);
+            document.getElementById('trTotalExercicios').textContent = dadosTR.length;
+            
+            // Gerar alertas
+            gerarAlertasTR(dadosTR, mediaGeral);
+        }
+        
+        function gerarAlertasTR(dados, mediaGeral) {
+            const alertas = [];
+            
+            // Alerta: Tempos acima da média
+            const acimaDaMedia = dados.filter(d => d.tempoFinal > mediaGeral);
+            if (acimaDaMedia.length > 0) {
+                alertas.push({
+                    sistema: 'Tempo Resposta',
+                    tipo: 'acima_media',
+                    prioridade: 'media',
+                    icone: 'clock',
+                    cor: 'amber',
+                    titulo: 'Tempos Acima da Média',
+                    mensagem: `${acimaDaMedia.length} exercício(s) acima da média geral`,
+                    quantidade: acimaDaMedia.length
+                });
+            }
+            
+            // Alerta: Tempos críticos (>3min)
+            const criticos = dados.filter(d => d.tempoFinal > 180);
+            if (criticos.length > 0) {
+                alertas.push({
+                    sistema: 'Tempo Resposta',
+                    tipo: 'criticos',
+                    prioridade: 'alta',
+                    icone: 'alert-circle',
+                    cor: 'red',
+                    titulo: 'Tempos Críticos',
+                    mensagem: `${criticos.length} exercício(s) acima de 3 minutos`,
+                    quantidade: criticos.length
+                });
+            }
+            
+            const totalAlertas = alertas.length;
+            document.getElementById('trAlertas').textContent = totalAlertas;
+            
+            // Consolidar alertas
+            const alertasExistentes = document.getElementById('alertasContainer').querySelectorAll('.alert-card');
+            renderizarAlertas([...alertasExistentes].map(el => ({
+                sistema: el.dataset.sistema || 'TAF'
+            })).concat(alertas));
+        }
+        
         // ============================================
         // RENDERIZAR ALERTAS CONSOLIDADOS
         // ============================================
+        
         function renderizarAlertas(alertas) {
-        const container = document.getElementById('alertasContainer');
-        if (alertas.length === 0) {
-            container.innerHTML = `
-                <div class="col-span-2 p-8 bg-emerald-50 rounded-2xl border-2 border-emerald-100 text-center">
-                    <i data-lucide="check-circle-2" class="w-16 h-16 text-emerald-600 mx-auto mb-3"></i>
-                    <p class="text-lg font-black text-emerald-800">Sistema Operacional</p>
-                    <p class="text-sm text-emerald-600 font-semibold mt-1">Nenhum alerta no momento</p>
-                </div>
-            `;
-            lucide.createIcons();
-            return;
-        }
-
-        container.innerHTML = alertas.map(a => `
-            <div class="alert-card alert-hover p-4 bg-${a.cor}-50 rounded-xl border-l-4 border-${a.cor}-500">
-                <div class="flex items-start gap-3">
-                    <div class="bg-${a.cor}-100 p-2 rounded-lg flex-shrink-0">
-                        <i data-lucide="${a.icone}" class="w-5 h-5 text-${a.cor}-600"></i>
+            const container = document.getElementById('alertasContainer');
+            
+            if (alertas.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 p-8 bg-emerald-50 rounded-2xl border-2 border-emerald-100 text-center">
+                        <i data-lucide="check-circle-2" class="w-16 h-16 text-emerald-600 mx-auto mb-3"></i>
+                        <p class="text-lg font-black text-emerald-800">Sistema Operacional</p>
+                        <p class="text-sm text-emerald-600 font-semibold mt-1">Nenhum alerta no momento</p>
                     </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-1">
-                            <p class="text-xs font-black text-${a.cor}-600 uppercase tracking-wider">${a.sistema}</p>
-                            <span class="px-2 py-1 bg-${a.cor}-100 text-${a.cor}-700 text-xs font-black rounded-full badge-pulse">${a.quantidade}</span>
+                `;
+                lucide.createIcons();
+                return;
+            }
+        
+            container.innerHTML = alertas.map(a => `
+                <div class="alert-card alert-hover p-4 bg-${a.cor}-50 rounded-xl border-l-4 border-${a.cor}-500" data-sistema="${a.sistema}">
+                    <div class="flex items-start gap-3">
+                        <div class="bg-${a.cor}-100 p-2 rounded-lg flex-shrink-0">
+                            <i data-lucide="${a.icone}" class="w-5 h-5 text-${a.cor}-600"></i>
                         </div>
-                        <p class="text-sm font-bold text-slate-800">${a.titulo}</p>
-                        <p class="text-xs text-slate-600 font-semibold mt-1">${a.mensagem}</p>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <p class="text-xs font-black text-${a.cor}-600 uppercase tracking-wider">${a.sistema}</p>
+                                <span class="px-2 py-1 bg-${a.cor}-100 text-${a.cor}-700 text-xs font-black rounded-full badge-pulse">${a.quantidade}</span>
+                            </div>
+                            <p class="text-sm font-bold text-slate-800">${a.titulo}</p>
+                            <p class="text-xs text-slate-600 font-semibold mt-1">${a.mensagem}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
-
-        lucide.createIcons();
+            `).join('');
+            
+            lucide.createIcons();
         }
+        
         // ============================================
         // NAVEGAÇÃO
         // ============================================
+        
         function abrirSistema(sistema) {
-        if (sistema === 'taf') {
-        window.location.href = 'TAF.html'; // Ajuste o caminho conforme necessário
+            if (sistema === 'taf') {
+                window.location.href = 'taf.html';
+            } else if (sistema === 'tempo-resposta') {
+                window.location.href = 'tempo-resposta.html';
+            }
         }
-        }
+        
         // ============================================
         // INICIALIZAÇÃO
         // ============================================
+        
         function init() {
-        // Atualizar relógio
-        atualizarRelogio();
-        setInterval(atualizarRelogio, 1000);
-        // Atualizar equipe de plantão
-        atualizarEquipePlantao();
-        setInterval(atualizarEquipePlantao, 1000);
-
-        // Carregar dados
-        carregarDadosTAF();
-        carregarPTR();
-
-        // Recarregar dados a cada 5 minutos
-        setInterval(carregarDadosTAF, 5 * 60 * 1000);
-        setInterval(carregarPTR, 5 * 60 * 1000);
-
-        // Inicializar ícones Lucide
-        lucide.createIcons();
+            atualizarRelogio();
+            setInterval(atualizarRelogio, 1000);
+            
+            atualizarEquipePlantao();
+            setInterval(atualizarEquipePlantao, 1000);
+            
+            carregarDadosTAF();
+            carregarPTR();
+            carregarDadosTR(); // ← NOVO
+            
+            setInterval(carregarDadosTAF, 5 * 60 * 1000);
+            setInterval(carregarPTR, 5 * 60 * 1000);
+            setInterval(carregarDadosTR, 5 * 60 * 1000); // ← NOVO
+            
+            lucide.createIcons();
         }
-        // Iniciar quando página carregar
+        
         window.addEventListener('load', init);
     </script>
 </body>
