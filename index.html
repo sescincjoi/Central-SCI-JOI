@@ -428,15 +428,20 @@
             .modal-content {
                 left: 50%;
                 right: auto;
-                bottom: 50%;
-                transform: translate(-50%, 50%) scale(0.9);
+                bottom: auto;
+                top: 50%;
+                transform: translate(-50%, -50%) scale(0.9);
                 border-radius: 20px;
                 max-width: 480px;
                 width: 100%;
+                opacity: 0;
+                visibility: hidden;
             }
 
             .modal-content.active {
-                transform: translate(-50%, 50%) scale(1);
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+                visibility: visible;
             }
         }
         
@@ -1387,7 +1392,7 @@
         
         <div class="modal-body">
             <!-- Inspeção de Extintores -->
-            <button class="tool-button" onclick="window.open('https://sescincjoi.github.io/Central-SCI-JOI/extintores')">
+            <button class="tool-button" onclick="window.location.href='https://sescincjoi.github.io/Central-SCI-JOI/extintores'">
                 <div class="tool-icon" style="background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%);">
                     <i data-lucide="flame" class="w-6 h-6 text-white"></i>
                 </div>
