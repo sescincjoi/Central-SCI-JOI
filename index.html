@@ -180,6 +180,29 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes axeChop {
+            0%, 100% { 
+                transform: rotate(0deg);
+            }
+            25% { 
+                transform: rotate(-25deg);
+            }
+            50% { 
+                transform: rotate(5deg);
+            }
+            75% { 
+                transform: rotate(-15deg);
+            }
+        }
+
+        .fab-button i {
+            animation: axeChop 2s ease-in-out infinite;
+            transform-origin: bottom center;
+        }
+
+        .fab-button:hover i {
+            animation: axeChop 0.6s ease-in-out infinite;
+        }
 
         .btn-primary {
             background: #007AFF;
@@ -324,6 +347,9 @@
             transition: all 0.2s ease;
             margin-bottom: 12px;
             text-align: left;
+        }
+        svg.lucide.lucide-axe.w-7.h-7.text-white {
+            stroke-width: 1.8;
         }
 
         .tool-button:hover {
@@ -1351,7 +1377,7 @@
 
     <!-- Botão Flutuante Ferramentas -->
     <button class="fab-button" onclick="toggleModal()">
-        <i data-lucide="axe" class="w-6 h-6 text-white"></i>
+        <i data-lucide="axe" class="w-7 h-7 text-white"></i>
     </button>
 
     <!-- Modal Ferramentas -->
