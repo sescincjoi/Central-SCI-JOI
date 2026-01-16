@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Central SCI JOI</title>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#212121">
+    
+    <!-- iOS suporte -->
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -204,6 +212,139 @@
         .gradient-orange {
             background: linear-gradient(135deg, #FF9500 0%, #FF6B00 100%);
         }
+
+        /* BOTÕES INSTALAR APP */
+            .msg-ios {
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 90%;
+              max-width: 340px;
+              padding: 20px;
+              background: rgba(255, 255, 255, 0.95);
+              backdrop-filter: blur(20px);
+              -webkit-backdrop-filter: blur(20px);
+              box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+              color: #1d1d1f;
+              font-size: 15px;
+              text-align: center;
+              border-radius: 20px;
+              z-index: 10000;
+              font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            }
+            
+            .msg-ios div {
+              text-align: center;
+              line-height: 1.6;
+              padding: 10px 0;
+            }
+            
+            .msg-ios strong {
+              color: #007AFF;
+              font-weight: 600;
+            }
+            
+            .msg-ios span {
+              position: absolute;
+              right: 12px;
+              top: 12px;
+              font-size: 20px;
+              width: 28px;
+              height: 28px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              color: #86868b;
+              background: rgba(0, 0, 0, 0.05);
+              border-radius: 50%;
+              transition: all 0.2s ease;
+            }
+            
+            .msg-ios span:hover {
+              background: rgba(0, 0, 0, 0.1);
+              transform: scale(1.1);
+            }
+            
+            .instal-android {
+              position: fixed;
+              bottom: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 90%;
+              max-width: 340px;
+              padding: 16px 20px;
+              background: rgba(255, 255, 255, 0.95);
+              backdrop-filter: blur(20px);
+              -webkit-backdrop-filter: blur(20px);
+              color: #1d1d1f;
+              border-radius: 16px;
+              z-index: 10000;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+              border: 0.5px solid rgba(0, 0, 0, 0.1);
+              font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+              animation: slideUp 0.4s ease-out;
+            }
+            
+            @keyframes slideUp {
+              from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+              }
+              to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+              }
+            }
+            
+            .botao-instal {
+              background: #007AFF;
+              color: #ffffff;
+              border: none;
+              padding: 10px 24px;
+              border-radius: 10px;
+              cursor: pointer;
+              font-size: 15px;
+              font-weight: 600;
+              transition: all 0.2s ease;
+              box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+              flex: 1;
+              margin-right: 12px;
+            }
+            
+            .botao-instal:hover {
+              background: #0051D5;
+              transform: scale(1.02);
+            }
+            
+            .botao-instal:active {
+              transform: scale(0.98);
+            }
+            
+            .instal-android > span {
+              width: 32px;
+              height: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              font-weight: normal;
+              font-size: 18px;
+              color: #86868b;
+              background: rgba(0, 0, 0, 0.05);
+              border-radius: 50%;
+              transition: all 0.2s ease;
+              flex-shrink: 0;
+            }
+            
+            .instal-android > span:hover {
+              background: rgba(0, 0, 0, 0.1);
+              transform: scale(1.1);
+            }
     </style>
 </head>
 <body>
@@ -867,6 +1008,89 @@
         }
         
         window.addEventListener('load', init);
+    </script>
+
+    <script>
+      // Registrar o service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js')
+          .then(() => console.log('✅ Service Worker registrado'))
+          .catch(err => console.log('❌ Erro no SW', err));
+      }
+    
+      let deferredPrompt;
+    
+      // Android: captura o evento de instalação
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+    
+        // cria container
+        const box = document.createElement('div');
+        box.className = 'instal-android';
+    
+        // botão instalar
+        const btn = document.createElement('button');
+        btn.className = 'botao-instal';
+        btn.textContent = "📲 Instalar App";
+    
+        // botão fechar
+        const closeBtn = document.createElement('span');
+        closeBtn.textContent = "✖";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.style.fontWeight = "bold";
+    
+        // montar
+        box.appendChild(btn);
+        box.appendChild(closeBtn);
+        document.body.appendChild(box);
+    
+        // ação instalar
+        btn.addEventListener('click', async () => {
+          box.style.display = "none";
+          deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+          console.log(`Usuário escolheu: ${outcome}`);
+          deferredPrompt = null;
+        });
+    
+        // ação fechar
+        closeBtn.addEventListener('click', () => {
+          box.style.display = "none";
+        });
+      });
+    
+      // iOS: detecta Safari/WebKit e mostra instruções
+      function isIOS() {
+        return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+      }
+      function isInStandaloneMode() {
+        return ('standalone' in window.navigator) && window.navigator.standalone;
+      }
+    
+      if (isIOS() && !isInStandaloneMode()) {
+        const msg = document.createElement('div');
+        msg.className = 'msg-ios';
+        msg.innerHTML = `
+          <div style="flex:1;">
+            📲 Para instalar este app:<br>
+            1. Toque em <strong>Compartilhar</strong> (ícone ⬆️)<br>
+            2. Escolha <strong>Adicionar à Tela de Início</strong>
+          </div>`;
+    
+        // botão fechar
+        const closeBtn = document.createElement('span');
+        closeBtn.textContent = "✖";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.style.fontWeight = "bold";
+    
+        msg.appendChild(closeBtn);
+        document.body.appendChild(msg);
+    
+        closeBtn.addEventListener('click', () => {
+          msg.style.display = "none";
+        });
+      }
     </script>
 </body>
 </html>
