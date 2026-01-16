@@ -216,56 +216,11 @@
     <!-- Container Principal -->
     <div class="max-w-7xl mx-auto px-4 py-4 md:py-6">
 
-        <!-- Grid com Equipe de Plantão e PTR-BA lado a lado em MD+ -->
+        <!-- Grid com PTR-BA lado a lado com Alertas em MD+ -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            
-            <!-- Banner de Equipe de Plantão Slim -->
-            <div class="glass-card md:col-span-1 rounded-2xl p-3 fade-in relative overflow-hidden h-full">
-                <div class="absolute inset-0 bg-gradient-to-r from-zinc-600/5 via-stone-600/5 to-zinc-600/5 animate-pulse"></div>
-                
-                <div class="relative z-10 flex flex-col justify-between gap-3 h-full">
-                    <!-- Info da Equipe -->
-                    <div class="flex items-center gap-3">
-                        <div class="bg-gradient-to-br from-zinc-100 to-stone-100 p-2 rounded-lg">
-                            <i data-lucide="users" class="w-5 h-5 text-zinc-700"></i>
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2 mb-0.5">
-                                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Equipe de Plantão</h2>
-                                <div class="status-badge w-2 h-2 bg-emerald-500 rounded-full"></div>
-                            </div>
-                            <div id="equipeAtual" class="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-zinc-700 to-stone-700">
-                                CHARLIE
-                            </div>
-                        </div>
-                    </div>
-            
-                    <!-- Contador e Próxima Equipe -->
-                    <div class="flex flex-col sm:flex-row items-center gap-3 justify-center">
-                        <!-- Contador -->
-                        <div class="flex flex-col items-center text-center px-4 py-1.5 bg-white/50 rounded-lg border border-slate-200">
-                            <p class="text-[9px] text-slate-500 font-bold mb-0.5 uppercase tracking-wider">Troca em</p>
-                            <div id="proximaTroca" class="text-lg md:text-xl font-black text-slate-800 tabular-nums">
-                                --:--:--
-                            </div>
-                        </div>
-                
-                        <!-- Próxima Equipe -->
-                        <div class="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-slate-50 to-zinc-50 rounded-lg border border-zinc-200">
-                            <i data-lucide="arrow-right-circle" class="w-4 h-4 text-zinc-600"></i>
-                            <div>
-                                <p class="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Próxima</p>
-                                <p id="proximaEquipe" class="text-xs font-black text-zinc-700">
-                                    DELTA às 17:00
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- PTR-BA Hoje - Versão Slim -->
-            <div class="glass-card md:col-span-2 rounded-2xl p-4 fade-in h-full">
+            <div class="glass-card md:col-span-1 rounded-2xl p-4 fade-in h-full">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
                     <div class="bg-amber-100 p-2 rounded-lg">
@@ -282,6 +237,24 @@
                 <div class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg">
                     <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-pulse"></div>
                     <p class="text-xs text-slate-500 italic">Carregando treinamentos...</p>
+                </div>
+            </div>
+        </div>
+        <!-- Alertas Consolidados Slim -->
+        <div class="glass-card md:col-span-2 rounded-2xl p-4 mb-4 fade-in">
+            <div class="flex items-center gap-2 mb-3">
+                <div class="bg-red-100 p-2 rounded-lg">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+                </div>
+                <div>
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Alertas Consolidados</h2>
+                    <p class="text-[10px] text-slate-500 font-semibold">Atualização em tempo real</p>
+                </div>
+            </div>
+            
+            <div id="alertasContainer" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div class="p-3 bg-slate-50 rounded-lg text-center">
+                    <p class="text-xs text-slate-400 italic">Carregando alertas...</p>
                 </div>
             </div>
         </div>
@@ -399,25 +372,51 @@
 
         </div>
 
-        <!-- Alertas Consolidados Slim -->
-        <div class="glass-card rounded-2xl p-4 mb-4 fade-in">
-            <div class="flex items-center gap-2 mb-3">
-                <div class="bg-red-100 p-2 rounded-lg">
-                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-600"></i>
+    </div>
+
+    <!-- Barra de Rodapé - Equipe de Plantão -->
+    <div class="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 border-t border-zinc-700 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                <!-- Info da Equipe -->
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-br from-zinc-100 to-stone-100 p-2 rounded-lg">
+                        <i data-lucide="users" class="w-5 h-5 text-zinc-700"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Equipe de Plantão</h2>
+                            <div class="status-badge w-2 h-2 bg-emerald-500 rounded-full"></div>
+                        </div>
+                        <div id="equipeAtual" class="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-white">
+                            CHARLIE
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Alertas Consolidados</h2>
-                    <p class="text-[10px] text-slate-500 font-semibold">Atualização em tempo real</p>
-                </div>
-            </div>
+        
+                <!-- Contador e Próxima Equipe -->
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <!-- Contador -->
+                    <div class="flex flex-col items-center text-center px-4 py-1.5 bg-zinc-700/50 rounded-lg border border-zinc-600">
+                        <p class="text-[9px] text-slate-400 font-bold mb-0.5 uppercase tracking-wider">Troca em</p>
+                        <div id="proximaTroca" class="text-lg md:text-xl font-black text-white tabular-nums">
+                            --:--:--
+                        </div>
+                    </div>
             
-            <div id="alertasContainer" class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div class="p-3 bg-slate-50 rounded-lg text-center">
-                    <p class="text-xs text-slate-400 italic">Carregando alertas...</p>
+                    <!-- Próxima Equipe -->
+                    <div class="flex items-center gap-2 px-3 py-1.5 bg-zinc-700/50 rounded-lg border border-zinc-600">
+                        <i data-lucide="arrow-right-circle" class="w-4 h-4 text-slate-300"></i>
+                        <div>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Próxima</p>
+                            <p id="proximaEquipe" class="text-xs font-black text-white">
+                                DELTA às 17:00
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
