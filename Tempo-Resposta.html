@@ -1384,9 +1384,15 @@
             },
             
             initLocalSelect(locations) {
-                this.state.locais = [...locations];
-                this._setupLocalMultiSelect(locations);
-            },
+    // Configurar apenas "Cabeceira 33" como selecionado inicialmente
+	    if (locations.includes('Cabeceira 33')) {
+	        this.state.locais = ['Cabeceira 33'];
+	    } else {
+	        // Fallback: se "Cabeceira 33" não existir, seleciona todos
+	        this.state.locais = [...locations];
+	    }
+	    this._setupLocalMultiSelect(locations);
+	},
             
             getState() {
                 return {...this.state};
@@ -1490,13 +1496,15 @@
                 optionsContainer.appendChild(noneItem);
                 
                 // Checkboxes de locais
-                locais.forEach(local => {
-                    const div = document.createElement('div');
-                    div.className = 'option-item';
-                    div.innerHTML = `
-                        <input type="checkbox" value="${local}" id="chk_${local}" checked>
-                        <label for="chk_${local}" class="flex-grow cursor-pointer truncate text-slate-700 font-medium">${local}</label>
-                    `;
+                // Checkboxes de locais
+				locais.forEach(local => {
+				    const isChecked = this.state.locais.includes(local);
+				    const div = document.createElement('div');
+				    div.className = 'option-item';
+				    div.innerHTML = `
+				        <input type="checkbox" value="${local}" id="chk_${local}" ${isChecked ? 'checked' : ''}>
+				        <label for="chk_${local}" class="flex-grow cursor-pointer truncate text-slate-700 font-medium">${local}</label>
+				    `;
                     
                     div.onclick = (e) => {
                         e.stopPropagation();
