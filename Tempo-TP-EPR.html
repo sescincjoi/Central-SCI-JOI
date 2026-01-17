@@ -560,7 +560,7 @@
                 }
                 body.innerHTML = displayData.slice().sort((a,b) => b.dateObject - a.dateObject).map((d) => {
                     let pill = (d.tempoSegundos <= GOAL_S) ? "bg-emerald-100 text-emerald-700" : (d.tempoSegundos <= LIMIT_S) ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700";
-                    let label = (d.tempoSegundos <= GOAL_S) ? "Excelente" : (d.tempoSegundos <= LIMIT_S) ? "Aceitável" : "Atenção";
+                    let label = (d.tempoSegundos <= GOAL_S) ? "Excelente" : (d.tempoSegundos <= LIMIT_S) ? "Bom" : "Atenção";
                     let activeClass = (selectedDataId === d.id) ? 'table-row-active' : 'table-row-highlight';
                     
                     return `<tr class="${activeClass}" onmouseover="ChartModule.highlight(${d.id})" onmouseout="ChartModule.clearHighlight()" onclick="ChartModule.focus(${d.id}, event)">
