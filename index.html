@@ -258,6 +258,62 @@
             transform: scale(0.95);
         }
 
+        .tooltip-fab {
+            position: fixed;
+            bottom: 5.5rem;
+            right: 1.2rem;
+            background: rgba(29, 29, 31, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+        }
+        
+        .tooltip-fab.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .tooltip-fab::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: rgba(29, 29, 31, 0.95);
+            transform: rotate(45deg);
+        }
+        
+        @media (max-width: 768px) {
+            .tooltip-fab {
+                right: 50%;
+                transform: translateX(50%) translateY(10px);
+                bottom: 5.5rem;
+            }
+            
+            .tooltip-fab.show {
+                transform: translateX(50%) translateY(0);
+            }
+            
+            .tooltip-fab::after {
+                right: 50%;
+                transform: translateX(50%) rotate(45deg);
+            }
+        }
+
         /* MODAL FERRAMENTAS */
         .modal-overlay {
             position: fixed;
@@ -1279,6 +1335,7 @@
             carregarPTR();
             carregarDadosTR();
             carregarDadosVEST();
+            showTooltipOnLoad();
             
             setInterval(carregarDadosTAF, 5 * 60 * 1000);
             setInterval(carregarPTR, 5 * 60 * 1000);
@@ -1286,6 +1343,34 @@
             setInterval(carregarDadosVEST, 5 * 60 * 1000);
             
             lucide.createIcons();
+        }
+
+        let tooltipTimeout;
+        let tooltipShown = localStorage.getItem('tooltipShown');
+        
+        function showTooltip() {
+            const tooltip = document.getElementById('tooltipFab');
+            tooltip.classList.add('show');
+        }
+        
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltipFab');
+            tooltip.classList.remove('show');
+        }
+        
+        function showTooltipOnLoad() {
+            if (!tooltipShown) {
+                const tooltip = document.getElementById('tooltipFab');
+                
+                setTimeout(() => {
+                    tooltip.classList.add('show');
+                    
+                    tooltipTimeout = setTimeout(() => {
+                        tooltip.classList.remove('show');
+                        localStorage.setItem('tooltipShown', 'true');
+                    }, 4000); // Mostra por 4 segundos
+                }, 1000); // Aguarda 1 segundo após carregar a página
+            }
         }
         
         window.addEventListener('load', init);
@@ -1374,8 +1459,13 @@
       }
     </script>
 
+    <!-- Balão de Instrução -->
+    <div class="tooltip-fab" id="tooltipFab">
+        Inspeções, checklists e formulários
+    </div>
+    
     <!-- Botão Flutuante Ferramentas -->
-    <button class="fab-button" onclick="toggleModal()">
+    <button class="fab-button" onclick="toggleModal()" onmouseenter="showTooltip()" onmouseleave="hideTooltip()">
         <i data-lucide="wrench" class="w-7 h-7 text-white"></i>
     </button>
 
