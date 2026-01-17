@@ -1287,14 +1287,17 @@
             content.classList.remove('active');
             document.body.style.overflow = '';
             
-            // Fechar submenu
-            const submenu = document.getElementById('submenu');
-            submenu.classList.remove('active');
+            // Fechar ambos os submenus
+            const submenuMC = document.getElementById('submenuMC');
+            const submenu02 = document.getElementById('submenu02');
+            submenuMC.classList.remove('active');
+            submenu02.classList.remove('active');
         }
 
-        function toggleSubmenu() {
-            const submenu = document.getElementById('submenu');
-            const icon = document.getElementById('submenuIcon');
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const iconId = submenuId === 'submenuMC' ? 'submenuIconMC' : 'submenuIcon02';
+            const icon = document.getElementById(iconId);
             
             submenu.classList.toggle('active');
             
@@ -1477,9 +1480,9 @@
                 </div>
                 <i data-lucide="external-link" class="w-5 h-5 text-gray-400 ml-auto"></i>
             </button>
-
+    
             <!-- Inspeções BA-MC (com submenu) -->
-            <button class="tool-button" onclick="toggleSubmenu()">
+            <button class="tool-button" onclick="toggleSubmenu('submenuMC')">
                 <div class="tool-icon" style="background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);">
                     <i data-lucide="clipboard-check" class="w-6 h-6 text-white"></i>
                 </div>
@@ -1487,11 +1490,11 @@
                     <h3>Inspeções BA-MC</h3>
                     <p>Check-lists disponíveis</p>
                 </div>
-                <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 ml-auto" id="submenuIcon"></i>
+                <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 ml-auto" id="submenuIconMC"></i>
             </button>
-
-            <!-- Submenu -->
-            <div class="submenu" id="submenu">
+    
+            <!-- Submenu BA-MC -->
+            <div class="submenu" id="submenuMC">
                 <button class="submenu-button" onclick="window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=itUz0nOZp0OvaWdjYwVIoMoEbKAMYIZFqUAdth6B_EFUMEk4VElSVEJRMTJETE8zN0UwMkNPWk9TMy4u&origin=QRCode', '_blank')">
                     <div class="submenu-icon">
                         <i data-lucide="file-check" class="w-4 h-4 text-blue-600"></i>
@@ -1499,7 +1502,7 @@
                     <span class="submenu-text">Check-list CCI (motiva)</span>
                     <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-auto"></i>
                 </button>
-
+    
                 <button class="submenu-button" onclick="window.open('https://forms.office.com/pages/responsepage.aspx?id=itUz0nOZp0OvaWdjYwVIoMoEbKAMYIZFqUAdth6B_EFUMlY1SkhTUFA4RjRBN1dZUEQ2SzhFQlFKWC4u&origin=QRCode', '_blank')">
                     <div class="submenu-icon">
                         <i data-lucide="file-check" class="w-4 h-4 text-blue-600"></i>
@@ -1507,7 +1510,7 @@
                     <span class="submenu-text">Check-list CRS (motiva)</span>
                     <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-auto"></i>
                 </button>
-
+    
                 <button class="submenu-button" onclick="window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=PskT3rJ-MkCkcS3BZE4uZa9qtBHUrqtBhfWUr-FIDJJUNEtZOThXRzBNUEtCTzQ4RzY4MERDRTBMUy4u&origin=QRCode', '_blank')">
                     <div class="submenu-icon">
                         <i data-lucide="file-check" class="w-4 h-4 text-blue-600"></i>
@@ -1516,7 +1519,39 @@
                     <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-auto"></i>
                 </button>
             </div>
+    
+            <!-- Inspeções BA-02 (com submenu) -->
+            <button class="tool-button" onclick="toggleSubmenu('submenu02')">
+                <div class="tool-icon" style="background: linear-gradient(135deg, #34C759 0%, #30D158 100%);">
+                    <i data-lucide="clipboard-list" class="w-6 h-6 text-white"></i>
+                </div>
+                <div class="tool-info">
+                    <h3>Inspeções BA-02</h3>
+                    <p>Check-lists disponíveis</p>
+                </div>
+                <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400 ml-auto" id="submenuIcon02"></i>
+            </button>
+    
+            <!-- Submenu BA-02 -->
+            <div class="submenu" id="submenu02">
+                <button class="submenu-button" onclick="window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=itUz0nOZp0OvaWdjYwVIoMoEbKAMYIZFqUAdth6B_EFUNFkyMUE4SkxZVk5ORFgzRkg1Q045UDBDTC4u&origin=QRCode', '_blank')">
+                    <div class="submenu-icon">
+                        <i data-lucide="truck" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <span class="submenu-text">Equipamentos CRS</span>
+                    <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-auto"></i>
+                </button>
+            
+                <button class="submenu-button" onclick="window.open('https://forms.office.com/Pages/ResponsePage.aspx?id=itUz0nOZp0OvaWdjYwVIoMoEbKAMYIZFqUAdth6B_EFUQjVCQzc2SUFNNU1ESE5OOTdYS0xGS1dRTi4u&origin=QRCode', '_blank')">
+                    <div class="submenu-icon">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <span class="submenu-text">EPI/EPR</span>
+                    <i data-lucide="external-link" class="w-4 h-4 text-gray-400 ml-auto"></i>
+                </button>
+            </div>
         </div>
     </div>
+    
 </body>
 </html>
