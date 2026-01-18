@@ -1267,17 +1267,7 @@ input:focus-visible {
                         latestTestsForTime[d.nome] = d;
                     }
                 });
-                const sortedByTime = Object.values(latestTestsForTime).sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
-                
-                // Top 3 Melhores Tempos (apenas último teste de cada BA)
-                const latestTestsByBA = {};
-                filteredData.forEach(d => {
-                    if (!latestTestsByBA[d.nome] || !d.dateObject || !latestTestsByBA[d.nome].dateObject || d.dateObject > latestTestsByBA[d.nome].dateObject) {
-                        latestTestsByBA[d.nome] = d;
-                    }
-                });
-                const latestTests = Object.values(latestTestsByBA);
-                const sortedByTime = [...latestTests].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
+                const top3MelhoresTempos = Object.values(latestTestsForTime).sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
                 
                 // Limpa todos primeiro
                 document.getElementById('tempo1').innerText = '--:--';
@@ -1288,20 +1278,20 @@ input:focus-visible {
                 document.getElementById('tempo3Nome').innerText = '--';
                 
                 // Preenche conforme disponibilidade
-                if (sortedByTime.length >= 1) {
-                    const nome1 = getDoisPrimeirosNomes(sortedByTime[0].nome);
-                    document.getElementById('tempo1').innerText = this.formatTime(sortedByTime[0].tempoTotalSeg);
-                    document.getElementById('tempo1Nome').innerText = `${nome1} (${sortedByTime[0].idade}a)`;
+                if (top3MelhoresTempos.length >= 1) {
+                    const nome1 = getDoisPrimeirosNomes(top3MelhoresTempos[0].nome);
+                    document.getElementById('tempo1').innerText = this.formatTime(top3MelhoresTempos[0].tempoTotalSeg);
+                    document.getElementById('tempo1Nome').innerText = `${nome1} (${top3MelhoresTempos[0].idade}a)`;
                 }
-                if (sortedByTime.length >= 2) {
-                    const nome2 = getDoisPrimeirosNomes(sortedByTime[1].nome);
-                    document.getElementById('tempo2').innerText = this.formatTime(sortedByTime[1].tempoTotalSeg);
-                    document.getElementById('tempo2Nome').innerText = `${nome2} (${sortedByTime[1].idade}a)`;
+                if (top3MelhoresTempos.length >= 2) {
+                    const nome2 = getDoisPrimeirosNomes(top3MelhoresTempos[1].nome);
+                    document.getElementById('tempo2').innerText = this.formatTime(top3MelhoresTempos[1].tempoTotalSeg);
+                    document.getElementById('tempo2Nome').innerText = `${nome2} (${top3MelhoresTempos[1].idade}a)`;
                 }
-                if (sortedByTime.length >= 3) {
-                    const nome3 = getDoisPrimeirosNomes(sortedByTime[2].nome);
-                    document.getElementById('tempo3').innerText = this.formatTime(sortedByTime[2].tempoTotalSeg);
-                    document.getElementById('tempo3Nome').innerText = `${nome3} (${sortedByTime[2].idade}a)`;
+                if (top3MelhoresTempos.length >= 3) {
+                    const nome3 = getDoisPrimeirosNomes(top3MelhoresTempos[2].nome);
+                    document.getElementById('tempo3').innerText = this.formatTime(top3MelhoresTempos[2].tempoTotalSeg);
+                    document.getElementById('tempo3Nome').innerText = `${nome3} (${top3MelhoresTempos[2].idade}a)`;
                 }
             
                 // Top 3 Melhor Desempenho (percentual comparativo)
