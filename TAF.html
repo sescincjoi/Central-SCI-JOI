@@ -943,14 +943,14 @@ input:focus-visible {
                         const cellTempoTotal = row.c[8]?.f || row.c[8]?.v || "00:00:00";
                         const cellNotaPlanilha = row.c[9]?.v || 0;
                         const cellObservacoes = row.c[10]?.v || "";
-
+                    
                         const flexaoSeg = this.parseTimeToSeconds(cellFlexao);
                         const abdominalSeg = this.parseTimeToSeconds(cellAbdominal);
                         const polichineloSeg = this.parseTimeToSeconds(cellPolichinelo);
                         const tempoTotalSeg = this.parseTimeToSeconds(cellTempoTotal);
                         const notaCalculada = this.calcularNota(tempoTotalSeg, cellIdade);
-
-                        return {
+                    
+                        const registro = {
                             id: index,
                             data: cellData,
                             dateObject: this.parseDate(cellData),
@@ -968,10 +968,37 @@ input:focus-visible {
                             tempoTotalSeg: tempoTotalSeg,
                             notaPlanilha: cellNotaPlanilha,
                             notaCalculada: notaCalculada,
-                            desempenhoPercentual: this.calcularDesempenhoPercentual(tempoTotalSeg, cellIdade), // ADICIONE AQUI
+                            desempenhoPercentual: this.calcularDesempenhoPercentual(tempoTotalSeg, cellIdade),
                             observacoes: cellObservacoes
                         };
-                    }).filter(d => d.nome && d.nome !== '' && d.tempoTotalSeg > 0);
+                    
+                        // Log de debug para linha 3 (index 2, pois começa do 0 após slice(1))
+                        if (index === 2) {
+                            console.log('🔍 DEBUG - Linha 3 da planilha:', {
+                                nome: cellNome,
+                                tempoTotal: cellTempoTotal,
+                                tempoTotalSeg: tempoTotalSeg,
+                                data: cellData,
+                                dateObject: registro.dateObject,
+                                registroCompleto: registro
+                            });
+                        }
+                    
+                        return registro;
+                    }).filter(d => {
+                        const isValid = d.nome && d.nome.trim() !== '' && d.tempoTotalSeg > 0;
+                        
+                        // Log se filtrar fora a linha 3
+                        if (!isValid && d.id === 2) {
+                            console.warn('⚠️ Linha 3 FILTRADA:', {
+                                motivo: !d.nome || d.nome.trim() === '' ? 'Nome vazio' : 'Tempo total zero',
+                                nome: d.nome,
+                                tempoTotalSeg: d.tempoTotalSeg
+                            });
+                        }
+                        
+                        return isValid;
+                    });
 
                     this.initFilters();
                     this.updateUI();
