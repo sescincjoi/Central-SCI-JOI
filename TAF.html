@@ -1261,14 +1261,13 @@ input:focus-visible {
                 }
             
                 // Top 3 Melhores Tempos (apenas último teste de cada BA)
-                const latestTestsByBA = {};
+                const latestTestsForTime = {};
                 filteredData.forEach(d => {
-                    if (!latestTestsByBA[d.nome] || !d.dateObject || !latestTestsByBA[d.nome].dateObject || d.dateObject > latestTestsByBA[d.nome].dateObject) {
-                        latestTestsByBA[d.nome] = d;
+                    if (!latestTestsForTime[d.nome] || !d.dateObject || !latestTestsForTime[d.nome].dateObject || d.dateObject > latestTestsForTime[d.nome].dateObject) {
+                        latestTestsForTime[d.nome] = d;
                     }
                 });
-                const latestTests = Object.values(latestTestsByBA);
-                const sortedByTime = [...latestTests].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
+                const sortedByTime = Object.values(latestTestsForTime).sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
                 
                 // Top 3 Melhores Tempos (apenas último teste de cada BA)
                 const latestTestsByBA = {};
