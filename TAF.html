@@ -1009,8 +1009,57 @@ input:focus-visible {
 
             parseDate(dateStr) {
                 if (!dateStr) return null;
-                const parts = dateStr.split('/');
-                return parts.length === 3 ? new Date(parts[2], parts[1] - 1, parts[0]) : null;
+                
+                // Remove espaços extras
+                dateStr = dateStr.trim();
+                
+                // Formato: dd/mm/yyyy ou dd/mm/yy
+                const partsSlash = dateStr.split('/');
+                if (partsSlash.length === 3) {
+                    const day = parseInt(partsSlash[0]);
+                    const month = parseInt(partsSlash[1]) - 1;
+                    let year = parseInt(partsSlash[2]);
+                    
+                    // Se ano tem 2 dígitos, assume 20XX
+                    if (year < 100) year += 2000;
+                    
+                    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+                        return new Date(year, month, day);
+                    }
+                }
+                
+                // Formato: mês/ano (ex: "setembro/25" ou "set/25")
+                const mesesMap = {
+                    'janeiro': 0, 'jan': 0,
+                    'fevereiro': 1, 'fev': 1,
+                    'março': 2, 'mar': 2,
+                    'abril': 3, 'abr': 3,
+                    'maio': 4, 'mai': 4,
+                    'junho': 5, 'jun': 5,
+                    'julho': 6, 'jul': 6,
+                    'agosto': 7, 'ago': 7,
+                    'setembro': 8, 'set': 8,
+                    'outubro': 9, 'out': 9,
+                    'novembro': 10, 'nov': 10,
+                    'dezembro': 11, 'dez': 11
+                };
+                
+                const partsMonth = dateStr.toLowerCase().split('/');
+                if (partsMonth.length === 2) {
+                    const mesNome = partsMonth[0].trim();
+                    let ano = parseInt(partsMonth[1]);
+                    
+                    // Se ano tem 2 dígitos, assume 20XX
+                    if (ano < 100) ano += 2000;
+                    
+                    if (mesesMap[mesNome] !== undefined && !isNaN(ano)) {
+                        // Usa o primeiro dia do mês
+                        return new Date(ano, mesesMap[mesNome], 1);
+                    }
+                }
+                
+                console.warn('⚠️ Formato de data não reconhecido:', dateStr);
+                return null;
             },
 
             parseTimeToSeconds(val) {
