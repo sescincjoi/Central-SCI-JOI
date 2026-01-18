@@ -2061,7 +2061,7 @@
     }
     
     // Enviar Aviso
-    async function enviarAviso(event) {
+    function enviarAviso(event) {
         event.preventDefault();
         
         const btnEnviar = document.getElementById('btnEnviar');
@@ -2070,45 +2070,55 @@
         btnEnviar.disabled = true;
         btnTexto.textContent = 'Enviando...';
         
-        const formData = {
-            assunto: document.getElementById('inputAssunto').value,
-            texto: document.getElementById('inputTexto').value,
-            tempoAtivo: document.getElementById('inputTempo').value
+        const assunto = document.getElementById('inputAssunto').value;
+        const texto = document.getElementById('inputTexto').value;
+        const tempoAtivo = document.getElementById('inputTempo').value;
+        
+        // Criar iframe invisível para envio
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.name = 'avisoFrame';
+        document.body.appendChild(iframe);
+        
+        // Criar formulário
+        const form = document.createElement('form');
+        form.target = 'avisoFrame';
+        form.method = 'POST';
+        form.action = AVISOS_WEB_APP_URL;
+        
+        // Adicionar campos
+        const campos = {
+            assunto: assunto,
+            texto: texto,
+            tempoAtivo: tempoAtivo
         };
         
-        try {
-            const response = await fetch(AVISOS_WEB_APP_URL, {
-                redirect: 'follow',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8',
-                },
-                body: JSON.stringify(formData)
-            });
+        Object.keys(campos).forEach(key => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = campos[key];
+            form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Aguardar envio e limpar
+        setTimeout(() => {
+            document.body.removeChild(form);
+            document.body.removeChild(iframe);
             
-            const text = await response.text();
-            const data = JSON.parse(text);
+            btnTexto.textContent = '✓ Publicado!';
+            closeCriarAviso();
             
-            if (data.success) {
-                closeCriarAviso();
+            // Recarregar avisos após 1 segundo
+            setTimeout(() => {
                 carregarAvisos();
-                
-                btnTexto.textContent = '✓ Publicado!';
-                setTimeout(() => {
-                    btnTexto.textContent = 'Publicar Aviso';
-                    btnEnviar.disabled = false;
-                }, 2000);
-            } else {
-                alert('Erro ao criar aviso: ' + (data.error || 'Desconhecido'));
-                btnEnviar.disabled = false;
                 btnTexto.textContent = 'Publicar Aviso';
-            }
-        } catch (error) {
-            console.error('Erro completo:', error);
-            alert('Erro ao criar aviso. Verifique o console para detalhes.');
-            btnEnviar.disabled = false;
-            btnTexto.textContent = 'Publicar Aviso';
-        }
+                btnEnviar.disabled = false;
+            }, 1000);
+        }, 1500);
     }
     
     // Carregar avisos ao iniciar e atualizar a cada 2 minutos
