@@ -2633,5 +2633,126 @@ const PDFPreviewModule = {
     }
 };
     </script>
+
+    <!-- BOTÃO FLUTUANTE VOLTAR INÍCIO -->
+        <style>
+        #btnVoltarInicio {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 14px;
+            z-index: 9999;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        
+        #btnVoltarInicio:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        #btnVoltarInicio svg {
+            width: 18px;
+            height: 18px;
+            stroke: #1e293b;
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        #btnVoltarInicio.hide {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-10px);
+        }
+        
+        @media (max-width: 768px) {
+            #btnVoltarInicio {
+                padding: 10px 16px;
+                font-size: 12px;
+            }
+            #btnVoltarInicio svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+        </style>
+        
+        <a href="./" id="btnVoltarInicio">
+            <svg viewBox="0 0 24 24">
+                <path d="M9 14l-4-4m0 0l4-4m-4 4h14a4 4 0 010 8h-1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Central-SCI
+        </a>
+        
+        <script>
+        (function() {
+            const btn = document.getElementById('btnVoltarInicio');
+            let lastScroll = 0;
+            let hideTimer = null;
+            let isScrolling = false;
+        
+            function resetHideTimer() {
+                clearTimeout(hideTimer);
+                hideTimer = setTimeout(() => {
+                    if (!isScrolling) {
+                        btn.classList.add('hide');
+                    }
+                }, 4000);
+            }
+        
+            function handleScroll() {
+                isScrolling = true;
+                const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        
+                if (currentScroll > lastScroll) {
+                    // Rolando para BAIXO - esconde
+                    btn.classList.add('hide');
+                    clearTimeout(hideTimer);
+                } else if (currentScroll < lastScroll) {
+                    // Rolando para CIMA - mostra
+                    btn.classList.remove('hide');
+                    resetHideTimer();
+                }
+        
+                lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+            }
+        
+            let scrollTimeout;
+            window.addEventListener('scroll', function() {
+                handleScroll();
+                
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    isScrolling = false;
+                }, 150);
+            });
+        
+            // Inicia com o timer de esconder
+            resetHideTimer();
+        
+            // Mostra quando mouse passa por cima (mesmo escondido)
+            btn.addEventListener('mouseenter', function() {
+                btn.classList.remove('hide');
+                clearTimeout(hideTimer);
+            });
+        
+            btn.addEventListener('mouseleave', function() {
+                resetHideTimer();
+            });
+        })();
+        </script>
+    <!-- FIM BOTÃO FLUTUANTE -->
 </body>
 </html>
