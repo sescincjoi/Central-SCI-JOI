@@ -1286,18 +1286,18 @@ input:focus-visible {
                 // Preenche conforme disponibilidade
                 if (top3MelhoresTempos.length >= 1) {
                     const nome1 = getDoisPrimeirosNomes(top3MelhoresTempos[0].nome);
-                    document.getElementById('tempo1').innerText = this.formatTime(top3MelhoresTempos[0].tempoTotalSeg);
-                    document.getElementById('tempo1Nome').innerText = `${nome1} (${top3MelhoresTempos[0].idade}a)`;
+                    document.getElementById('tempo1').innerText = `${this.formatTime(top3MelhoresTempos[0].tempoTotalSeg)} - ${nome1}`;
+                    document.getElementById('tempo1Nome').innerText = '';
                 }
                 if (top3MelhoresTempos.length >= 2) {
                     const nome2 = getDoisPrimeirosNomes(top3MelhoresTempos[1].nome);
-                    document.getElementById('tempo2').innerText = this.formatTime(top3MelhoresTempos[1].tempoTotalSeg);
-                    document.getElementById('tempo2Nome').innerText = `${nome2} (${top3MelhoresTempos[1].idade}a)`;
+                    document.getElementById('tempo2').innerText = `${this.formatTime(top3MelhoresTempos[1].tempoTotalSeg)} - ${nome2}`;
+                    document.getElementById('tempo2Nome').innerText = '';
                 }
                 if (top3MelhoresTempos.length >= 3) {
                     const nome3 = getDoisPrimeirosNomes(top3MelhoresTempos[2].nome);
-                    document.getElementById('tempo3').innerText = this.formatTime(top3MelhoresTempos[2].tempoTotalSeg);
-                    document.getElementById('tempo3Nome').innerText = `${nome3} (${top3MelhoresTempos[2].idade}a)`;
+                    document.getElementById('tempo3').innerText = `${this.formatTime(top3MelhoresTempos[2].tempoTotalSeg)} - ${nome3}`;
+                    document.getElementById('tempo3Nome').innerText = '';
                 }
             
                 // Top 3 Melhor Desempenho (percentual comparativo)
