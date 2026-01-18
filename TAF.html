@@ -1270,11 +1270,15 @@ input:focus-visible {
                 const latestTests = Object.values(latestTestsByBA);
                 const sortedByTime = [...latestTests].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
                 
-                // Função auxiliar para pegar apenas os 2 primeiros nomes
-                const getDoisPrimeirosNomes = (nomeCompleto) => {
-                    const partes = nomeCompleto.trim().split(' ');
-                    return partes.slice(0, 2).join(' ');
-                };
+                // Top 3 Melhores Tempos (apenas último teste de cada BA)
+                const latestTestsByBA = {};
+                filteredData.forEach(d => {
+                    if (!latestTestsByBA[d.nome] || !d.dateObject || !latestTestsByBA[d.nome].dateObject || d.dateObject > latestTestsByBA[d.nome].dateObject) {
+                        latestTestsByBA[d.nome] = d;
+                    }
+                });
+                const latestTests = Object.values(latestTestsByBA);
+                const sortedByTime = [...latestTests].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
                 
                 // Limpa todos primeiro
                 document.getElementById('tempo1').innerText = '--:--';
@@ -1298,7 +1302,7 @@ input:focus-visible {
                 if (sortedByTime.length >= 3) {
                     const nome3 = getDoisPrimeirosNomes(sortedByTime[2].nome);
                     document.getElementById('tempo3').innerText = this.formatTime(sortedByTime[2].tempoTotalSeg);
-                    document.getElementById('tempo3Nome').innerText = `${nome3} (${sortedByTime[3].idade}a)`;
+                    document.getElementById('tempo3Nome').innerText = `${nome3} (${sortedByTime[2].idade}a)`;
                 }
             
                 // Top 3 Melhor Desempenho (percentual comparativo)
