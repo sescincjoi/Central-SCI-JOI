@@ -605,12 +605,33 @@ input:focus-visible {
         
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
+                    <p class="text-sm font-medium text-slate-500">Melhores Tempos</p>
                     <i data-lucide="zap" class="w-5 h-5 text-amber-500"></i>
                 </div>
-                <h3 id="kpiMelhorTempo" class="text-3xl font-bold text-amber-600">--:--</h3>
-                <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando...</p>
-            </div>   
+                <div id="kpiMelhoresTempos" class="space-y-2 mt-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">🥇</span>
+                        <div class="flex-1">
+                            <p id="tempo1" class="text-lg font-bold text-amber-600">--:--</p>
+                            <p id="tempo1Nome" class="text-xs text-slate-400 truncate">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm px-[0.2rem]">🥈</span>
+                        <div class="flex-1">
+                            <p id="tempo2" class="text-sm font-bold text-amber-500">--:--</p>
+                            <p id="tempo2Nome" class="text-xs text-slate-400 truncate">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm px-[0.2rem]">🥉</span>
+                        <div class="flex-1">
+                            <p id="tempo3" class="text-sm font-bold text-amber-400">--:--</p>
+                            <p id="tempo3Nome" class="text-xs text-slate-400 truncate">--</p>
+                        </div>
+                    </div>
+                </div>
+            </div> 
         
             <div class="glass-card p-6 rounded-2xl metric-card">
                 <div class="flex items-center justify-between mb-2">
@@ -1220,8 +1241,12 @@ input:focus-visible {
 
             renderKPIs() {
                 if (filteredData.length === 0) {
-                    document.getElementById('kpiMelhorTempo').innerText = "--:--";
-                    document.getElementById('kpiMelhorNome').innerText = "Sem dados";
+                    document.getElementById('tempo1').innerText = "--:--";
+                    document.getElementById('tempo1Nome').innerText = "--";
+                    document.getElementById('tempo2').innerText = "--:--";
+                    document.getElementById('tempo2Nome').innerText = "--";
+                    document.getElementById('tempo3').innerText = "--:--";
+                    document.getElementById('tempo3Nome').innerText = "--";
                     document.getElementById('podium1').innerText = "--";
                     document.getElementById('podium1Perf').innerText = "--%";
                     document.getElementById('podium2').innerText = "--";
@@ -1235,11 +1260,46 @@ input:focus-visible {
                     return;
                 }
             
-                // Melhor Tempo (absoluto)
-                const sortedByTime = [...filteredData].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
-                const melhor = sortedByTime[0];
-                document.getElementById('kpiMelhorTempo').innerText = this.formatTime(melhor.tempoTotalSeg);
-                document.getElementById('kpiMelhorNome').innerText = `${melhor.nome} - ${melhor.idade} anos`;
+                // Top 3 Melhores Tempos (apenas último teste de cada BA)
+                const latestTestsByBA = {};
+                filteredData.forEach(d => {
+                    if (!latestTestsByBA[d.nome] || !d.dateObject || !latestTestsByBA[d.nome].dateObject || d.dateObject > latestTestsByBA[d.nome].dateObject) {
+                        latestTestsByBA[d.nome] = d;
+                    }
+                });
+                const latestTests = Object.values(latestTestsByBA);
+                const sortedByTime = [...latestTests].sort((a, b) => a.tempoTotalSeg - b.tempoTotalSeg);
+                
+                // Função auxiliar para pegar apenas os 2 primeiros nomes
+                const getDoisPrimeirosNomes = (nomeCompleto) => {
+                    const partes = nomeCompleto.trim().split(' ');
+                    return partes.slice(0, 2).join(' ');
+                };
+                
+                // Limpa todos primeiro
+                document.getElementById('tempo1').innerText = '--:--';
+                document.getElementById('tempo1Nome').innerText = '--';
+                document.getElementById('tempo2').innerText = '--:--';
+                document.getElementById('tempo2Nome').innerText = '--';
+                document.getElementById('tempo3').innerText = '--:--';
+                document.getElementById('tempo3Nome').innerText = '--';
+                
+                // Preenche conforme disponibilidade
+                if (sortedByTime.length >= 1) {
+                    const nome1 = getDoisPrimeirosNomes(sortedByTime[0].nome);
+                    document.getElementById('tempo1').innerText = this.formatTime(sortedByTime[0].tempoTotalSeg);
+                    document.getElementById('tempo1Nome').innerText = `${nome1} (${sortedByTime[0].idade}a)`;
+                }
+                if (sortedByTime.length >= 2) {
+                    const nome2 = getDoisPrimeirosNomes(sortedByTime[1].nome);
+                    document.getElementById('tempo2').innerText = this.formatTime(sortedByTime[1].tempoTotalSeg);
+                    document.getElementById('tempo2Nome').innerText = `${nome2} (${sortedByTime[1].idade}a)`;
+                }
+                if (sortedByTime.length >= 3) {
+                    const nome3 = getDoisPrimeirosNomes(sortedByTime[2].nome);
+                    document.getElementById('tempo3').innerText = this.formatTime(sortedByTime[2].tempoTotalSeg);
+                    document.getElementById('tempo3Nome').innerText = `${nome3} (${sortedByTime[3].idade}a)`;
+                }
             
                 // Top 3 Melhor Desempenho (percentual comparativo)
                 const sortedByPerf = [...filteredData].sort((a, b) => b.desempenhoPercentual - a.desempenhoPercentual);
