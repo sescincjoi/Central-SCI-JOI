@@ -2078,20 +2078,21 @@
         
         try {
             const response = await fetch(AVISOS_WEB_APP_URL, {
+                redirect: 'follow',
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'text/plain;charset=utf-8',
                 },
                 body: JSON.stringify(formData)
             });
             
-            const data = await response.json();
+            const text = await response.text();
+            const data = JSON.parse(text);
             
             if (data.success) {
                 closeCriarAviso();
                 carregarAvisos();
                 
-                // Feedback visual
                 btnTexto.textContent = '✓ Publicado!';
                 setTimeout(() => {
                     btnTexto.textContent = 'Publicar Aviso';
@@ -2103,8 +2104,8 @@
                 btnTexto.textContent = 'Publicar Aviso';
             }
         } catch (error) {
-            console.error('Erro:', error);
-            alert('Erro ao criar aviso. Verifique sua conexão.');
+            console.error('Erro completo:', error);
+            alert('Erro ao criar aviso. Verifique o console para detalhes.');
             btnEnviar.disabled = false;
             btnTexto.textContent = 'Publicar Aviso';
         }
