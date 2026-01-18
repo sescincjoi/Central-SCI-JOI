@@ -931,7 +931,7 @@ input:focus-visible {
                     const json = JSON.parse(text.substring(47).slice(0, -2));
                     const rows = json.table.rows;
 
-                    rawData = rows.slice(1).map((row, index) => {
+                    rawData = rows.slice(0).map((row, index) => {
                         const cellData = row.c[0]?.f || row.c[0]?.v || "";
                         const cellNome = row.c[1]?.v || "";
                         const cellFuncao = row.c[2]?.v || "";
