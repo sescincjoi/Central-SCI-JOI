@@ -1240,6 +1240,12 @@ input:focus-visible {
             },
 
             renderKPIs() {
+                // Função auxiliar para pegar apenas os 2 primeiros nomes
+                const getDoisPrimeirosNomes = (nomeCompleto) => {
+                    const partes = nomeCompleto.trim().split(' ');
+                    return partes.slice(0, 2).join(' ');
+                };
+                
                 if (filteredData.length === 0) {
                     document.getElementById('tempo1').innerText = "--:--";
                     document.getElementById('tempo1Nome').innerText = "--";
@@ -1296,12 +1302,6 @@ input:focus-visible {
             
                 // Top 3 Melhor Desempenho (percentual comparativo)
                 const sortedByPerf = [...filteredData].sort((a, b) => b.desempenhoPercentual - a.desempenhoPercentual);
-                
-                // Função auxiliar para pegar apenas os 2 primeiros nomes
-                const getDoisPrimeirosNomes = (nomeCompleto) => {
-                    const partes = nomeCompleto.trim().split(' ');
-                    return partes.slice(0, 2).join(' ');
-                };
                 
                 // Limpa todos primeiro
                 document.getElementById('podium1').innerText = '--';
