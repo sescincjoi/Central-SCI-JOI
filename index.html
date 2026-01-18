@@ -1555,6 +1555,568 @@
             </div>
         </div>
     </div>
+
+    <!-- SISTEMA DE AVISOS -->
+    <!-- Botão Sino no Header -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const headerRight = document.querySelector('.nav-bar .text-right');
+        if (headerRight) {
+            const sinoBtn = document.createElement('div');
+            sinoBtn.className = 'flex items-center gap-3';
+            sinoBtn.innerHTML = `
+                <button id="btnAvisos" class="relative" onclick="toggleAvisosModal()">
+                    <i data-lucide="bell" class="w-5 h-5 text-gray-700 hover:text-blue-600 transition-colors"></i>
+                    <span id="badgeAvisos" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">0</span>
+                </button>
+                <div id="currentTime" class="text-sm font-semibold text-gray-900"></div>
+            `;
+            headerRight.innerHTML = '';
+            headerRight.appendChild(sinoBtn);
+            lucide.createIcons();
+        }
+    });
+    </script>
+    
+    <style>
+    /* Modal Avisos */
+    .modal-avisos-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-avisos-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-avisos-content {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        background: #ffffff;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 80vh;
+        overflow-y: auto;
+        z-index: 10001;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-avisos-overlay.active .modal-avisos-content {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    
+    .modal-avisos-header {
+        padding: 20px 24px;
+        border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .modal-avisos-header h2 {
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .modal-avisos-close {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    
+    .modal-avisos-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+    }
+    
+    .modal-avisos-body {
+        padding: 20px 24px;
+    }
+    
+    .aviso-card {
+        background: #f5f5f7;
+        border-radius: 14px;
+        padding: 16px;
+        margin-bottom: 12px;
+        border-left: 4px solid #007AFF;
+        transition: all 0.2s ease;
+    }
+    
+    .aviso-card:hover {
+        background: #e8e8ed;
+        transform: translateX(4px);
+    }
+    
+    .aviso-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    
+    .aviso-assunto {
+        font-size: 15px;
+        font-weight: 700;
+        color: #1d1d1f;
+    }
+    
+    .aviso-tempo {
+        font-size: 10px;
+        color: #86868b;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .aviso-texto {
+        font-size: 13px;
+        color: #4a4a4a;
+        line-height: 1.5;
+        white-space: pre-wrap;
+    }
+    
+    .btn-novo-aviso {
+        width: 100%;
+        background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-novo-aviso:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+    }
+    
+    .empty-avisos {
+        text-align: center;
+        padding: 40px 20px;
+        color: #86868b;
+    }
+    
+    .empty-avisos i {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 16px;
+        color: #d1d1d6;
+    }
+    
+    /* Modal Criar Aviso */
+    .modal-criar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(10px);
+        z-index: 10002;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-criar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-criar-content {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        background: #ffffff;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 480px;
+        z-index: 10003;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    
+    .modal-criar-overlay.active .modal-criar-content {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #1d1d1f;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-input,
+    .form-textarea,
+    .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #d1d1d6;
+        border-radius: 10px;
+        font-size: 15px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s ease;
+        background: #f5f5f7;
+    }
+    
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #007AFF;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+    }
+    
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+    
+    .btn-cancelar,
+    .btn-enviar {
+        flex: 1;
+        padding: 14px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+    }
+    
+    .btn-cancelar {
+        background: #f5f5f7;
+        color: #1d1d1f;
+    }
+    
+    .btn-cancelar:hover {
+        background: #e8e8ed;
+    }
+    
+    .btn-enviar {
+        background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+        color: white;
+    }
+    
+    .btn-enviar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+    }
+    
+    .btn-enviar:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    @keyframes pulse-bell {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    #btnAvisos.has-avisos {
+        animation: pulse-bell 2s ease-in-out infinite;
+    }
+    </style>
+    
+    <!-- Modal Avisos -->
+    <div class="modal-avisos-overlay" id="modalAvisosOverlay" onclick="closeAvisosModal()">
+        <div class="modal-avisos-content" onclick="event.stopPropagation()">
+            <div class="modal-avisos-header">
+                <h2>📢 Avisos</h2>
+                <button class="modal-avisos-close" onclick="closeAvisosModal()">
+                    <i data-lucide="x" class="w-5 h-5 text-white"></i>
+                </button>
+            </div>
+            <div class="modal-avisos-body">
+                <button class="btn-novo-aviso" onclick="openCriarAviso()">
+                    <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    Criar Novo Aviso
+                </button>
+                <div id="avisosLista" style="margin-top: 20px;">
+                    <div class="empty-avisos">
+                        <i data-lucide="bell-off" class="w-16 h-16"></i>
+                        <p style="font-weight: 600; margin-bottom: 4px;">Nenhum aviso ativo</p>
+                        <p style="font-size: 13px;">Crie um novo aviso acima</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Criar Aviso -->
+    <div class="modal-criar-overlay" id="modalCriarOverlay" onclick="closeCriarAviso()">
+        <div class="modal-criar-content" onclick="event.stopPropagation()">
+            <div class="modal-avisos-header">
+                <h2>✍️ Novo Aviso</h2>
+                <button class="modal-avisos-close" onclick="closeCriarAviso()">
+                    <i data-lucide="x" class="w-5 h-5 text-white"></i>
+                </button>
+            </div>
+            <div class="modal-avisos-body">
+                <form id="formCriarAviso" onsubmit="enviarAviso(event)">
+                    <div class="form-group">
+                        <label class="form-label">Assunto</label>
+                        <input type="text" id="inputAssunto" class="form-input" placeholder="Ex: Reunião Importante" required maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Texto do Aviso</label>
+                        <textarea id="inputTexto" class="form-textarea" placeholder="Digite o conteúdo do aviso..." required maxlength="500"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tempo Ativo</label>
+                        <select id="inputTempo" class="form-select" required>
+                            <option value="1">1 hora</option>
+                            <option value="3">3 horas</option>
+                            <option value="6">6 horas</option>
+                            <option value="12">12 horas</option>
+                            <option value="24" selected>24 horas (1 dia)</option>
+                            <option value="48">48 horas (2 dias)</option>
+                            <option value="72">72 horas (3 dias)</option>
+                            <option value="168">7 dias</option>
+                        </select>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button type="button" class="btn-cancelar" onclick="closeCriarAviso()">Cancelar</button>
+                        <button type="submit" class="btn-enviar" id="btnEnviar">
+                            <span id="btnEnviarTexto">Publicar Aviso</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    const AVISOS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFaVbSq6i7DOXG7_UBt6rIN0oj69tADM6yhH9zaVyNpSjy5l-OgHbHfpx7yP0OTXoKhQ/exec';
+    
+    let avisosAtivos = [];
+    
+    // Toggle Modal Avisos
+    function toggleAvisosModal() {
+        const overlay = document.getElementById('modalAvisosOverlay');
+        const isActive = overlay.classList.contains('active');
+        
+        if (isActive) {
+            closeAvisosModal();
+        } else {
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            carregarAvisos();
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+    }
+    
+    function closeAvisosModal() {
+        const overlay = document.getElementById('modalAvisosOverlay');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Modal Criar Aviso
+    function openCriarAviso() {
+        document.getElementById('modalCriarOverlay').classList.add('active');
+        document.getElementById('formCriarAviso').reset();
+        setTimeout(() => lucide.createIcons(), 100);
+    }
+    
+    function closeCriarAviso() {
+        document.getElementById('modalCriarOverlay').classList.remove('active');
+    }
+    
+    // Carregar Avisos
+    async function carregarAvisos() {
+        try {
+            const response = await fetch(`${AVISOS_WEB_APP_URL}?action=getAvisos`);
+            const data = await response.json();
+            
+            if (data.success) {
+                avisosAtivos = data.avisos || [];
+                renderizarAvisos();
+                atualizarBadge();
+            }
+        } catch (error) {
+            console.error('Erro ao carregar avisos:', error);
+        }
+    }
+    
+    // Renderizar Avisos
+    function renderizarAvisos() {
+        const container = document.getElementById('avisosLista');
+        
+        if (avisosAtivos.length === 0) {
+            container.innerHTML = `
+                <div class="empty-avisos">
+                    <i data-lucide="bell-off" class="w-16 h-16"></i>
+                    <p style="font-weight: 600; margin-bottom: 4px;">Nenhum aviso ativo</p>
+                    <p style="font-size: 13px;">Crie um novo aviso acima</p>
+                </div>
+            `;
+            lucide.createIcons();
+            return;
+        }
+        
+        container.innerHTML = avisosAtivos.map(aviso => {
+            const dataRegistro = new Date(aviso['DATA/HORA']);
+            const tempoAtivo = parseInt(aviso.TEMPO_ATIVO) || 24;
+            const dataExpiracao = new Date(dataRegistro.getTime() + (tempoAtivo * 60 * 60 * 1000));
+            const tempoRestante = Math.max(0, dataExpiracao - new Date());
+            const horasRestantes = Math.floor(tempoRestante / (1000 * 60 * 60));
+            const minutosRestantes = Math.floor((tempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+            
+            let tempoTexto = '';
+            if (horasRestantes > 0) {
+                tempoTexto = `Expira em ${horasRestantes}h ${minutosRestantes}min`;
+            } else if (minutosRestantes > 0) {
+                tempoTexto = `Expira em ${minutosRestantes} minutos`;
+            } else {
+                tempoTexto = 'Expirando...';
+            }
+            
+            return `
+                <div class="aviso-card">
+                    <div class="aviso-card-header">
+                        <span class="aviso-assunto">${aviso.ASSUNTO}</span>
+                        <span class="aviso-tempo">${tempoTexto}</span>
+                    </div>
+                    <p class="aviso-texto">${aviso.TEXTO}</p>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // Atualizar Badge
+    function atualizarBadge() {
+        const badge = document.getElementById('badgeAvisos');
+        const btn = document.getElementById('btnAvisos');
+        
+        if (avisosAtivos.length > 0) {
+            badge.textContent = avisosAtivos.length;
+            badge.classList.remove('hidden');
+            btn.classList.add('has-avisos');
+        } else {
+            badge.classList.add('hidden');
+            btn.classList.remove('has-avisos');
+        }
+    }
+    
+    // Enviar Aviso
+    async function enviarAviso(event) {
+        event.preventDefault();
+        
+        const btnEnviar = document.getElementById('btnEnviar');
+        const btnTexto = document.getElementById('btnEnviarTexto');
+        
+        btnEnviar.disabled = true;
+        btnTexto.textContent = 'Enviando...';
+        
+        const formData = {
+            assunto: document.getElementById('inputAssunto').value,
+            texto: document.getElementById('inputTexto').value,
+            tempoAtivo: document.getElementById('inputTempo').value
+        };
+        
+        try {
+            const response = await fetch(AVISOS_WEB_APP_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                closeCriarAviso();
+                carregarAvisos();
+                
+                // Feedback visual
+                btnTexto.textContent = '✓ Publicado!';
+                setTimeout(() => {
+                    btnTexto.textContent = 'Publicar Aviso';
+                    btnEnviar.disabled = false;
+                }, 2000);
+            } else {
+                alert('Erro ao criar aviso: ' + (data.error || 'Desconhecido'));
+                btnEnviar.disabled = false;
+                btnTexto.textContent = 'Publicar Aviso';
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro ao criar aviso. Verifique sua conexão.');
+            btnEnviar.disabled = false;
+            btnTexto.textContent = 'Publicar Aviso';
+        }
+    }
+    
+    // Carregar avisos ao iniciar e atualizar a cada 2 minutos
+    document.addEventListener('DOMContentLoaded', function() {
+        carregarAvisos();
+        setInterval(carregarAvisos, 2 * 60 * 1000);
+    });
+    </script>
+    <!-- FIM SISTEMA DE AVISOS -->
     
 </body>
 </html>
