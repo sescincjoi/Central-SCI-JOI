@@ -1948,7 +1948,7 @@
     </div>
     
     <script>
-    const AVISOS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwFaVbSq6i7DOXG7_UBt6rIN0oj69tADM6yhH9zaVyNpSjy5l-OgHbHfpx7yP0OTXoKhQ/exec';
+    const AVISOS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzMqAjJn-Y8VRcGKRtZWuvTCFXa3ASGlWfktIhclRR-qLAPNVLP-bARkHCp6g5_G4HdHg/exec';
     
     let avisosAtivos = [];
     
@@ -2061,7 +2061,7 @@
     }
     
     // Enviar Aviso
-    function enviarAviso(event) {
+    async function enviarAviso(event) {
         event.preventDefault();
         
         const btnEnviar = document.getElementById('btnEnviar');
@@ -2074,51 +2074,51 @@
         const texto = document.getElementById('inputTexto').value;
         const tempoAtivo = document.getElementById('inputTempo').value;
         
-        // Criar iframe invisível para envio
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.name = 'avisoFrame';
-        document.body.appendChild(iframe);
-        
-        // Criar formulário
-        const form = document.createElement('form');
-        form.target = 'avisoFrame';
-        form.method = 'POST';
-        form.action = AVISOS_WEB_APP_URL;
-        
-        // Adicionar campos
-        const campos = {
-            assunto: assunto,
-            texto: texto,
-            tempoAtivo: tempoAtivo
-        };
-        
-        Object.keys(campos).forEach(key => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = campos[key];
-            form.appendChild(input);
-        });
-        
-        document.body.appendChild(form);
-        form.submit();
-        
-        // Aguardar envio e limpar
-        setTimeout(() => {
-            document.body.removeChild(form);
-            document.body.removeChild(iframe);
+        try {
+            // Criar FormData
+            const formData = new FormData();
+            formData.append('assunto', assunto);
+            formData.append('texto', texto);
+            formData.append('tempoAtivo', tempoAtivo);
             
-            btnTexto.textContent = '✓ Publicado!';
-            closeCriarAviso();
+            // Enviar com fetch
+            const response = await fetch(AVISOS_WEB_APP_URL, {
+                method: 'POST',
+                body: formData
+            });
             
-            // Recarregar avisos após 1 segundo
+            const result = await response.json();
+            
+            if (result.success) {
+                btnTexto.textContent = '✓ Publicado!';
+                
+                // Limpar formulário
+                document.getElementById('formCriarAviso').reset();
+                
+                // Fechar modal após 800ms
+                setTimeout(() => {
+                    closeCriarAviso();
+                    btnTexto.textContent = 'Publicar Aviso';
+                    btnEnviar.disabled = false;
+                }, 800);
+                
+                // Recarregar avisos após 1 segundo
+                setTimeout(() => {
+                    carregarAvisos();
+                }, 1000);
+            } else {
+                throw new Error(result.error || 'Erro ao publicar aviso');
+            }
+            
+        } catch (error) {
+            console.error('Erro ao enviar aviso:', error);
+            btnTexto.textContent = '❌ Erro ao enviar';
+            
             setTimeout(() => {
-                carregarAvisos();
                 btnTexto.textContent = 'Publicar Aviso';
                 btnEnviar.disabled = false;
-            }, 1000);
-        }, 1500);
+            }, 2000);
+        }
     }
     
     // Carregar avisos ao iniciar e atualizar a cada 2 minutos
