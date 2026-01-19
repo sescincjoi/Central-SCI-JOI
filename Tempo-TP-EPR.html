@@ -548,8 +548,41 @@
             },
 
             calculateEvolution() {
+                // Determinar o período para cálculo de evolução
+                const periodo = document.getElementById('filterPeriodo').value;
+                const hoje = new Date();
+                let dataLimiteEvolucao;
+                
+                // Sempre considera no mínimo 6 meses, ou o período selecionado se for maior
+                if (periodo === 'ano' || periodo === 'todos') {
+                    // Se for "ano" ou "todos", usa os dados filtrados normalmente
+                    dataLimiteEvolucao = null; // Sem limite adicional
+                } else {
+                    // Para outros períodos (trimestre, semestre, mais_recente), garante no mínimo 6 meses
+                    const seisM = new Date();
+                    seisM.setMonth(hoje.getMonth() - 6);
+                    dataLimiteEvolucao = seisM;
+                }
+                
+                // Filtrar dados para evolução (no mínimo 6 meses)
+                let dadosEvolucao = rawData;
+                if (dataLimiteEvolucao) {
+                    dadosEvolucao = rawData.filter(d => d.dateObject && d.dateObject >= dataLimiteEvolucao);
+                } else if (periodo !== 'todos') {
+                    dadosEvolucao = filteredData; // Usa os dados já filtrados se for período maior
+                }
+                
+                // Aplicar filtros de equipe e bombeiro
+                const eq = document.getElementById('filterEquipe').value;
+                const bm = document.getElementById('filterBombeiro').value;
+                dadosEvolucao = dadosEvolucao.filter(d => {
+                    const matchEq = eq === 'Todas' || d.equipe === eq;
+                    const matchBm = bm === 'Todos' || d.nome === bm;
+                    return matchEq && matchBm;
+                });
+                
                 const inds = {};
-                filteredData.forEach(d => { if (!inds[d.nome]) inds[d.nome] = []; inds[d.nome].push(d); });
+                dadosEvolucao.forEach(d => { if (!inds[d.nome]) inds[d.nome] = []; inds[d.nome].push(d); });
                 let topEvo = 0, topNome = "N/A";
                 Object.keys(inds).forEach(n => {
                     const h = inds[n];
