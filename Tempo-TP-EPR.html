@@ -151,23 +151,26 @@
                 <div id="kpiMelhoresTempos" class="space-y-2 mt-2">
                     <div class="flex items-center gap-2">
                         <span class="text-lg">🥇</span>
-                        <div class="flex-1">
-                            <p id="tempo1" class="text-xs font-bold text-slate-700 truncate flex-1">--:--</p>
-                            <p id="tempo1Nome" class="text-xs text-slate-400 truncate">--</p>
+                        <div class="flex-1 min-w-0 text-xs">
+                            <span id="tempo1" class="font-bold text-yellow-600">--:--</span>
+                            <span class="text-slate-400"> - </span>
+                            <span id="tempo1Nome" class="text-slate-700 font-medium truncate">--</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm px-[0.2rem]">🥈</span>
-                        <div class="flex-1">
-                            <p id="tempo2" class="text-xs font-medium text-slate-600 truncate flex-1">--:--</p>
-                            <p id="tempo2Nome" class="text-xs text-slate-400 truncate">--</p>
+                    <div class="flex items-center gap-2 opacity-75">
+                        <span class="text-lg px-[0.1rem]">🥈</span>
+                        <div class="flex-1 min-w-0 text-xs">
+                            <span id="tempo2" class="font-bold text-slate-400">--:--</span>
+                            <span class="text-slate-400"> - </span>
+                            <span id="tempo2Nome" class="text-slate-600 font-medium truncate">--</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm px-[0.2rem]">🥉</span>
-                        <div class="flex-1">
-                            <p id="tempo3" class="text-xs font-medium text-slate-600 truncate flex-1">--:--</p>
-                            <p id="tempo3Nome" class="text-xs text-slate-400 truncate">--</p>
+                    <div class="flex items-center gap-2 opacity-75">
+                        <span class="text-lg px-[0.1rem]">🥉</span>
+                        <div class="flex-1 min-w-0 text-xs">
+                            <span id="tempo3" class="font-bold text-amber-700">--:--</span>
+                            <span class="text-slate-400"> - </span>
+                            <span id="tempo3Nome" class="text-slate-600 font-medium truncate">--</span>
                         </div>
                     </div>
                 </div>
@@ -593,18 +596,18 @@
                 // Preenche conforme disponibilidade
                 if (sorted.length >= 1) {
                     const nome1 = getDoisPrimeirosNomes(sorted[0].nome);
-                    document.getElementById('tempo1').innerText = this.formatTime(sorted[0].tempoSegundos);
-                    document.getElementById('tempo1Nome').innerText = nome1;
+                    document.getElementById('tempo1').textContent = this.formatTime(sorted[0].tempoSegundos);
+                    document.getElementById('tempo1Nome').textContent = nome1;
                 }
                 if (sorted.length >= 2) {
                     const nome2 = getDoisPrimeirosNomes(sorted[1].nome);
-                    document.getElementById('tempo2').innerText = this.formatTime(sorted[1].tempoSegundos);
-                    document.getElementById('tempo2Nome').innerText = nome2;
+                    document.getElementById('tempo2').textContent = this.formatTime(sorted[1].tempoSegundos);
+                    document.getElementById('tempo2Nome').textContent = nome2;
                 }
                 if (sorted.length >= 3) {
                     const nome3 = getDoisPrimeirosNomes(sorted[2].nome);
-                    document.getElementById('tempo3').innerText = this.formatTime(sorted[2].tempoSegundos);
-                    document.getElementById('tempo3Nome').innerText = nome3;
+                    document.getElementById('tempo3').textContent = this.formatTime(sorted[2].tempoSegundos);
+                    document.getElementById('tempo3Nome').textContent = nome3;
                 }
                 
                 const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
