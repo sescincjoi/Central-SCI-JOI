@@ -144,12 +144,13 @@
         <!-- Cards de KPI -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="glass-card p-6 rounded-2xl metric-card">
-                <div class="flex items-center justify-between mb-2">
-                    <p class="text-sm font-medium text-slate-500">Melhor Tempo</p>
-                    <i data-lucide="trophy" class="w-5 h-5 text-emerald-500"></i>
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-medium text-slate-500">Melhores Tempos</p>
+                    <i data-lucide="trophy" class="w-5 h-5 text-amber-500"></i>
                 </div>
-                <h3 id="kpiMelhorTempo" class="text-3xl font-bold text-emerald-600">--:--</h3>
-                <p id="kpiMelhorNome" class="text-xs text-slate-400 mt-2 italic font-medium truncate">Aguardando...</p>
+                <div id="kpiMelhoresTempos" class="space-y-2">
+                    <div class="text-slate-400 text-xs italic">Aguardando...</div>
+                </div>
             </div>
 
             <div class="glass-card p-6 rounded-2xl metric-card">
@@ -531,16 +532,41 @@
 
             renderKPIs() {
                 if (filteredData.length === 0) {
-                    document.getElementById('kpiMelhorTempo').innerText = "--:--";
-                    document.getElementById('kpiMelhorNome').innerText = "Sem dados";
+                    document.getElementById('kpiMelhoresTempos').innerHTML = '<div class="text-slate-400 text-xs italic">Sem dados</div>';
                     document.getElementById('kpiMedia').innerText = "--:--";
                     document.getElementById('kpiTotal').innerText = "0";
                     return;
                 }
+                
+                // Top 3 melhores tempos
                 const sorted = [...filteredData].sort((a, b) => a.tempoSegundos - b.tempoSegundos);
-                const melhor = sorted[0];
-                document.getElementById('kpiMelhorTempo').innerText = this.formatTime(melhor.tempoSegundos);
-                document.getElementById('kpiMelhorNome').innerText = `${melhor.nome} (${melhor.equipe})`;
+                const top3 = sorted.slice(0, 3);
+                
+                const medalhas = [
+                    { emoji: '🥇', cor: 'text-yellow-500', tamanho: 'text-xl' },
+                    { emoji: '🥈', cor: 'text-slate-400', tamanho: 'text-lg' },
+                    { emoji: '🥉', cor: 'text-amber-700', tamanho: 'text-base' }
+                ];
+                
+                let html = '';
+                top3.forEach((d, index) => {
+                    const medalha = medalhas[index];
+                    const tempoSize = index === 0 ? 'text-xl' : index === 1 ? 'text-lg' : 'text-base';
+                    const nomeSize = index === 0 ? 'text-xs' : 'text-[10px]';
+                    
+                    html += `
+                        <div class="flex items-center gap-2 ${index > 0 ? 'opacity-80' : ''}">
+                            <span class="${medalha.tamanho}">${medalha.emoji}</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold ${medalha.cor} ${tempoSize}">${this.formatTime(d.tempoSegundos)}</div>
+                                <div class="${nomeSize} text-slate-500 truncate font-medium">${d.nome}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('kpiMelhoresTempos').innerHTML = html;
+                
                 const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
                 document.getElementById('kpiMedia').innerText = this.formatTime(media);
                 document.getElementById('kpiTotal').innerText = filteredData.length;
