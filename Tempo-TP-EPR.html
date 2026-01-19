@@ -551,26 +551,20 @@
                 let html = '';
                 top3.forEach((d, index) => {
                     const medalha = medalhas[index];
-                    const tempoSize = index === 0 ? 'text-xl' : index === 1 ? 'text-lg' : 'text-base';
-                    const nomeSize = index === 0 ? 'text-xs' : 'text-[10px]';
+                    const fontSize = index === 0 ? 'text-sm' : 'text-xs';
                     
                     html += `
-                        <div class="flex items-center gap-2 ${index > 0 ? 'opacity-80' : ''}">
-                            <span class="${medalha.tamanho}">${medalha.emoji}</span>
-                            <div class="flex-1 min-w-0">
-                                <div class="font-bold ${medalha.cor} ${tempoSize}">${this.formatTime(d.tempoSegundos)}</div>
-                                <div class="${nomeSize} text-slate-500 truncate font-medium">${d.nome}</div>
+                        <div class="flex items-center gap-2 ${index > 0 ? 'opacity-75' : ''}">
+                            <span class="text-lg">${medalha.emoji}</span>
+                            <div class="flex-1 min-w-0 ${fontSize}">
+                                <span class="font-bold ${medalha.cor}">${this.formatTime(d.tempoSegundos)}</span>
+                                <span class="text-slate-500"> - </span>
+                                <span class="text-slate-700 font-medium truncate">${d.nome}</span>
                             </div>
                         </div>
                     `;
                 });
-                
-                document.getElementById('kpiMelhoresTempos').innerHTML = html;
-                
-                const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
-                document.getElementById('kpiMedia').innerText = this.formatTime(media);
-                document.getElementById('kpiTotal').innerText = filteredData.length;
-                this.calculateEvolution();
+his.calculateEvolution();
             },
 
             calculateEvolution() {
