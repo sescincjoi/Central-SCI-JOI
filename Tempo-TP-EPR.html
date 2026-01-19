@@ -486,6 +486,9 @@
                             const date = new Date(); date.setMonth(hoje.getMonth() - 6); matchPeriodo = d.dateObject >= date;
                         } else if (periodo === 'trimestre') {
                             const date = new Date(); date.setMonth(hoje.getMonth() - 3); matchPeriodo = d.dateObject >= date;
+                        } else if (periodo === 'mais_recente') {
+                            const dataLimite = new Date(2025, 7, 1); // 01/08/2025 (mês é 0-indexed, então 7 = agosto)
+                            matchPeriodo = d.dateObject >= dataLimite;
                         }
                     }
                     return matchEq && matchBm && matchPeriodo;
