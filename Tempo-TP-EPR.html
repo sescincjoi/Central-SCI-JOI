@@ -144,12 +144,32 @@
         <!-- Cards de KPI -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="glass-card p-6 rounded-2xl metric-card">
-                <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-2">
                     <p class="text-sm font-medium text-slate-500">Melhores Tempos</p>
                     <i data-lucide="trophy" class="w-5 h-5 text-amber-500"></i>
                 </div>
-                <div id="kpiMelhoresTempos" class="space-y-2">
-                    <div class="text-slate-400 text-xs italic">Aguardando...</div>
+                <div id="kpiMelhoresTempos" class="space-y-2 mt-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">🥇</span>
+                        <div class="flex-1">
+                            <p id="tempo1" class="text-xs font-bold text-slate-700 truncate flex-1">--:--</p>
+                            <p id="tempo1Nome" class="text-xs text-slate-400 truncate">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm px-[0.2rem]">🥈</span>
+                        <div class="flex-1">
+                            <p id="tempo2" class="text-xs font-medium text-slate-600 truncate flex-1">--:--</p>
+                            <p id="tempo2Nome" class="text-xs text-slate-400 truncate">--</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm px-[0.2rem]">🥉</span>
+                        <div class="flex-1">
+                            <p id="tempo3" class="text-xs font-medium text-slate-600 truncate flex-1">--:--</p>
+                            <p id="tempo3Nome" class="text-xs text-slate-400 truncate">--</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -531,8 +551,29 @@
             },
 
             renderKPIs() {
+                // Função auxiliar para pegar apenas os 2 primeiros nomes (pulando preposições)
+                const getDoisPrimeirosNomes = (nomeCompleto) => {
+                    const preposicoes = ['de', 'da', 'do', 'dos', 'das', 'e'];
+                    const partes = nomeCompleto.trim().split(' ');
+                    const nomesFiltrados = [];
+                    
+                    for (let i = 0; i < partes.length && nomesFiltrados.length < 2; i++) {
+                        // Se não é preposição OU se é o primeiro nome, adiciona
+                        if (!preposicoes.includes(partes[i].toLowerCase()) || nomesFiltrados.length === 0) {
+                            nomesFiltrados.push(partes[i]);
+                        }
+                    }
+                    
+                    return nomesFiltrados.join(' ');
+                };
+                
                 if (filteredData.length === 0) {
-                    document.getElementById('kpiMelhoresTempos').innerHTML = '<div class="text-slate-400 text-xs italic">Sem dados</div>';
+                    document.getElementById('tempo1').innerText = "--:--";
+                    document.getElementById('tempo1Nome').innerText = "--";
+                    document.getElementById('tempo2').innerText = "--:--";
+                    document.getElementById('tempo2Nome').innerText = "--";
+                    document.getElementById('tempo3').innerText = "--:--";
+                    document.getElementById('tempo3Nome').innerText = "--";
                     document.getElementById('kpiMedia').innerText = "--:--";
                     document.getElementById('kpiTotal').innerText = "0";
                     return;
@@ -540,37 +581,37 @@
                 
                 // Top 3 melhores tempos
                 const sorted = [...filteredData].sort((a, b) => a.tempoSegundos - b.tempoSegundos);
-                const top3 = sorted.slice(0, 3);
                 
-                const medalhas = [
-                    { emoji: '🥇', cor: 'text-yellow-500', tamanho: 'text-xl' },
-                    { emoji: '🥈', cor: 'text-slate-400', tamanho: 'text-lg' },
-                    { emoji: '🥉', cor: 'text-amber-700', tamanho: 'text-base' }
-                ];
+                // Limpa todos primeiro
+                document.getElementById('tempo1').innerText = '--:--';
+                document.getElementById('tempo1Nome').innerText = '--';
+                document.getElementById('tempo2').innerText = '--:--';
+                document.getElementById('tempo2Nome').innerText = '--';
+                document.getElementById('tempo3').innerText = '--:--';
+                document.getElementById('tempo3Nome').innerText = '--';
                 
-                let html = '';
-                top3.forEach((d, index) => {
-                    const medalha = medalhas[index];
-                    const fontSize = index === 0 ? 'text-sm' : 'text-xs';
-                    
-                    html += `
-                        <div class="flex items-center gap-2 ${index > 0 ? 'opacity-75' : ''}">
-                            <span class="text-lg">${medalha.emoji}</span>
-                            <div class="flex-1 min-w-0 ${fontSize}">
-                                <span class="font-bold ${medalha.cor}">${this.formatTime(d.tempoSegundos)}</span>
-                                <span class="text-slate-500"> - </span>
-                                <span class="text-slate-700 font-medium truncate">${d.nome}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-                document.getElementById('kpiMelhoresTempos').innerHTML = html;
-                    
-                    const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
-                    document.getElementById('kpiMedia').innerText = this.formatTime(media);
-                    document.getElementById('kpiTotal').innerText = filteredData.length;
-                    this.calculateEvolution();
-                },
+                // Preenche conforme disponibilidade
+                if (sorted.length >= 1) {
+                    const nome1 = getDoisPrimeirosNomes(sorted[0].nome);
+                    document.getElementById('tempo1').innerText = this.formatTime(sorted[0].tempoSegundos);
+                    document.getElementById('tempo1Nome').innerText = nome1;
+                }
+                if (sorted.length >= 2) {
+                    const nome2 = getDoisPrimeirosNomes(sorted[1].nome);
+                    document.getElementById('tempo2').innerText = this.formatTime(sorted[1].tempoSegundos);
+                    document.getElementById('tempo2Nome').innerText = nome2;
+                }
+                if (sorted.length >= 3) {
+                    const nome3 = getDoisPrimeirosNomes(sorted[2].nome);
+                    document.getElementById('tempo3').innerText = this.formatTime(sorted[2].tempoSegundos);
+                    document.getElementById('tempo3Nome').innerText = nome3;
+                }
+                
+                const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
+                document.getElementById('kpiMedia').innerText = this.formatTime(media);
+                document.getElementById('kpiTotal').innerText = filteredData.length;
+                this.calculateEvolution();
+            },
 
             calculateEvolution() {
                 // Determinar o período para cálculo de evolução
