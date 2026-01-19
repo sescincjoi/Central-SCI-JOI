@@ -265,10 +265,11 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Filtrar por Período</label>
                     <select id="filterPeriodo" class="w-full pl-4 pr-10 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="mais_recente" selected>Última Aferição</option>
                         <option value="todos">Todo o Período</option>
                         <option value="ano">Último Ano</option>
                         <option value="semestre">Último Semestre</option>
-                        <option value="trimestre" selected>Último Trimestre</option>
+                        <option value="trimestre">Último Trimestre</option>
                     </select>
                 </div>
 
@@ -449,7 +450,7 @@
             resetAllFilters() {
                 document.getElementById('filterEquipe').value = 'Todas';
                 document.getElementById('filterBombeiro').value = 'Todos';
-                document.getElementById('filterPeriodo').value = 'todos';
+                document.getElementById('filterPeriodo').value = 'mais_recente';
                 contextFilter = null;
                 this.clearSelection();
                 this.updateUI();
@@ -489,7 +490,18 @@
                     }
                     return matchEq && matchBm && matchPeriodo;
                 });
-
+            
+                // Se o filtro "Mais Recente de Cada BA" estiver ativo
+                if (periodo === 'mais_recente') {
+                    const maisRecentesPorBA = {};
+                    filteredData.forEach(d => {
+                        if (!maisRecentesPorBA[d.nome] || d.dateObject > maisRecentesPorBA[d.nome].dateObject) {
+                            maisRecentesPorBA[d.nome] = d;
+                        }
+                    });
+                    filteredData = Object.values(maisRecentesPorBA);
+                }
+            
                 UIController.renderSummaryLabels();
                 this.renderKPIs();
                 this.renderAlerts();
