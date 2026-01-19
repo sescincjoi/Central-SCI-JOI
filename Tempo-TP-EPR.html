@@ -564,8 +564,13 @@
                         </div>
                     `;
                 });
-his.calculateEvolution();
-            },
+                document.getElementById('kpiMelhoresTempos').innerHTML = html;
+                    
+                    const media = filteredData.reduce((acc, curr) => acc + curr.tempoSegundos, 0) / filteredData.length;
+                    document.getElementById('kpiMedia').innerText = this.formatTime(media);
+                    document.getElementById('kpiTotal').innerText = filteredData.length;
+                    this.calculateEvolution();
+                },
 
             calculateEvolution() {
                 // Determinar o período para cálculo de evolução
