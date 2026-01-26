@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - Central SCI JOI</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f7;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-bar {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d1d6;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            background: #ffffff;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 14px 24px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #f5f5f7;
+            color: #1d1d1f;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8ed;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #007AFF;
+            color: white;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ba-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .ba-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(29, 29, 31, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 md:px-6">
+            <div class="flex items-center justify-between h-14">
+                <button onclick="window.history.back()" class="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors">
+                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    <span class="font-semibold">Voltar</span>
+                </button>
+                
+                <div class="flex items-center gap-3">
+                    <img src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
+                         alt="SCI" 
+                         class="w-9 h-9 rounded-full"
+                         onerror="this.src='https://via.placeholder.com/150x150?text=SCI';">
+                    <span class="text-lg font-semibold text-gray-900">Relatórios</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 md:px-6 pb-24" style="padding-top: 76px;">
+        
+        <div class="card mb-6 p-5">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Novo Relatório</h1>
+                    <p class="text-sm text-gray-500">Preencha os dados da ocorrência</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-gray-500 uppercase">Relatório Nº</span>
+                <span id="numeroRelatorio" class="badge">Carregando...</span>
+            </div>
+        </div>
+
+        <form id="formRelatorio" class="space-y-4">
+            
+            <div class="card p-5">
+                <div class="section-title">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
+                    Localização do Evento
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                        <label class="form-label">Área (Letra)</label>
+                        <select id="areaLetra" class="form-select" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Área (Número)</label>
+                        <select id="areaNumero" class="form-select" required>
+                            <option value="">Selecione...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-5">
+                <div class="section-title">
+                    <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
+                    Dados da Ocorrência
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="form-label">Tipo de Ocorrência</label>
+                            <select id="tipoOcorrencia" class="form-select" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-secondary mt-6" onclick="novoTipo()">
+                            <i data-lucide="plus" class="w-4 h-4 inline"></i>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Equipe</label>
+                        <select id="equipe" class="form-select" required>
+                            <option value="ALFA">ALFA</option>
+                            <option value="BRAVO">BRAVO</option>
+                            <option value="CHARLIE">CHARLIE</option>
+                            <option value="DELTA">DELTA</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Nome do Solicitante</label>
+                        <input type="text" id="nomeSolicitante" class="form-input" required>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="form-label">Empresa Envolvida</label>
+                            <select id="empresaEnvolvida" class="form-select" required>
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn-secondary mt-6" onclick="novaEmpresa()">
+                            <i data-lucide="plus" class="w-4 h-4 inline"></i>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Procedimentos Estabelecidos</label>
+                        <textarea id="procedimentos" class="form-textarea" required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-5">
+                <div class="section-title">
+                    <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
+                    Registro de Horários
+                </div>
+                
+                <div class="time-inputs">
+                    <div>
+                        <label class="form-label">Acionamento</label>
+                        <input type="time" id="acionamento" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Saída</label>
+                        <input type="time" id="saida" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Chegada no Local</label>
+                        <input type="time" id="chegada" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Término</label>
+                        <input type="time" id="termino" class="form-input" required>
+                    </div>
+                    <div>
+                        <label class="form-label">Retorno à SCI</label>
+                        <input type="time" id="retorno" class="form-input" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-5">
+                <div class="section-title">
+                    <i data-lucide="file-warning" class="w-4 h-4 text-amber-600"></i>
+                    Relação de Danos
+                </div>
+                
+                <textarea id="relacaoDanos" class="form-textarea" placeholder="Descreva os danos observados..."></textarea>
+            </div>
+
+            <div class="card p-5">
+                <div class="section-title">
+                    <i data-lucide="users" class="w-4 h-4 text-purple-600"></i>
+                    Bombeiros Envolvidos
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="ba-row">
+                        <div>
+                            <label class="form-label">Função</label>
+                            <select id="funcao1" class="form-select">
+                                <option value="">-</option>
+                                <option value="BA-GS">BA-GS</option>
+                                <option value="BA-CE">BA-CE</option>
+                                <option value="BA-LR">BA-LR</option>
+                                <option value="BA-MC">BA-MC</option>
+                                <option value="BA-02">BA-02</option>
+                                <option value="BA-OC">BA-OC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Nome</label>
+                            <select id="nomeBa1" class="form-select">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ba-row">
+                        <div>
+                            <label class="form-label">Função</label>
+                            <select id="funcao2" class="form-select">
+                                <option value="">-</option>
+                                <option value="BA-GS">BA-GS</option>
+                                <option value="BA-CE">BA-CE</option>
+                                <option value="BA-LR">BA-LR</option>
+                                <option value="BA-MC">BA-MC</option>
+                                <option value="BA-02">BA-02</option>
+                                <option value="BA-OC">BA-OC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Nome</label>
+                            <select id="nomeBa2" class="form-select">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ba-row">
+                        <div>
+                            <label class="form-label">Função</label>
+                            <select id="funcao3" class="form-select">
+                                <option value="">-</option>
+                                <option value="BA-GS">BA-GS</option>
+                                <option value="BA-CE">BA-CE</option>
+                                <option value="BA-LR">BA-LR</option>
+                                <option value="BA-MC">BA-MC</option>
+                                <option value="BA-02">BA-02</option>
+                                <option value="BA-OC">BA-OC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Nome</label>
+                            <select id="nomeBa3" class="form-select">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ba-row">
+                        <div>
+                            <label class="form-label">Função</label>
+                            <select id="funcao4" class="form-select">
+                                <option value="">-</option>
+                                <option value="BA-GS">BA-GS</option>
+                                <option value="BA-CE">BA-CE</option>
+                                <option value="BA-LR">BA-LR</option>
+                                <option value="BA-MC">BA-MC</option>
+                                <option value="BA-02">BA-02</option>
+                                <option value="BA-OC">BA-OC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Nome</label>
+                            <select id="nomeBa4" class="form-select">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ba-row">
+                        <div>
+                            <label class="form-label">Função</label>
+                            <select id="funcao5" class="form-select">
+                                <option value="">-</option>
+                                <option value="BA-GS">BA-GS</option>
+                                <option value="BA-CE">BA-CE</option>
+                                <option value="BA-LR">BA-LR</option>
+                                <option value="BA-MC">BA-MC</option>
+                                <option value="BA-02">BA-02</option>
+                                <option value="BA-OC">BA-OC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Nome</label>
+                            <select id="nomeBa5" class="form-select">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="ba-row">
+                        <div>
+                            <label class="form-label">Função</label>
+                            <select id="funcao6" class="form-select">
+                                <option value="">-</option>
+                                <option value="BA-GS">BA-GS</option>
+                                <option value="BA-CE">BA-CE</option>
+                                <option value="BA-LR">BA-LR</option>
+                                <option value="BA-MC">BA-MC</option>
+                                <option value="BA-02">BA-02</option>
+                                <option value="BA-OC">BA-OC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Nome</label>
+                            <select id="nomeBa6" class="form-select">
+                                <option value="">Selecione...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-5">
+                <div class="section-title">
+                    <i data-lucide="truck" class="w-4 h-4 text-green-600"></i>
+                    Equipamentos e Material
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="form-label">CCI e Equipamentos Utilizados</label>
+                            <select id="equipamentos" class="form-select" multiple size="4">
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Segure Ctrl (ou Cmd) para selecionar múltiplos</p>
+                        </div>
+                        <button type="button" class="btn-secondary mt-6" onclick="novoEquipamento()">
+                            <i data-lucide="plus" class="w-4 h-4 inline"></i>
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Tempo Gasto no Atendimento</label>
+                        <input type="time" id="tempoGasto" class="form-input" required>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Material Utilizado</label>
+                        <textarea id="materialUtilizado" class="form-textarea" placeholder="Descreva os materiais utilizados..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-5">
+                <button type="submit" class="btn-primary">
+                    <i data-lucide="send" class="w-5 h-5 inline mr-2"></i>
+                    Enviar Relatório
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzISfB81IObVL6WqPph6e_mvvwzgi97CQPMiZzqaCybNd2JSKk-6eDdIcNjLo1GdTijtQ/exec';
+        
+        let configData = null;
+        let proximoNumero = null;
+        
+        const EQUIPES = ['ALFA', 'BRAVO', 'CHARLIE', 'DELTA'];
+        const DATA_REF_FIXA = new Date('2026-01-15T17:00:00');
+        const EQUIPE_REF_FIXA = 'DELTA';
+        
+        function calcularEquipeAtual() {
+            const agora = new Date();
+            const diffHoras = (agora - DATA_REF_FIXA) / (1000 * 60 * 60);
+            const trocas = Math.floor(diffHoras / 12);
+            const idx = (EQUIPES.indexOf(EQUIPE_REF_FIXA) + trocas) % EQUIPES.length;
+            return EQUIPES[idx];
+        }
+        
+        async function carregarConfiguracoes() {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${WEB_APP_URL}?action=getConfiguracoes`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    configData = data.config;
+                    preencherSelects();
+                }
+                
+                const responseNum = await fetch(`${WEB_APP_URL}?action=getProximoNumero`);
+                const dataNum = await responseNum.json();
+                
+                if (dataNum.success) {
+                    proximoNumero = dataNum.numero;
+                    document.getElementById('numeroRelatorio').textContent = proximoNumero;
+                }
+                
+                const equipeAtual = calcularEquipeAtual();
+                document.getElementById('equipe').value = equipeAtual;
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro ao carregar:', error);
+                showToast('Erro ao carregar configurações', 'error');
+                hideLoading();
+            }
+        }
+        
+        function preencherSelects() {
+            const selectLetra = document.getElementById('areaLetra');
+            configData.gridLetras.forEach(letra => {
+                const opt = document.createElement('option');
+                opt.value = letra;
+                opt.textContent = letra;
+                selectLetra.appendChild(opt);
+            });
+            
+            const selectNumero = document.getElementById('areaNumero');
+            configData.gridNumeros.forEach(num => {
+                const opt = document.createElement('option');
+                opt.value = num;
+                opt.textContent = num;
+                selectNumero.appendChild(opt);
+            });
+            
+            const selectTipo = document.getElementById('tipoOcorrencia');
+            configData.tiposOcorrencia.forEach(tipo => {
+                const opt = document.createElement('option');
+                opt.value = tipo;
+                opt.textContent = tipo;
+                selectTipo.appendChild(opt);
+            });
+            
+            const selectEmpresa = document.getElementById('empresaEnvolvida');
+            configData.empresas.forEach(empresa => {
+                const opt = document.createElement('option');
+                opt.value = empresa;
+                opt.textContent = empresa;
+                selectEmpresa.appendChild(opt);
+            });
+            
+            for (let i = 1; i <= 6; i++) {
+                const select = document.getElementById(`nomeBa${i}`);
+                configData.efetivo.forEach(nome => {
+                    const opt = document.createElement('option');
+                    opt.value = nome;
+                    opt.textContent = nome;
+                    select.appendChild(opt);
+                });
+            }
+            
+            const selectEquip = document.getElementById('equipamentos');
+            configData.equipamentos.forEach(equip => {
+                const opt = document.createElement('option');
+                opt.value = equip;
+                opt.textContent = equip;
+                selectEquip.appendChild(opt);
+            });
+        }
+        
+        async function novoTipo() {
+            const valor = prompt('Digite o novo tipo de ocorrência:');
+            if (!valor) return;
+            
+            try {
+                showLoading();
+                
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'adicionarOpcao',
+                        tipo: 'tipoOcorrencia',
+                        valor: valor
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('tipoOcorrencia');
+                    const opt = document.createElement('option');
+                    opt.value = valor;
+                    opt.textContent = valor;
+                    select.appendChild(opt);
+                    select.value = valor;
+                    
+                    showToast('Tipo adicionado com sucesso!', 'success');
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao adicionar tipo', 'error');
+                hideLoading();
+            }
+        }
+        
+        async function novaEmpresa() {
+            const valor = prompt('Digite o nome da nova empresa:');
+            if (!valor) return;
+            
+            try {
+                showLoading();
+                
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'adicionarOpcao',
+                        tipo: 'empresa',
+                        valor: valor
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('empresaEnvolvida');
+                    const opt = document.createElement('option');
+                    opt.value = valor;
+                    opt.textContent = valor;
+                    select.appendChild(opt);
+                    select.value = valor;
+                    
+                    showToast('Empresa adicionada com sucesso!', 'success');
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao adicionar empresa', 'error');
+                hideLoading();
+            }
+        }
+        
+        async function novoEquipamento() {
+            const valor = prompt('Digite o novo equipamento:');
+            if (!valor) return;
+            
+            try {
+                showLoading();
+                
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'adicionarOpcao',
+                        tipo: 'equipamento',
+                        valor: valor
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('equipamentos');
+                    const opt = document.createElement('option');
+                    opt.value = valor;
+                    opt.textContent = valor;
+                    select.appendChild(opt);
+                    
+                    showToast('Equipamento adicionado com sucesso!', 'success');
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao adicionar equipamento', 'error');
+                hideLoading();
+            }
+        }
+        
+        document.getElementById('formRelatorio').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const selectEquip = document.getElementById('equipamentos');
+            const equipamentosSelecionados = Array.from(selectEquip.selectedOptions)
+                .map(opt => opt.value)
+                .join(', ');
+            
+            const dados = {
+                action: 'salvarRelatorio',
+                numero: proximoNumero,
+                areaLetra: document.getElementById('areaLetra').value,
+                areaNumero: document.getElementById('areaNumero').value,
+                tipoOcorrencia: document.getElementById('tipoOcorrencia').value,
+                equipe: document.getElementById('equipe').value,
+                nomeSolicitante: document.getElementById('nomeSolicitante').value,
+                empresaEnvolvida: document.getElementById('empresaEnvolvida').value,
+                procedimentos: document.getElementById('procedimentos').value,
+                acionamento: document.getElementById('acionamento').value,
+                saida: document.getElementById('saida').value,
+                chegada: document.getElementById('chegada').value,
+                termino: document.getElementById('termino').value,
+                retorno: document.getElementById('retorno').value,
+                relacaoDanos: document.getElementById('relacaoDanos').value,
+                funcao1: document.getElementById('funcao1').value,
+                nomeBa1: document.getElementById('nomeBa1').value,
+                funcao2: document.getElementById('funcao2').value,
+                nomeBa2: document.getElementById('nomeBa2').value,
+                funcao3: document.getElementById('funcao3').value,
+                nomeBa3: document.getElementById('nomeBa3').value,
+                funcao4: document.getElementById('funcao4').value,
+                nomeBa4: document.getElementById('nomeBa4').value,
+                funcao5: document.getElementById('funcao5').value,
+                nomeBa5: document.getElementById('nomeBa5').value,
+                funcao6: document.getElementById('funcao6').value,
+                nomeBa6: document.getElementById('nomeBa6').value,
+                equipamentos: equipamentosSelecionados,
+                tempoGasto: document.getElementById('tempoGasto').value,
+                materialUtilizado: document.getElementById('materialUtilizado').value
+            };
+            
+            try {
+                showLoading();
+                
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(dados)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(`Relatório #${result.numero} enviado com sucesso!`, 'success');
+                    
+                    setTimeout(() => {
+                        document.getElementById('formRelatorio').reset();
+                        carregarConfiguracoes();
+                    }, 1500);
+                } else {
+                    showToast('Erro ao enviar relatório', 'error');
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao enviar relatório', 'error');
+                hideLoading();
+            }
+        });
+        
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('active');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('active');
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        window.addEventListener('load', () => {
+            carregarConfiguracoes();
+            lucide.createIcons();
+        });
+    </script>
+
+</body>
+</html>
