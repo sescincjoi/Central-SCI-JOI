@@ -101,10 +101,46 @@
             font-size: 13px;
             border: none;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
         .btn-secondary:hover {
             background: #e8e8ed;
+        }
+
+        .btn-add-area {
+            background: #007AFF;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-add-area:hover {
+            background: #0051D5;
+        }
+
+        .btn-remove-area {
+            background: #FF3B30;
+            color: white;
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-remove-area:hover {
+            background: #D70015;
         }
 
         .badge {
@@ -135,6 +171,14 @@
             margin-bottom: 12px;
         }
 
+        .area-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: end;
+        }
+
         .time-inputs {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -143,6 +187,10 @@
 
         @media (max-width: 768px) {
             .ba-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .area-row {
                 grid-template-columns: 1fr;
             }
         }
@@ -258,28 +306,54 @@
 
         <form id="formRelatorio" class="space-y-4">
             
+            <!-- Localização -->
             <div class="card p-5">
                 <div class="section-title">
                     <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
-                    Localização do Evento
+                    Local/Área do Evento (Mapa de Grade)
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                        <label class="form-label">Área (Letra)</label>
-                        <select id="areaLetra" class="form-select" required>
-                            <option value="">Selecione...</option>
-                        </select>
+                <div class="space-y-3">
+                    <!-- Local -->
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="form-label">Local</label>
+                            <select id="locais" class="form-select" multiple size="3" required>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Segure Ctrl (ou Cmd) para selecionar múltiplos</p>
+                        </div>
+                        <button type="button" class="btn-secondary mt-6" onclick="novoLocal()">
+                            <i data-lucide="plus" class="w-4 h-4 inline"></i>
+                        </button>
                     </div>
-                    <div>
-                        <label class="form-label">Área (Número)</label>
-                        <select id="areaNumero" class="form-select" required>
-                            <option value="">Selecione...</option>
-                        </select>
+
+                    <!-- Áreas do Grid -->
+                    <div id="areasContainer">
+                        <div class="area-row">
+                            <div>
+                                <label class="form-label">Área (Letra)</label>
+                                <select class="form-select area-letra" required>
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Área (Número)</label>
+                                <select class="form-select area-numero" required>
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button type="button" class="btn-add-area" onclick="adicionarArea()">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    Adicionar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Dados da Ocorrência -->
             <div class="card p-5">
                 <div class="section-title">
                     <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
@@ -333,6 +407,7 @@
                 </div>
             </div>
 
+            <!-- Horários -->
             <div class="card p-5">
                 <div class="section-title">
                     <i data-lucide="clock" class="w-4 h-4 text-orange-600"></i>
@@ -363,6 +438,7 @@
                 </div>
             </div>
 
+            <!-- Danos -->
             <div class="card p-5">
                 <div class="section-title">
                     <i data-lucide="file-warning" class="w-4 h-4 text-amber-600"></i>
@@ -372,6 +448,7 @@
                 <textarea id="relacaoDanos" class="form-textarea" placeholder="Descreva os danos observados..."></textarea>
             </div>
 
+            <!-- Equipe Envolvida -->
             <div class="card p-5">
                 <div class="section-title">
                     <i data-lucide="users" class="w-4 h-4 text-purple-600"></i>
@@ -507,6 +584,7 @@
                 </div>
             </div>
 
+            <!-- Equipamentos e Material -->
             <div class="card p-5">
                 <div class="section-title">
                     <i data-lucide="truck" class="w-4 h-4 text-green-600"></i>
@@ -538,6 +616,7 @@
                 </div>
             </div>
 
+            <!-- Botão Enviar -->
             <div class="card p-5">
                 <button type="submit" class="btn-primary">
                     <i data-lucide="send" class="w-5 h-5 inline mr-2"></i>
@@ -559,6 +638,7 @@
         
         let configData = null;
         let proximoNumero = null;
+        let areaCount = 1;
         
         const EQUIPES = ['ALFA', 'BRAVO', 'CHARLIE', 'DELTA'];
         const DATA_REF_FIXA = new Date('2026-01-15T17:00:00');
@@ -604,22 +684,19 @@
         }
         
         function preencherSelects() {
-            const selectLetra = document.getElementById('areaLetra');
-            configData.gridLetras.forEach(letra => {
+            // Locais
+            const selectLocais = document.getElementById('locais');
+            configData.locais.forEach(local => {
                 const opt = document.createElement('option');
-                opt.value = letra;
-                opt.textContent = letra;
-                selectLetra.appendChild(opt);
+                opt.value = local;
+                opt.textContent = local;
+                selectLocais.appendChild(opt);
             });
             
-            const selectNumero = document.getElementById('areaNumero');
-            configData.gridNumeros.forEach(num => {
-                const opt = document.createElement('option');
-                opt.value = num;
-                opt.textContent = num;
-                selectNumero.appendChild(opt);
-            });
+            // Grid Letras e Números (para todas as áreas)
+            preencherGridSelects();
             
+            // Tipos de Ocorrência
             const selectTipo = document.getElementById('tipoOcorrencia');
             configData.tiposOcorrencia.forEach(tipo => {
                 const opt = document.createElement('option');
@@ -628,6 +705,7 @@
                 selectTipo.appendChild(opt);
             });
             
+            // Empresas
             const selectEmpresa = document.getElementById('empresaEnvolvida');
             configData.empresas.forEach(empresa => {
                 const opt = document.createElement('option');
@@ -636,6 +714,7 @@
                 selectEmpresa.appendChild(opt);
             });
             
+            // Efetivo
             for (let i = 1; i <= 6; i++) {
                 const select = document.getElementById(`nomeBa${i}`);
                 configData.efetivo.forEach(nome => {
@@ -646,6 +725,7 @@
                 });
             }
             
+            // Equipamentos
             const selectEquip = document.getElementById('equipamentos');
             configData.equipamentos.forEach(equip => {
                 const opt = document.createElement('option');
@@ -653,6 +733,113 @@
                 opt.textContent = equip;
                 selectEquip.appendChild(opt);
             });
+        }
+        
+        function preencherGridSelects() {
+            const selectsLetra = document.querySelectorAll('.area-letra');
+            const selectsNumero = document.querySelectorAll('.area-numero');
+            
+            selectsLetra.forEach(select => {
+                // Limpar options existentes exceto o primeiro
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                configData.gridLetras.forEach(letra => {
+                    const opt = document.createElement('option');
+                    opt.value = letra;
+                    opt.textContent = letra;
+                    select.appendChild(opt);
+                });
+            });
+            
+            selectsNumero.forEach(select => {
+                // Limpar options existentes exceto o primeiro
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                configData.gridNumeros.forEach(num => {
+                    const opt = document.createElement('option');
+                    opt.value = num;
+                    opt.textContent = num;
+                    select.appendChild(opt);
+                });
+            });
+        }
+        
+        function adicionarArea() {
+            areaCount++;
+            const container = document.getElementById('areasContainer');
+            
+            const newRow = document.createElement('div');
+            newRow.className = 'area-row';
+            newRow.innerHTML = `
+                <div>
+                    <label class="form-label">Área (Letra)</label>
+                    <select class="form-select area-letra" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Área (Número)</label>
+                    <select class="form-select area-numero" required>
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="button" class="btn-remove-area" onclick="removerArea(this)">
+                        <i data-lucide="x" class="w-4 h-4 inline"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(newRow);
+            preencherGridSelects();
+            lucide.createIcons();
+        }
+        
+        function removerArea(btn) {
+            if (areaCount > 1) {
+                btn.closest('.area-row').remove();
+                areaCount--;
+            }
+        }
+        
+        async function novoLocal() {
+            const valor = prompt('Digite o novo local:');
+            if (!valor) return;
+            
+            try {
+                showLoading();
+                
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'adicionarOpcao',
+                        tipo: 'local',
+                        valor: valor
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('locais');
+                    const opt = document.createElement('option');
+                    opt.value = valor;
+                    opt.textContent = valor;
+                    select.appendChild(opt);
+                    
+                    showToast('Local adicionado com sucesso!', 'success');
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro:', error);
+                showToast('Erro ao adicionar local', 'error');
+                hideLoading();
+            }
         }
         
         async function novoTipo() {
@@ -768,6 +955,28 @@
         document.getElementById('formRelatorio').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Pegar locais selecionados
+            const selectLocais = document.getElementById('locais');
+            const locaisSelecionados = Array.from(selectLocais.selectedOptions)
+                .map(opt => opt.value)
+                .join(', ');
+            
+            // Pegar todas as áreas do grid
+            const areasLetra = document.querySelectorAll('.area-letra');
+            const areasNumero = document.querySelectorAll('.area-numero');
+            const areasGrade = [];
+            
+            for (let i = 0; i < areasLetra.length; i++) {
+                const letra = areasLetra[i].value;
+                const numero = areasNumero[i].value;
+                if (letra && numero) {
+                    areasGrade.push(letra + numero);
+                }
+            }
+            
+            const areasGradeString = areasGrade.join(', ');
+            
+            // Pegar equipamentos selecionados
             const selectEquip = document.getElementById('equipamentos');
             const equipamentosSelecionados = Array.from(selectEquip.selectedOptions)
                 .map(opt => opt.value)
@@ -776,8 +985,8 @@
             const dados = {
                 action: 'salvarRelatorio',
                 numero: proximoNumero,
-                areaLetra: document.getElementById('areaLetra').value,
-                areaNumero: document.getElementById('areaNumero').value,
+                areasGrade: areasGradeString,
+                locais: locaisSelecionados,
                 tipoOcorrencia: document.getElementById('tipoOcorrencia').value,
                 equipe: document.getElementById('equipe').value,
                 nomeSolicitante: document.getElementById('nomeSolicitante').value,
@@ -821,6 +1030,14 @@
                     
                     setTimeout(() => {
                         document.getElementById('formRelatorio').reset();
+                        
+                        // Resetar áreas extras
+                        const container = document.getElementById('areasContainer');
+                        const firstRow = container.querySelector('.area-row');
+                        container.innerHTML = '';
+                        container.appendChild(firstRow);
+                        areaCount = 1;
+                        
                         carregarConfiguracoes();
                     }, 1500);
                 } else {
