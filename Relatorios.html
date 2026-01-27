@@ -402,7 +402,17 @@
 
                     <div>
                         <label class="form-label">Procedimentos Estabelecidos</label>
-                        <textarea id="procedimentos" class="form-textarea" required></textarea>
+                        <textarea id="procedimentos" class="form-textarea" required style="color: #9ca3af;"></textarea>
+                        <div id="botoesEdicao" class="flex gap-2 mt-2" style="display: none;">
+                            <button type="button" class="btn-secondary flex-1" onclick="editarUltimo()">
+                                <i data-lucide="edit-3" class="w-4 h-4 inline mr-1"></i>
+                                Editar Modelo
+                            </button>
+                            <button type="button" class="btn-secondary flex-1" onclick="novoTexto()">
+                                <i data-lucide="file-plus" class="w-4 h-4 inline mr-1"></i>
+                                Novo Texto
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -634,7 +644,7 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw_PTcR5Y_b6SOmkHXLytcI8AABq6XUqtvmANC7ya3ioEQ2dWASpGeiTc9yAqN45WPYjQ/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwx0JhWrRVKE3t2mrskityryT4C92rQiVLyE-QX6Wo0nw3Pzz6kH7MQTkYTo4ufX0jLgg/exec';
         
         let configData = null;
         let proximoNumero = null;
@@ -1108,6 +1118,9 @@
                         container.appendChild(firstRow);
                         areaCount = 1;
                         
+                        // Limpar procedimentos
+                        limparProcedimentos();
+                        
                         carregarConfiguracoes();
                     }, 1500);
                 } else {
@@ -1138,6 +1151,90 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
+        }
+
+        // Variável para controlar o estado do procedimento
+        let procedimentoOriginal = '';
+        let modoEdicao = false;
+        
+        // Listener para mudança no Tipo de Ocorrência
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectTipo = document.getElementById('tipoOcorrencia');
+            
+            selectTipo.addEventListener('change', async function() {
+                const tipoSelecionado = this.value;
+                
+                if (!tipoSelecionado) {
+                    limparProcedimentos();
+                    return;
+                }
+                
+                await carregarUltimoProcedimento(tipoSelecionado);
+            });
+        });
+        
+        async function carregarUltimoProcedimento(tipoOcorrencia) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${WEB_APP_URL}?action=getUltimoProcedimento&tipo=${encodeURIComponent(tipoOcorrencia)}`);
+                const data = await response.json();
+                
+                if (data.success && data.procedimento) {
+                    const textarea = document.getElementById('procedimentos');
+                    const botoes = document.getElementById('botoesEdicao');
+                    
+                    procedimentoOriginal = data.procedimento;
+                    textarea.value = data.procedimento;
+                    textarea.style.color = '#9ca3af'; // Cinza claro
+                    textarea.readOnly = true;
+                    botoes.style.display = 'flex';
+                    modoEdicao = false;
+                    
+                    // Recriar ícones do Lucide
+                    setTimeout(() => lucide.createIcons(), 100);
+                } else {
+                    limparProcedimentos();
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro ao carregar procedimento:', error);
+                limparProcedimentos();
+                hideLoading();
+            }
+        }
+        
+        function editarUltimo() {
+            const textarea = document.getElementById('procedimentos');
+            textarea.style.color = '#1d1d1f'; // Preto
+            textarea.readOnly = false;
+            modoEdicao = true;
+            textarea.focus();
+        }
+        
+        function novoTexto() {
+            const textarea = document.getElementById('procedimentos');
+            const botoes = document.getElementById('botoesEdicao');
+            
+            textarea.value = '';
+            textarea.style.color = '#1d1d1f'; // Preto
+            textarea.readOnly = false;
+            botoes.style.display = 'none';
+            modoEdicao = false;
+            textarea.focus();
+        }
+        
+        function limparProcedimentos() {
+            const textarea = document.getElementById('procedimentos');
+            const botoes = document.getElementById('botoesEdicao');
+            
+            textarea.value = '';
+            textarea.style.color = '#1d1d1f';
+            textarea.readOnly = false;
+            botoes.style.display = 'none';
+            procedimentoOriginal = '';
+            modoEdicao = false;
         }
         
         window.addEventListener('load', () => {
