@@ -823,7 +823,33 @@
             `;
             
             container.appendChild(newRow);
-            preencherGridSelects();
+            
+            // Preencher apenas os novos selects
+            const novosSelectsLetra = newRow.querySelectorAll('.area-letra');
+            const novosSelectsNumero = newRow.querySelectorAll('.area-numero');
+            
+            if (configData.gridLetras && Array.isArray(configData.gridLetras)) {
+                novosSelectsLetra.forEach(select => {
+                    configData.gridLetras.forEach(letra => {
+                        const opt = document.createElement('option');
+                        opt.value = letra;
+                        opt.textContent = letra;
+                        select.appendChild(opt);
+                    });
+                });
+            }
+            
+            if (configData.gridNumeros && Array.isArray(configData.gridNumeros)) {
+                novosSelectsNumero.forEach(select => {
+                    configData.gridNumeros.forEach(num => {
+                        const opt = document.createElement('option');
+                        opt.value = num;
+                        opt.textContent = num;
+                        select.appendChild(opt);
+                    });
+                });
+            }
+            
             lucide.createIcons();
         }
         
