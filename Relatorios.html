@@ -318,9 +318,9 @@
                     <div class="flex gap-2">
                         <div class="flex-1">
                             <label class="form-label">Local</label>
-                            <select id="locais" class="form-select" multiple size="3" required>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">Segure Ctrl (ou Cmd) para selecionar múltiplos</p>
+                            <div id="locaisContainer" class="border border-gray-300 rounded-lg p-3 max-h-32 overflow-y-auto bg-white">
+                                <!-- Checkboxes serão inseridos aqui -->
+                            </div>
                         </div>
                         <button type="button" class="btn-secondary mt-6" onclick="novoLocal()">
                             <i data-lucide="plus" class="w-4 h-4 inline"></i>
@@ -595,9 +595,9 @@
                     <div class="flex gap-2">
                         <div class="flex-1">
                             <label class="form-label">CCI e Equipamentos Utilizados</label>
-                            <select id="equipamentos" class="form-select" multiple size="4">
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">Segure Ctrl (ou Cmd) para selecionar múltiplos</p>
+                            <div id="equipamentosContainer" class="border border-gray-300 rounded-lg p-3 max-h-40 overflow-y-auto bg-white">
+                                <!-- Checkboxes serão inseridos aqui -->
+                            </div>
                         </div>
                         <button type="button" class="btn-secondary mt-6" onclick="novoEquipamento()">
                             <i data-lucide="plus" class="w-4 h-4 inline"></i>
@@ -696,14 +696,18 @@
         }
         
         function preencherSelects() {
-            // Locais
-            const selectLocais = document.getElementById('locais');
+            // Locais (com checkboxes)
+            const containerLocais = document.getElementById('locaisContainer');
             if (configData.locais && Array.isArray(configData.locais)) {
-                configData.locais.forEach(local => {
-                    const opt = document.createElement('option');
-                    opt.value = local;
-                    opt.textContent = local;
-                    selectLocais.appendChild(opt);
+                containerLocais.innerHTML = '';
+                configData.locais.forEach((local, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2 py-1';
+                    div.innerHTML = `
+                        <input type="checkbox" id="local_${index}" value="${local}" class="w-4 h-4 text-blue-600 rounded border-gray-300 cursor-pointer">
+                        <label for="local_${index}" class="text-sm text-gray-700 cursor-pointer flex-1">${local}</label>
+                    `;
+                    containerLocais.appendChild(div);
                 });
             } else {
                 console.warn('Nenhum local encontrado na configuração');
@@ -747,14 +751,18 @@
                 }
             }
             
-            // Equipamentos
-            const selectEquip = document.getElementById('equipamentos');
+            // Equipamentos (com checkboxes)
+            const containerEquip = document.getElementById('equipamentosContainer');
             if (configData.equipamentos && Array.isArray(configData.equipamentos)) {
-                configData.equipamentos.forEach(equip => {
-                    const opt = document.createElement('option');
-                    opt.value = equip;
-                    opt.textContent = equip;
-                    selectEquip.appendChild(opt);
+                containerEquip.innerHTML = '';
+                configData.equipamentos.forEach((equip, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2 py-1';
+                    div.innerHTML = `
+                        <input type="checkbox" id="equip_${index}" value="${equip}" class="w-4 h-4 text-blue-600 rounded border-gray-300 cursor-pointer">
+                        <label for="equip_${index}" class="text-sm text-gray-700 cursor-pointer flex-1">${equip}</label>
+                    `;
+                    containerEquip.appendChild(div);
                 });
             }
         }
@@ -879,11 +887,15 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    const select = document.getElementById('locais');
-                    const opt = document.createElement('option');
-                    opt.value = valor;
-                    opt.textContent = valor;
-                    select.appendChild(opt);
+                    const container = document.getElementById('locaisContainer');
+                    const index = container.children.length;
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2 py-1';
+                    div.innerHTML = `
+                        <input type="checkbox" id="local_${index}" value="${valor}" class="w-4 h-4 text-blue-600 rounded border-gray-300 cursor-pointer" checked>
+                        <label for="local_${index}" class="text-sm text-gray-700 cursor-pointer flex-1">${valor}</label>
+                    `;
+                    container.appendChild(div);
                     
                     showToast('Local adicionado com sucesso!', 'success');
                 }
@@ -989,11 +1001,15 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    const select = document.getElementById('equipamentos');
-                    const opt = document.createElement('option');
-                    opt.value = valor;
-                    opt.textContent = valor;
-                    select.appendChild(opt);
+                    const container = document.getElementById('equipamentosContainer');
+                    const index = container.children.length;
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center gap-2 py-1';
+                    div.innerHTML = `
+                        <input type="checkbox" id="equip_${index}" value="${valor}" class="w-4 h-4 text-blue-600 rounded border-gray-300 cursor-pointer" checked>
+                        <label for="equip_${index}" class="text-sm text-gray-700 cursor-pointer flex-1">${valor}</label>
+                    `;
+                    container.appendChild(div);
                     
                     showToast('Equipamento adicionado com sucesso!', 'success');
                 }
@@ -1009,10 +1025,10 @@
         document.getElementById('formRelatorio').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Pegar locais selecionados
-            const selectLocais = document.getElementById('locais');
-            const locaisSelecionados = Array.from(selectLocais.selectedOptions)
-                .map(opt => opt.value)
+            // Pegar locais selecionados (checkboxes)
+            const checkboxesLocais = document.querySelectorAll('#locaisContainer input[type="checkbox"]:checked');
+            const locaisSelecionados = Array.from(checkboxesLocais)
+                .map(cb => cb.value)
                 .join(', ');
             
             // Pegar todas as áreas do grid
@@ -1030,10 +1046,10 @@
             
             const areasGradeString = areasGrade.join(', ');
             
-            // Pegar equipamentos selecionados
-            const selectEquip = document.getElementById('equipamentos');
-            const equipamentosSelecionados = Array.from(selectEquip.selectedOptions)
-                .map(opt => opt.value)
+            // Pegar equipamentos selecionados (checkboxes)
+            const checkboxesEquip = document.querySelectorAll('#equipamentosContainer input[type="checkbox"]:checked');
+            const equipamentosSelecionados = Array.from(checkboxesEquip)
+                .map(cb => cb.value)
                 .join(', ');
             
             const dados = {
