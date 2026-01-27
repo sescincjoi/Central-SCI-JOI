@@ -998,7 +998,7 @@
                 const letra = areasLetra[i].value;
                 const numero = areasNumero[i].value;
                 if (letra && numero) {
-                    areasGrade.push(letra + numero);
+                    areasGrade.push(letra + '-' + numero);  // ← MUDE PARA ISSO (adicione '-' + )
                 }
             }
             
