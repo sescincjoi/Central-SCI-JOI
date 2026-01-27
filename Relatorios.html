@@ -659,6 +659,18 @@
                 const response = await fetch(`${WEB_APP_URL}?action=getConfiguracoes`);
                 const data = await response.json();
                 
+                // DEBUG - ADICIONE ESTAS LINHAS
+                console.log('===== DEBUG CONFIGURAÇÕES =====');
+                console.log('Dados completos:', data);
+                if (data.success) {
+                    console.log('Locais recebidos:', data.config.locais);
+                    console.log('Tipos Ocorrência recebidos:', data.config.tiposOcorrencia);
+                    console.log('Empresas recebidas:', data.config.empresas);
+                    console.log('Equipamentos recebidos:', data.config.equipamentos);
+                }
+                console.log('===============================');
+                // FIM DEBUG
+                
                 if (data.success) {
                     configData = data.config;
                     preencherSelects();
