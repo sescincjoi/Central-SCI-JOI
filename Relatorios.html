@@ -686,86 +686,102 @@
         function preencherSelects() {
             // Locais
             const selectLocais = document.getElementById('locais');
-            configData.locais.forEach(local => {
-                const opt = document.createElement('option');
-                opt.value = local;
-                opt.textContent = local;
-                selectLocais.appendChild(opt);
-            });
+            if (configData.locais && Array.isArray(configData.locais)) {
+                configData.locais.forEach(local => {
+                    const opt = document.createElement('option');
+                    opt.value = local;
+                    opt.textContent = local;
+                    selectLocais.appendChild(opt);
+                });
+            } else {
+                console.warn('Nenhum local encontrado na configuração');
+            }
             
             // Grid Letras e Números (para todas as áreas)
             preencherGridSelects();
             
             // Tipos de Ocorrência
             const selectTipo = document.getElementById('tipoOcorrencia');
-            configData.tiposOcorrencia.forEach(tipo => {
-                const opt = document.createElement('option');
-                opt.value = tipo;
-                opt.textContent = tipo;
-                selectTipo.appendChild(opt);
-            });
+            if (configData.tiposOcorrencia && Array.isArray(configData.tiposOcorrencia)) {
+                configData.tiposOcorrencia.forEach(tipo => {
+                    const opt = document.createElement('option');
+                    opt.value = tipo;
+                    opt.textContent = tipo;
+                    selectTipo.appendChild(opt);
+                });
+            }
             
             // Empresas
             const selectEmpresa = document.getElementById('empresaEnvolvida');
-            configData.empresas.forEach(empresa => {
-                const opt = document.createElement('option');
-                opt.value = empresa;
-                opt.textContent = empresa;
-                selectEmpresa.appendChild(opt);
-            });
+            if (configData.empresas && Array.isArray(configData.empresas)) {
+                configData.empresas.forEach(empresa => {
+                    const opt = document.createElement('option');
+                    opt.value = empresa;
+                    opt.textContent = empresa;
+                    selectEmpresa.appendChild(opt);
+                });
+            }
             
             // Efetivo
-            for (let i = 1; i <= 6; i++) {
-                const select = document.getElementById(`nomeBa${i}`);
-                configData.efetivo.forEach(nome => {
-                    const opt = document.createElement('option');
-                    opt.value = nome;
-                    opt.textContent = nome;
-                    select.appendChild(opt);
-                });
+            if (configData.efetivo && Array.isArray(configData.efetivo)) {
+                for (let i = 1; i <= 6; i++) {
+                    const select = document.getElementById(`nomeBa${i}`);
+                    configData.efetivo.forEach(nome => {
+                        const opt = document.createElement('option');
+                        opt.value = nome;
+                        opt.textContent = nome;
+                        select.appendChild(opt);
+                    });
+                }
             }
             
             // Equipamentos
             const selectEquip = document.getElementById('equipamentos');
-            configData.equipamentos.forEach(equip => {
-                const opt = document.createElement('option');
-                opt.value = equip;
-                opt.textContent = equip;
-                selectEquip.appendChild(opt);
-            });
+            if (configData.equipamentos && Array.isArray(configData.equipamentos)) {
+                configData.equipamentos.forEach(equip => {
+                    const opt = document.createElement('option');
+                    opt.value = equip;
+                    opt.textContent = equip;
+                    selectEquip.appendChild(opt);
+                });
+            }
         }
         
         function preencherGridSelects() {
             const selectsLetra = document.querySelectorAll('.area-letra');
             const selectsNumero = document.querySelectorAll('.area-numero');
             
-            selectsLetra.forEach(select => {
-                // Limpar options existentes exceto o primeiro
-                while (select.options.length > 1) {
-                    select.remove(1);
-                }
-                
-                configData.gridLetras.forEach(letra => {
-                    const opt = document.createElement('option');
-                    opt.value = letra;
-                    opt.textContent = letra;
-                    select.appendChild(opt);
+            if (configData.gridLetras && Array.isArray(configData.gridLetras)) {
+                selectsLetra.forEach(select => {
+                    // Limpar options existentes exceto o primeiro
+                    while (select.options.length > 1) {
+                        select.remove(1);
+                    }
+                    
+                    configData.gridLetras.forEach(letra => {
+                        const opt = document.createElement('option');
+                        opt.value = letra;
+                        opt.textContent = letra;
+                        select.appendChild(opt);
+                    });
                 });
-            });
+            }
             
-            selectsNumero.forEach(select => {
-                // Limpar options existentes exceto o primeiro
-                while (select.options.length > 1) {
-                    select.remove(1);
-                }
-                
-                configData.gridNumeros.forEach(num => {
-                    const opt = document.createElement('option');
-                    opt.value = num;
-                    opt.textContent = num;
-                    select.appendChild(opt);
+            if (configData.gridNumeros && Array.isArray(configData.gridNumeros)) {
+                selectsNumero.forEach(select => {
+                    // Limpar options existentes exceto o primeiro
+                    while (select.options.length > 1) {
+                        select.remove(1);
+                    }
+                    
+                    configData.gridNumeros.forEach(num => {
+                        const opt = document.createElement('option');
+                        opt.value = num;
+                        opt.textContent = num;
+                        select.appendChild(opt);
+                    });
                 });
-            });
+            }
         }
         
         function adicionarArea() {
