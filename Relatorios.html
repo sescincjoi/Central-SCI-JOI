@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>9
+<head>1
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -139,6 +139,10 @@
             border: none;
             cursor: pointer;
             transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
         }
 
         .btn-remove-area:hover {
@@ -978,7 +982,8 @@
                 </div>
                 <div>
                     <button type="button" class="btn-remove-area" onclick="removerArea(this)">
-                        <i data-lucide="x" class="w-4 h-4 inline"></i>
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Excluir
                     </button>
                 </div>
             `;
