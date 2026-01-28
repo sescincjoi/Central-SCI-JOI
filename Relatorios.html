@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>6
+<head>7
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1286,8 +1286,8 @@
             const tempDiv = document.createElement('div');
             tempDiv.style.position = 'absolute';
             tempDiv.style.left = '-9999px';
-            tempDiv.style.width = '210mm'; // A4
-            tempDiv.style.padding = '10.5mm'; // 70% de 15mm
+            tempDiv.style.width = '210mm';
+            tempDiv.style.padding = '10.5mm';
             tempDiv.style.backgroundColor = 'white';
             tempDiv.style.boxSizing = 'border-box';
             
@@ -1342,9 +1342,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 30px;
+                    line-height: 30px;
                 }
         
                 .header-codigo {
@@ -1354,9 +1353,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 30px;
+                    line-height: 30px;
                 }
         
                 .header-title {
@@ -1366,8 +1364,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    line-height: 1.3;
+                    padding: 5px;
                 }
         
                 .header-versao {
@@ -1377,9 +1375,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 30px;
+                    line-height: 30px;
                 }
         
                 .header-data-criacao {
@@ -1389,12 +1386,11 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 10pt;
-                    height: 26px;
-                    line-height: 10pt;
-                    padding-bottom: 2pt;
+                    height: 30px;
+                    line-height: 30px;
                 }
         
-                /* Labels e valores sem borda entre eles */
+                /* Labels e valores */
                 .label-bold {
                     text-align: right;
                     vertical-align: middle;
@@ -1402,9 +1398,8 @@
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
                     border-right: none;
-                    height: 26px;
-                    line-height: 10pt;
-                    padding-bottom: 2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .value-cell {
@@ -1414,9 +1409,8 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .value-cell-end {
@@ -1426,9 +1420,8 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 /* Células unificadas alinhadas à esquerda */
@@ -1439,15 +1432,13 @@
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
                     padding-left: 12px;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .unified-left strong {
                     font-weight: bold;
                     font-size: 10pt;
-                    line-height: 10pt;
                 }
         
                 /* TIPO DE OCORRÊNCIA - centralizado */
@@ -1458,15 +1449,13 @@
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .unified-center strong {
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 11pt;
                 }
         
                 /* Procedimentos e Danos */
@@ -1478,9 +1467,8 @@
                     border-right: 1px solid #434343;
                     border-bottom: none;
                     padding-left: 12px;
-                    height: 26px;
-                    line-height: 10pt;
-                    padding-bottom: 2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .procedimentos-value {
@@ -1492,7 +1480,7 @@
                     padding: 10px 12px;
                     min-height: 100px;
                     white-space: pre-wrap;
-                    line-height: 10pt;
+                    line-height: 1.4;
                 }
         
                 .danos-label {
@@ -1503,9 +1491,8 @@
                     border-right: 1px solid #434343;
                     border-bottom: none;
                     padding-left: 12px;
-                    height: 26px;
-                    line-height: 10pt;
-                    padding-bottom: 2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .danos-value {
@@ -1517,10 +1504,10 @@
                     padding: 10px 12px;
                     min-height: 50px;
                     white-space: pre-wrap;
-                    line-height: 10pt;
+                    line-height: 1.4;
                 }
         
-                /* Headers da tabela de bombeiros - centralizados */
+                /* Headers da tabela de bombeiros */
                 .table-header {
                     text-align: center;
                     vertical-align: middle;
@@ -1529,9 +1516,8 @@
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    height: 26px;
-                    line-height: 11pt;
-                    padding-bottom: 2.2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .ba-funcao {
@@ -1540,9 +1526,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
-                    height: 26px;
-                    line-height: 10pt;
-                    padding-bottom: 2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .ba-nome {
@@ -1551,9 +1536,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
-                    height: 26px;
-                    line-height: 10pt;
-                    padding-bottom: 2pt;
+                    height: 28px;
+                    line-height: 28px;
                 }
         
                 .ba-equipamentos {
@@ -1564,7 +1548,7 @@
                     border-right: 1px solid #434343;
                     padding: 10px 12px;
                     white-space: pre-wrap;
-                    line-height: 10pt;
+                    line-height: 1.4;
                 }
         
                 .assinatura-cell {
@@ -1574,7 +1558,7 @@
                     border-right: 1px solid #434343;
                     min-height: 50px;
                     padding: 12px;
-                    line-height: 10pt;
+                    line-height: 1.4;
                 }
         
                 .assinatura-cell strong {
@@ -1725,7 +1709,7 @@
                 const imgData = canvas.toDataURL('image/png');
                 const pdfWidth = 210;
                 const pdfHeight = 297;
-                const imgWidth = 189; // 70% maior que antes
+                const imgWidth = 189;
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
                 // Centralizar horizontalmente e verticalmente
