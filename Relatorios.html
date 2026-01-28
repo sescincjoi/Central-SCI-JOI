@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>5
+<head>6
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1287,7 +1287,7 @@
             tempDiv.style.position = 'absolute';
             tempDiv.style.left = '-9999px';
             tempDiv.style.width = '210mm'; // A4
-            tempDiv.style.padding = '15mm';
+            tempDiv.style.padding = '10.5mm'; // 70% de 15mm
             tempDiv.style.backgroundColor = 'white';
             tempDiv.style.boxSizing = 'border-box';
             
@@ -1306,7 +1306,7 @@
                 
                 .relatorio-table {
                     width: 100%;
-                    max-width: 180mm;
+                    max-width: 189mm;
                     border-collapse: collapse;
                     font-family: 'Calibri', Arial, sans-serif;
                     background: #ffffff;
@@ -1326,8 +1326,7 @@
                     vertical-align: middle;
                     height: 90px;
                     width: 40%;
-                    line-height: 90px;
-                    padding: 0;
+                    padding: 5px;
                 }
         
                 .header-logo img {
@@ -1344,7 +1343,8 @@
                     font-weight: bold;
                     font-size: 11pt;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .header-codigo {
@@ -1355,7 +1355,8 @@
                     font-weight: bold;
                     font-size: 11pt;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .header-title {
@@ -1365,7 +1366,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 1.3;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .header-versao {
@@ -1376,7 +1378,8 @@
                     font-weight: bold;
                     font-size: 11pt;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .header-data-criacao {
@@ -1387,7 +1390,8 @@
                     font-weight: bold;
                     font-size: 10pt;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 10pt;
+                    padding-bottom: 2pt;
                 }
         
                 /* Labels e valores sem borda entre eles */
@@ -1399,7 +1403,8 @@
                     border-bottom: 1px solid #434343;
                     border-right: none;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 10pt;
+                    padding-bottom: 2pt;
                 }
         
                 .value-cell {
@@ -1410,7 +1415,8 @@
                     border-right: 1px solid #434343;
                     border-left: none;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .value-cell-end {
@@ -1421,7 +1427,8 @@
                     border-right: 1px solid #434343;
                     border-left: none;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 /* Células unificadas alinhadas à esquerda */
@@ -1433,12 +1440,14 @@
                     border-right: 1px solid #434343;
                     padding-left: 12px;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .unified-left strong {
                     font-weight: bold;
                     font-size: 10pt;
+                    line-height: 10pt;
                 }
         
                 /* TIPO DE OCORRÊNCIA - centralizado */
@@ -1450,12 +1459,14 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .unified-center strong {
                     font-weight: bold;
                     font-size: 11pt;
+                    line-height: 11pt;
                 }
         
                 /* Procedimentos e Danos */
@@ -1468,7 +1479,8 @@
                     border-bottom: none;
                     padding-left: 12px;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 10pt;
+                    padding-bottom: 2pt;
                 }
         
                 .procedimentos-value {
@@ -1480,7 +1492,7 @@
                     padding: 10px 12px;
                     min-height: 100px;
                     white-space: pre-wrap;
-                    line-height: 1.5;
+                    line-height: 10pt;
                 }
         
                 .danos-label {
@@ -1492,7 +1504,8 @@
                     border-bottom: none;
                     padding-left: 12px;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 10pt;
+                    padding-bottom: 2pt;
                 }
         
                 .danos-value {
@@ -1504,7 +1517,7 @@
                     padding: 10px 12px;
                     min-height: 50px;
                     white-space: pre-wrap;
-                    line-height: 1.5;
+                    line-height: 10pt;
                 }
         
                 /* Headers da tabela de bombeiros - centralizados */
@@ -1517,7 +1530,8 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 11pt;
+                    padding-bottom: 2.2pt;
                 }
         
                 .ba-funcao {
@@ -1527,7 +1541,8 @@
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 10pt;
+                    padding-bottom: 2pt;
                 }
         
                 .ba-nome {
@@ -1537,7 +1552,8 @@
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
                     height: 26px;
-                    line-height: 26px;
+                    line-height: 10pt;
+                    padding-bottom: 2pt;
                 }
         
                 .ba-equipamentos {
@@ -1548,7 +1564,7 @@
                     border-right: 1px solid #434343;
                     padding: 10px 12px;
                     white-space: pre-wrap;
-                    line-height: 1.5;
+                    line-height: 10pt;
                 }
         
                 .assinatura-cell {
@@ -1558,7 +1574,7 @@
                     border-right: 1px solid #434343;
                     min-height: 50px;
                     padding: 12px;
-                    line-height: 1.5;
+                    line-height: 10pt;
                 }
         
                 .assinatura-cell strong {
@@ -1709,7 +1725,7 @@
                 const imgData = canvas.toDataURL('image/png');
                 const pdfWidth = 210;
                 const pdfHeight = 297;
-                const imgWidth = 180;
+                const imgWidth = 189; // 70% maior que antes
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
                 // Centralizar horizontalmente e verticalmente
