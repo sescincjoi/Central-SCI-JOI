@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         * {
@@ -1257,7 +1259,10 @@
             };
         }
         
-        function preencherPreviewRelatorio(dados) {
+        async function preencherPreviewRelatorio(dados) {
+            // Mostrar loading
+            showLoading();
+            
             // Formatar data e hora atual
             const agora = new Date();
             const dataFormatada = agora.toLocaleDateString('pt-BR');
@@ -1277,7 +1282,15 @@
                 `;
             }
             
-            const htmlRelatorio = `
+            // Criar elemento temporário para renderizar
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+            tempDiv.style.width = '210mm'; // A4
+            tempDiv.style.padding = '10mm';
+            tempDiv.style.backgroundColor = 'white';
+            
+            tempDiv.innerHTML = `
                 <style type="text/css">
                 .relatorio-table {
                     width: 100%;
@@ -1287,7 +1300,7 @@
                 }
         
                 .relatorio-table td {
-                    padding: 8px;
+                    padding: 6px;
                     color: #000000;
                     vertical-align: middle;
                 }
@@ -1296,7 +1309,7 @@
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
                     text-align: center;
-                    height: 116px;
+                    height: 90px;
                 }
         
                 .header-info {
@@ -1304,7 +1317,7 @@
                     border-right: 1px solid #434343;
                     text-align: center;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 10pt;
                 }
         
                 .header-codigo {
@@ -1312,7 +1325,7 @@
                     border-right: 2px solid #434343;
                     text-align: center;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 10pt;
                 }
         
                 .header-title {
@@ -1320,7 +1333,7 @@
                     border-right: 2px solid #434343;
                     text-align: center;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 10pt;
                 }
         
                 .header-versao {
@@ -1328,7 +1341,7 @@
                     border-right: 1px solid #434343;
                     text-align: center;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 10pt;
                 }
         
                 .header-data-criacao {
@@ -1336,26 +1349,26 @@
                     border-right: 2px solid #434343;
                     text-align: center;
                     font-weight: bold;
-                    font-size: 10pt;
+                    font-size: 9pt;
                 }
         
                 .label-bold {
                     text-align: right;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 1px solid #434343;
                 }
         
                 .value-cell {
                     text-align: center;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                 }
         
                 .value-cell-end {
                     text-align: center;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 1px solid #434343;
                     border-right: 2px solid #434343;
                 }
@@ -1363,13 +1376,13 @@
                 .section-label {
                     text-align: left;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 2px solid #434343;
                 }
         
                 .section-value {
                     text-align: left;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 2px solid #434343;
                     border-right: 2px solid #434343;
                 }
@@ -1377,14 +1390,14 @@
                 .tipo-label {
                     text-align: right;
                     font-weight: bold;
-                    font-size: 12pt;
+                    font-size: 10pt;
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                 }
         
                 .tipo-value {
                     text-align: center;
-                    font-size: 12pt;
+                    font-size: 10pt;
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 2px solid #434343;
@@ -1393,13 +1406,13 @@
                 .field-label {
                     text-align: left;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 1px solid #434343;
                 }
         
                 .field-value {
                     text-align: center;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 1px solid #434343;
                     border-right: 2px solid #434343;
                 }
@@ -1407,28 +1420,28 @@
                 .procedimentos-label {
                     text-align: left;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-right: 2px solid #434343;
                 }
         
                 .procedimentos-value {
                     text-align: left;
-                    font-size: 11pt;
+                    font-size: 8pt;
                     border-bottom: 1px solid #434343;
                     border-right: 2px solid #434343;
-                    padding: 12px;
-                    min-height: 140px;
+                    padding: 8px;
+                    min-height: 80px;
                     vertical-align: top;
                     white-space: pre-wrap;
                 }
         
                 .danos-value {
                     text-align: left;
-                    font-size: 11pt;
+                    font-size: 8pt;
                     border-bottom: 2px solid #434343;
                     border-right: 2px solid #434343;
-                    padding: 12px;
-                    min-height: 57px;
+                    padding: 8px;
+                    min-height: 40px;
                     vertical-align: top;
                     white-space: pre-wrap;
                 }
@@ -1436,28 +1449,28 @@
                 .table-header {
                     text-align: center;
                     font-weight: bold;
-                    font-size: 12pt;
+                    font-size: 10pt;
                     background-color: #dbe5f1;
                     border: 1px solid #434343;
                 }
         
                 .ba-funcao {
                     text-align: center;
-                    font-size: 11pt;
+                    font-size: 9pt;
                 }
         
                 .ba-nome {
                     text-align: center;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border: 1px solid #434343;
                 }
         
                 .ba-equipamentos {
                     text-align: left;
-                    font-size: 11pt;
+                    font-size: 8pt;
                     border-bottom: 1px solid #434343;
                     border-right: 2px solid #434343;
-                    padding: 12px;
+                    padding: 8px;
                     vertical-align: top;
                     white-space: pre-wrap;
                 }
@@ -1465,16 +1478,10 @@
                 .assinatura-cell {
                     text-align: left;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 9pt;
                     border-bottom: 2px solid #434343;
                     border-right: 2px solid #434343;
-                    min-height: 55px;
-                }
-        
-                @media print {
-                    .relatorio-table {
-                        page-break-inside: avoid;
-                    }
+                    min-height: 40px;
                 }
                 </style>
         
@@ -1483,8 +1490,8 @@
                         <td class="header-logo" colspan="3" rowspan="4">
                             <img src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
                                  alt="SCI Logo" 
-                                 style="max-height: 100px;"
-                                 onerror="this.style.display='none'">
+                                 style="max-height: 70px;"
+                                 crossorigin="anonymous">
                         </td>
                         <td class="header-info" colspan="2">FORMULÁRIO</td>
                         <td class="header-codigo" colspan="2">CÓDIGO:</td>
@@ -1595,7 +1602,50 @@
                 </table>
             `;
             
-            document.getElementById('conteudoRelatorio').innerHTML = htmlRelatorio;
+            document.body.appendChild(tempDiv);
+            
+            try {
+                // Renderizar com html2canvas
+                const canvas = await html2canvas(tempDiv, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+                
+                // Remover elemento temporário
+                document.body.removeChild(tempDiv);
+                
+                // Criar PDF
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210; // A4 width in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                
+                // Converter PDF para Blob e criar URL
+                const pdfBlob = pdf.output('blob');
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                
+                // Exibir PDF no modal
+                document.getElementById('conteudoRelatorio').innerHTML = `
+                    <iframe src="${pdfUrl}" style="width: 100%; height: 70vh; border: none;"></iframe>
+                `;
+                
+                // Armazenar o PDF para download/impressão
+                window.pdfGerado = pdf;
+                
+                hideLoading();
+                
+            } catch (error) {
+                console.error('Erro ao gerar PDF:', error);
+                document.body.removeChild(tempDiv);
+                hideLoading();
+                showToast('Erro ao gerar PDF', 'error');
+            }
         }
         
         function abrirModal() {
@@ -1631,10 +1681,10 @@
                     // Fechar modal
                     fecharModal();
                     
-                    // Abrir impressão
-                    setTimeout(() => {
-                        window.print();
-                    }, 500);
+                    // Baixar/Imprimir PDF
+                    if (window.pdfGerado) {
+                        window.pdfGerado.save(`Relatorio_${dados.numero}_${new Date().toISOString().split('T')[0]}.pdf`);
+                    }
                     
                     // Resetar formulário
                     setTimeout(() => {
