@@ -1274,7 +1274,7 @@
                 const funcao = dados[`funcao${i}`] || '';
                 const nome = dados[`nomeBa${i}`] || '';
                 bombeirosList += `
-                    <tr style="height: 28px;">
+                    <tr style="height: 22px;">
                         <td class="ba-funcao">${funcao}</td>
                         <td class="ba-nome" colspan="4">${nome}</td>
                         ${i === 1 ? `<td class="ba-equipamentos" colspan="2" rowspan="6">${dados.equipamentos || ''}</td>` : ''}
@@ -1310,7 +1310,7 @@
                 }
         
                 .relatorio-table td {
-                    padding: 8px;
+                    padding: 6px 10px;
                     color: #000000;
                     vertical-align: middle;
                     text-align: center;
@@ -1321,11 +1321,11 @@
                     border-right: 1px solid #434343;
                     text-align: center;
                     vertical-align: middle;
-                    height: 100px;
+                    height: 90px;
                 }
         
                 .header-logo img {
-                    max-height: 85px;
+                    max-height: 75px;
                     max-width: 90%;
                     display: block;
                     margin: 0 auto;
@@ -1356,6 +1356,7 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
+                    width: 35%;
                 }
         
                 .header-versao {
@@ -1384,6 +1385,7 @@
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
                     border-right: none;
+                    height: 22px;
                 }
         
                 .value-cell {
@@ -1393,6 +1395,7 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
+                    height: 22px;
                 }
         
                 .value-cell-end {
@@ -1402,91 +1405,81 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
+                    height: 22px;
                 }
         
-                .section-label {
+                /* Células unificadas (label + value) alinhadas à esquerda */
+                .unified-left {
                     text-align: left;
-                    vertical-align: middle;
-                    font-weight: bold;
-                    font-size: 10pt;
-                    border-bottom: 2px solid #434343;
-                    border-right: none;
-                }
-        
-                .section-value {
-                    text-align: center;
                     vertical-align: middle;
                     font-size: 11pt;
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
-                    border-left: none;
+                    padding-left: 12px;
+                    height: 22px;
                 }
         
-                .tipo-label {
-                    text-align: right;
-                    vertical-align: middle;
+                .unified-left strong {
                     font-weight: bold;
-                    font-size: 11pt;
-                    background-color: #dbe5f1;
-                    border-bottom: 1px solid #434343;
-                    border-right: none;
+                    font-size: 10pt;
                 }
         
-                .tipo-value {
+                .unified-center {
                     text-align: center;
                     vertical-align: middle;
                     font-size: 11pt;
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    border-left: none;
+                    height: 22px;
                 }
         
-                .field-label {
-                    text-align: left;
-                    vertical-align: middle;
+                .unified-center strong {
                     font-weight: bold;
-                    font-size: 10pt;
-                    border-bottom: 1px solid #434343;
-                    border-right: none;
-                }
-        
-                .field-value {
-                    text-align: center;
-                    vertical-align: middle;
                     font-size: 11pt;
-                    border-bottom: 1px solid #434343;
-                    border-right: 1px solid #434343;
-                    border-left: none;
                 }
         
+                /* Procedimentos e Danos */
                 .procedimentos-label {
                     text-align: left;
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 10pt;
-                    border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
+                    border-bottom: none;
+                    padding-left: 12px;
+                    height: 22px;
                 }
         
                 .procedimentos-value {
-                    text-align: center;
-                    vertical-align: middle;
+                    text-align: left;
+                    vertical-align: top;
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    padding: 10px;
+                    padding: 10px 12px;
                     min-height: 100px;
                     white-space: pre-wrap;
                 }
         
-                .danos-value {
-                    text-align: center;
+                .danos-label {
+                    text-align: left;
                     vertical-align: middle;
+                    font-weight: bold;
+                    font-size: 10pt;
+                    border-right: 1px solid #434343;
+                    border-bottom: none;
+                    padding-left: 12px;
+                    height: 22px;
+                }
+        
+                .danos-value {
+                    text-align: left;
+                    vertical-align: top;
                     font-size: 10pt;
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
-                    padding: 10px;
+                    padding: 10px 12px;
                     min-height: 50px;
                     white-space: pre-wrap;
                 }
@@ -1499,6 +1492,7 @@
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
+                    height: 22px;
                 }
         
                 .ba-funcao {
@@ -1507,6 +1501,7 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
+                    height: 22px;
                 }
         
                 .ba-nome {
@@ -1515,26 +1510,30 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
+                    height: 22px;
                 }
         
                 .ba-equipamentos {
-                    text-align: center;
-                    vertical-align: middle;
+                    text-align: left;
+                    vertical-align: top;
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    padding: 10px;
+                    padding: 10px 12px;
                     white-space: pre-wrap;
                 }
         
                 .assinatura-cell {
                     text-align: left;
                     vertical-align: middle;
-                    font-weight: bold;
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     min-height: 45px;
                     padding: 12px;
+                }
+        
+                .assinatura-cell strong {
+                    font-weight: bold;
                 }
                 </style>
         
@@ -1567,33 +1566,28 @@
                             <td class="value-cell" colspan="2">${dataFormatada}</td>
                             <td class="label-bold">Hora:</td>
                             <td class="value-cell">${horaFormatada}</td>
-                            <td class="field-label">Relatório n°:</td>
+                            <td class="label-bold">Relatório n°:</td>
                             <td class="value-cell-end">${dados.numero}</td>
                         </tr>
         
                         <tr>
-                            <td class="section-label" colspan="3">Área do evento (Mapa de Grade):</td>
-                            <td class="section-value" colspan="4">${dados.locais}, ${dados.areasGrade}</td>
+                            <td class="unified-left" colspan="7"><strong>Área do evento (Mapa de Grade):</strong> ${dados.locais}, ${dados.areasGrade}</td>
                         </tr>
         
                         <tr>
-                            <td class="tipo-label" colspan="3">TIPO DE OCORRÊNCIA:</td>
-                            <td class="tipo-value" colspan="4">${dados.tipoOcorrencia}</td>
+                            <td class="unified-center" colspan="7"><strong>TIPO DE OCORRÊNCIA:</strong> ${dados.tipoOcorrencia}</td>
                         </tr>
         
                         <tr>
-                            <td class="field-label" colspan="2">Equipe:</td>
-                            <td class="field-value" colspan="5">${dados.equipe}</td>
+                            <td class="unified-left" colspan="7"><strong>Equipe:</strong> ${dados.equipe}</td>
                         </tr>
         
                         <tr>
-                            <td class="field-label" colspan="2">Nome Solicitante:</td>
-                            <td class="field-value" colspan="5">${dados.nomeSolicitante}</td>
+                            <td class="unified-left" colspan="7"><strong>Nome Solicitante:</strong> ${dados.nomeSolicitante}</td>
                         </tr>
         
                         <tr>
-                            <td class="field-label" colspan="2">Empresa Envolvida:</td>
-                            <td class="field-value" colspan="5">${dados.empresaEnvolvida}</td>
+                            <td class="unified-left" colspan="7"><strong>Empresa Envolvida:</strong> ${dados.empresaEnvolvida}</td>
                         </tr>
         
                         <tr>
@@ -1604,28 +1598,23 @@
                         </tr>
         
                         <tr>
-                            <td class="field-label" colspan="2">Acionamento:</td>
-                            <td class="field-value" colspan="5">${dados.acionamento}</td>
+                            <td class="unified-left" colspan="7"><strong>Acionamento:</strong> ${dados.acionamento}</td>
                         </tr>
                         <tr>
-                            <td class="field-label" colspan="2">Saída:</td>
-                            <td class="field-value" colspan="5">${dados.saida}</td>
+                            <td class="unified-left" colspan="7"><strong>Saída:</strong> ${dados.saida}</td>
                         </tr>
                         <tr>
-                            <td class="field-label" colspan="2">Chegada no local:</td>
-                            <td class="field-value" colspan="5">${dados.chegada}</td>
+                            <td class="unified-left" colspan="7"><strong>Chegada no local:</strong> ${dados.chegada}</td>
                         </tr>
                         <tr>
-                            <td class="field-label" colspan="2">Término da ocorrência:</td>
-                            <td class="field-value" colspan="5">${dados.termino}</td>
+                            <td class="unified-left" colspan="7"><strong>Término da ocorrência:</strong> ${dados.termino}</td>
                         </tr>
                         <tr>
-                            <td class="field-label" colspan="2">Retorno à SCI:</td>
-                            <td class="field-value" colspan="5">${dados.retorno}</td>
+                            <td class="unified-left" colspan="7"><strong>Retorno à SCI:</strong> ${dados.retorno}</td>
                         </tr>
         
                         <tr>
-                            <td class="procedimentos-label" colspan="7">Relação de danos:</td>
+                            <td class="danos-label" colspan="7">Relação de danos:</td>
                         </tr>
                         <tr>
                             <td class="danos-value" colspan="7">${dados.relacaoDanos || ''}</td>
@@ -1640,17 +1629,15 @@
                         ${bombeirosList}
         
                         <tr>
-                            <td class="field-label" colspan="3">Tempo Gasto no atendimento:</td>
-                            <td class="field-value" colspan="4">${dados.tempoGasto}</td>
+                            <td class="unified-left" colspan="7"><strong>Tempo Gasto no atendimento:</strong> ${dados.tempoGasto}</td>
                         </tr>
         
                         <tr>
-                            <td class="field-label" colspan="3">Material Utilizado:</td>
-                            <td class="field-value" colspan="4">${dados.materialUtilizado || ''}</td>
+                            <td class="unified-left" colspan="7"><strong>Material Utilizado:</strong> ${dados.materialUtilizado || ''}</td>
                         </tr>
         
                         <tr>
-                            <td class="assinatura-cell" colspan="7">Assinatura do Chefe de Equipe:</td>
+                            <td class="assinatura-cell" colspan="7"><strong>Assinatura do Chefe de Equipe:</strong></td>
                         </tr>
                     </table>
                 </div>
