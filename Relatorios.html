@@ -1258,19 +1258,344 @@
         }
         
         function preencherPreviewRelatorio(dados) {
-            // Esta função será preenchida quando criarmos o layout
-            console.log('Dados coletados:', dados);
+            // Formatar data e hora atual
+            const agora = new Date();
+            const dataFormatada = agora.toLocaleDateString('pt-BR');
+            const horaFormatada = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
             
-            // Por enquanto, só mostra uma mensagem
-            document.getElementById('conteudoRelatorio').innerHTML = `
-                <div class="text-center py-12">
-                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-4 text-green-500"></i>
-                    <p class="text-lg font-semibold text-gray-900 mb-2">Dados coletados com sucesso!</p>
-                    <p class="text-sm text-gray-500">O layout do relatório será inserido aqui</p>
-                </div>
+            // Montar lista de bombeiros
+            let bombeirosList = '';
+            for (let i = 1; i <= 6; i++) {
+                const funcao = dados[`funcao${i}`] || '';
+                const nome = dados[`nomeBa${i}`] || '';
+                bombeirosList += `
+                    <tr>
+                        <td class="ba-funcao">${funcao}</td>
+                        <td class="ba-nome" colspan="4">${nome}</td>
+                        ${i === 1 ? `<td class="ba-equipamentos" colspan="2" rowspan="6">${dados.equipamentos || ''}</td>` : ''}
+                    </tr>
+                `;
+            }
+            
+            const htmlRelatorio = `
+                <style type="text/css">
+                .relatorio-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-family: 'Calibri', Arial, sans-serif;
+                    background: #ffffff;
+                }
+        
+                .relatorio-table td {
+                    padding: 8px;
+                    color: #000000;
+                    vertical-align: middle;
+                }
+        
+                .header-logo {
+                    border-bottom: 2px solid #434343;
+                    border-right: 1px solid #434343;
+                    text-align: center;
+                    height: 116px;
+                }
+        
+                .header-info {
+                    border-bottom: 1px solid #434343;
+                    border-right: 1px solid #434343;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 11pt;
+                }
+        
+                .header-codigo {
+                    border-bottom: 1px solid #434343;
+                    border-right: 2px solid #434343;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 11pt;
+                }
+        
+                .header-title {
+                    border-bottom: 2px solid #434343;
+                    border-right: 2px solid #434343;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 11pt;
+                }
+        
+                .header-versao {
+                    border-bottom: 2px solid #434343;
+                    border-right: 1px solid #434343;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 11pt;
+                }
+        
+                .header-data-criacao {
+                    border-bottom: 2px solid #434343;
+                    border-right: 2px solid #434343;
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 10pt;
+                }
+        
+                .label-bold {
+                    text-align: right;
+                    font-weight: bold;
+                    font-size: 11pt;
+                    border-bottom: 1px solid #434343;
+                }
+        
+                .value-cell {
+                    text-align: center;
+                    font-size: 11pt;
+                    border-bottom: 1px solid #434343;
+                    border-right: 1px solid #434343;
+                }
+        
+                .value-cell-end {
+                    text-align: center;
+                    font-size: 11pt;
+                    border-bottom: 1px solid #434343;
+                    border-right: 2px solid #434343;
+                }
+        
+                .section-label {
+                    text-align: left;
+                    font-weight: bold;
+                    font-size: 11pt;
+                    border-bottom: 2px solid #434343;
+                }
+        
+                .section-value {
+                    text-align: left;
+                    font-size: 11pt;
+                    border-bottom: 2px solid #434343;
+                    border-right: 2px solid #434343;
+                }
+        
+                .tipo-label {
+                    text-align: right;
+                    font-weight: bold;
+                    font-size: 12pt;
+                    background-color: #dbe5f1;
+                    border-bottom: 1px solid #434343;
+                }
+        
+                .tipo-value {
+                    text-align: center;
+                    font-size: 12pt;
+                    background-color: #dbe5f1;
+                    border-bottom: 1px solid #434343;
+                    border-right: 2px solid #434343;
+                }
+        
+                .field-label {
+                    text-align: left;
+                    font-weight: bold;
+                    font-size: 11pt;
+                    border-bottom: 1px solid #434343;
+                }
+        
+                .field-value {
+                    text-align: center;
+                    font-size: 11pt;
+                    border-bottom: 1px solid #434343;
+                    border-right: 2px solid #434343;
+                }
+        
+                .procedimentos-label {
+                    text-align: left;
+                    font-weight: bold;
+                    font-size: 11pt;
+                    border-right: 2px solid #434343;
+                }
+        
+                .procedimentos-value {
+                    text-align: left;
+                    font-size: 11pt;
+                    border-bottom: 1px solid #434343;
+                    border-right: 2px solid #434343;
+                    padding: 12px;
+                    min-height: 140px;
+                    vertical-align: top;
+                    white-space: pre-wrap;
+                }
+        
+                .danos-value {
+                    text-align: left;
+                    font-size: 11pt;
+                    border-bottom: 2px solid #434343;
+                    border-right: 2px solid #434343;
+                    padding: 12px;
+                    min-height: 57px;
+                    vertical-align: top;
+                    white-space: pre-wrap;
+                }
+        
+                .table-header {
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 12pt;
+                    background-color: #dbe5f1;
+                    border: 1px solid #434343;
+                }
+        
+                .ba-funcao {
+                    text-align: center;
+                    font-size: 11pt;
+                }
+        
+                .ba-nome {
+                    text-align: center;
+                    font-size: 11pt;
+                    border: 1px solid #434343;
+                }
+        
+                .ba-equipamentos {
+                    text-align: left;
+                    font-size: 11pt;
+                    border-bottom: 1px solid #434343;
+                    border-right: 2px solid #434343;
+                    padding: 12px;
+                    vertical-align: top;
+                    white-space: pre-wrap;
+                }
+        
+                .assinatura-cell {
+                    text-align: left;
+                    font-weight: bold;
+                    font-size: 11pt;
+                    border-bottom: 2px solid #434343;
+                    border-right: 2px solid #434343;
+                    min-height: 55px;
+                }
+        
+                @media print {
+                    .relatorio-table {
+                        page-break-inside: avoid;
+                    }
+                }
+                </style>
+        
+                <table class="relatorio-table">
+                    <tr>
+                        <td class="header-logo" colspan="3" rowspan="4">
+                            <img src="https://lh3.googleusercontent.com/u/0/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
+                                 alt="SCI Logo" 
+                                 style="max-height: 100px;"
+                                 onerror="this.style.display='none'">
+                        </td>
+                        <td class="header-info" colspan="2">FORMULÁRIO</td>
+                        <td class="header-codigo" colspan="2">CÓDIGO:</td>
+                    </tr>
+                    <tr>
+                        <td class="header-title" colspan="2" rowspan="3">Ocorrência não Aeronáutica</td>
+                        <td class="header-data-criacao" colspan="2">MMS.BR.BA.FOR.002</td>
+                    </tr>
+                    <tr>
+                        <td class="header-info">VERSÃO:</td>
+                        <td class="header-codigo">DATA CRIAÇÃO:</td>
+                    </tr>
+                    <tr>
+                        <td class="header-versao">0</td>
+                        <td class="header-title">06/2025</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="label-bold">Data:</td>
+                        <td class="value-cell" colspan="2">${dataFormatada}</td>
+                        <td class="label-bold">Hora:</td>
+                        <td class="value-cell">${horaFormatada}</td>
+                        <td class="field-label">Relatório n°:</td>
+                        <td class="value-cell-end">${dados.numero}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="section-label" colspan="3">Área do evento (Mapa de Grade):</td>
+                        <td class="section-value" colspan="4">${dados.locais}, ${dados.areasGrade}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="tipo-label" colspan="3">TIPO DE OCORRÊNCIA:</td>
+                        <td class="tipo-value" colspan="4">${dados.tipoOcorrencia}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="field-label" colspan="2">Equipe:</td>
+                        <td class="field-value" colspan="5">${dados.equipe}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="field-label" colspan="2">Nome Solicitante:</td>
+                        <td class="field-value" colspan="5">${dados.nomeSolicitante}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="field-label" colspan="2">Empresa Envolvida:</td>
+                        <td class="field-value" colspan="5">${dados.empresaEnvolvida}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="procedimentos-label" colspan="7">Procedimentos Estabelecidos:</td>
+                    </tr>
+                    <tr>
+                        <td class="procedimentos-value" colspan="7">${dados.procedimentos}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="field-label" colspan="2">Acionamento:</td>
+                        <td class="field-value" colspan="5">${dados.acionamento}</td>
+                    </tr>
+                    <tr>
+                        <td class="field-label" colspan="2">Saída:</td>
+                        <td class="field-value" colspan="5">${dados.saida}</td>
+                    </tr>
+                    <tr>
+                        <td class="field-label" colspan="2">Chegada no local:</td>
+                        <td class="field-value" colspan="5">${dados.chegada}</td>
+                    </tr>
+                    <tr>
+                        <td class="field-label" colspan="2">Término da ocorrência:</td>
+                        <td class="field-value" colspan="5">${dados.termino}</td>
+                    </tr>
+                    <tr>
+                        <td class="field-label" colspan="2">Retorno à SCI:</td>
+                        <td class="field-value" colspan="5">${dados.retorno}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="procedimentos-label" colspan="7">Relação de danos:</td>
+                    </tr>
+                    <tr>
+                        <td class="danos-value" colspan="7">${dados.relacaoDanos || ''}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="table-header">Função</td>
+                        <td class="table-header" colspan="4">Nomes dos Bombeiros Envolvidos</td>
+                        <td class="table-header" colspan="2">CCI e Equipamentos Utilizados</td>
+                    </tr>
+        
+                    ${bombeirosList}
+        
+                    <tr>
+                        <td class="field-label" colspan="3">Tempo Gasto no atendimento:</td>
+                        <td class="field-value" colspan="4">${dados.tempoGasto}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="field-label" colspan="3">Material Utilizado:</td>
+                        <td class="field-value" colspan="4">${dados.materialUtilizado || ''}</td>
+                    </tr>
+        
+                    <tr>
+                        <td class="assinatura-cell" colspan="7">Assinatura do Chefe de Equipe:</td>
+                    </tr>
+                </table>
             `;
             
-            setTimeout(() => lucide.createIcons(), 100);
+            document.getElementById('conteudoRelatorio').innerHTML = htmlRelatorio;
         }
         
         function abrirModal() {
