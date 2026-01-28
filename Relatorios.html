@@ -124,6 +124,7 @@
             align-items: center;
             gap: 6px;
             width: 100%;
+            justify-content: center;
         }
 
         .btn-add-area:hover {
@@ -145,6 +146,7 @@
             gap: 6px;
             white-space: nowrap;
             width: 100%;
+            justify-content: center;
         }
 
         .btn-remove-area:hover {
@@ -181,7 +183,7 @@
 
         .area-row {
             display: grid;
-            grid-template-columns: 1fr 1fr auto;
+            grid-template-columns: 1fr 1fr 0.4fr;
             gap: 12px;
             margin-bottom: 12px;
             align-items: end;
@@ -984,7 +986,7 @@
                 </div>
                 <div>
                     <button type="button" class="btn-remove-area" onclick="removerArea(this)">
-                        <i data-lucide="x" class="w-4 h-4"></i>
+                        <i data-lucide="x   " class="w-4 h-4"></i>
                         Excluir
                     </button>
                 </div>
