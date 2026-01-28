@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>2
+<head>3
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -262,6 +262,110 @@
         .toast.error {
             background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%);
         }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e5ea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid #e5e5ea;
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-close {
+            background: #f5f5f7;
+            border: none;
+            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #1d1d1f;
+        }
+        
+        .btn-close:hover {
+            background: #e8e8ed;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            #conteudoRelatorio,
+            #conteudoRelatorio * {
+                visibility: visible;
+            }
+            
+            #conteudoRelatorio {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            
+            .modal-header,
+            .modal-footer {
+                display: none !important;
+            }
+        }
+        
     </style>
 </head>
 <body>
@@ -626,17 +730,54 @@
                 </div>
             </div>
 
-            <!-- Botão Enviar -->
+            <!-- Botão Visualizar -->
             <div class="card p-5">
+                <div class="text-center mb-3">
+                    <p class="text-sm text-amber-600 font-semibold flex items-center justify-center gap-2">
+                        <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                        Revise os dados antes de Enviar/Imprimir
+                    </p>
+                </div>
                 <button type="submit" class="btn-primary">
-                    <i data-lucide="send" class="w-5 h-5 inline mr-2"></i>
-                    Enviar Relatório
+                    <i data-lucide="eye" class="w-5 h-5 inline mr-2"></i>
+                    Visualizar Relatório
                 </button>
             </div>
 
         </form>
     </div>
 
+    <!-- Modal de Visualização -->
+    <div class="modal-overlay" id="modalRelatorio">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="text-xl font-bold text-gray-900">Visualização do Relatório</h2>
+                <button type="button" class="btn-close" onclick="fecharModal()">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body" id="conteudoRelatorio">
+                <!-- Aqui vai entrar o layout da planilha -->
+                <div class="text-center py-12 text-gray-500">
+                    <i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
+                    <p>O layout do relatório será inserido aqui</p>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary flex-1" onclick="fecharModal()">
+                    <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                    Voltar para Edição
+                </button>
+                <button type="button" class="btn-primary flex-1" onclick="enviarEImprimir()">
+                    <i data-lucide="printer" class="w-5 h-5 inline mr-2"></i>
+                    Enviar e Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
     </div>
@@ -1035,6 +1176,27 @@
         document.getElementById('formRelatorio').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Validar formulário
+            if (!validarFormulario()) {
+                return;
+            }
+            
+            // Coletar dados
+            const dados = coletarDadosFormulario();
+            
+            // Preencher preview no modal
+            preencherPreviewRelatorio(dados);
+            
+            // Abrir modal
+            abrirModal();
+        });
+        
+        function validarFormulario() {
+            // Validação básica já é feita pelo HTML5
+            return true;
+        }
+        
+        function coletarDadosFormulario() {
             // Pegar locais selecionados (checkboxes)
             const checkboxesLocais = document.querySelectorAll('#locaisContainer input[type="checkbox"]:checked');
             const locaisSelecionados = Array.from(checkboxesLocais)
@@ -1050,7 +1212,7 @@
                 const letra = areasLetra[i].value;
                 const numero = areasNumero[i].value;
                 if (letra && numero) {
-                    areasGrade.push(letra + '-' + numero);  // ← MUDE PARA ISSO (adicione '-' + )
+                    areasGrade.push(letra + '-' + numero);
                 }
             }
             
@@ -1062,8 +1224,7 @@
                 .map(cb => cb.value)
                 .join(', ');
             
-            const dados = {
-                action: 'salvarRelatorio',
+            return {
                 numero: proximoNumero,
                 areasGrade: areasGradeString,
                 locais: locaisSelecionados,
@@ -1094,20 +1255,63 @@
                 tempoGasto: document.getElementById('tempoGasto').value,
                 materialUtilizado: document.getElementById('materialUtilizado').value
             };
+        }
+        
+        function preencherPreviewRelatorio(dados) {
+            // Esta função será preenchida quando criarmos o layout
+            console.log('Dados coletados:', dados);
+            
+            // Por enquanto, só mostra uma mensagem
+            document.getElementById('conteudoRelatorio').innerHTML = `
+                <div class="text-center py-12">
+                    <i data-lucide="check-circle" class="w-16 h-16 mx-auto mb-4 text-green-500"></i>
+                    <p class="text-lg font-semibold text-gray-900 mb-2">Dados coletados com sucesso!</p>
+                    <p class="text-sm text-gray-500">O layout do relatório será inserido aqui</p>
+                </div>
+            `;
+            
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+        
+        function abrirModal() {
+            document.getElementById('modalRelatorio').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function fecharModal() {
+            document.getElementById('modalRelatorio').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        async function enviarEImprimir() {
+            const dados = coletarDadosFormulario();
             
             try {
                 showLoading();
                 
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
-                    body: JSON.stringify(dados)
+                    body: JSON.stringify({
+                        action: 'salvarRelatorio',
+                        ...dados
+                    })
                 });
                 
                 const result = await response.json();
                 
                 if (result.success) {
+                    hideLoading();
                     showToast(`Relatório #${result.numero} enviado com sucesso!`, 'success');
                     
+                    // Fechar modal
+                    fecharModal();
+                    
+                    // Abrir impressão
+                    setTimeout(() => {
+                        window.print();
+                    }, 500);
+                    
+                    // Resetar formulário
                     setTimeout(() => {
                         document.getElementById('formRelatorio').reset();
                         
@@ -1122,18 +1326,17 @@
                         limparProcedimentos();
                         
                         carregarConfiguracoes();
-                    }, 1500);
+                    }, 2000);
                 } else {
+                    hideLoading();
                     showToast('Erro ao enviar relatório', 'error');
                 }
-                
-                hideLoading();
             } catch (error) {
                 console.error('Erro:', error);
-                showToast('Erro ao enviar relatório', 'error');
                 hideLoading();
+                showToast('Erro ao enviar relatório', 'error');
             }
-        });
+        }
         
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('active');
