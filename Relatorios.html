@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>7
+<head>8
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1275,8 +1275,8 @@
                 const nome = dados[`nomeBa${i}`] || '';
                 bombeirosList += `
                     <tr>
-                        <td class="ba-funcao">${funcao}</td>
-                        <td class="ba-nome" colspan="4">${nome}</td>
+                        <td class="ba-funcao"><div class="cell-content">${funcao}</div></td>
+                        <td class="ba-nome" colspan="4"><div class="cell-content">${nome}</div></td>
                         ${i === 1 ? `<td class="ba-equipamentos" colspan="2" rowspan="6">${dados.equipamentos || ''}</td>` : ''}
                     </tr>
                 `;
@@ -1315,7 +1315,14 @@
         
                 .relatorio-table td {
                     color: #000000;
-                    vertical-align: middle;
+                    padding: 0;
+                }
+        
+                .cell-content {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 100%;
                     padding: 0 10px;
                 }
         
@@ -1338,23 +1345,25 @@
                 .header-info {
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    text-align: center;
-                    vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
                     height: 30px;
-                    line-height: 30px;
+                }
+        
+                .header-info .cell-content {
+                    justify-content: center;
                 }
         
                 .header-codigo {
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    text-align: center;
-                    vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
                     height: 30px;
-                    line-height: 30px;
+                }
+        
+                .header-codigo .cell-content {
+                    justify-content: center;
                 }
         
                 .header-title {
@@ -1364,76 +1373,81 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 1.3;
                     padding: 5px;
                 }
         
                 .header-versao {
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
-                    text-align: center;
-                    vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
                     height: 30px;
-                    line-height: 30px;
+                }
+        
+                .header-versao .cell-content {
+                    justify-content: center;
                 }
         
                 .header-data-criacao {
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
-                    text-align: center;
-                    vertical-align: middle;
                     font-weight: bold;
                     font-size: 10pt;
                     height: 30px;
-                    line-height: 30px;
+                }
+        
+                .header-data-criacao .cell-content {
+                    justify-content: center;
                 }
         
                 /* Labels e valores */
                 .label-bold {
-                    text-align: right;
-                    vertical-align: middle;
                     font-weight: bold;
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
                     border-right: none;
                     height: 28px;
-                    line-height: 28px;
+                }
+        
+                .label-bold .cell-content {
+                    justify-content: flex-end;
                 }
         
                 .value-cell {
-                    text-align: center;
-                    vertical-align: middle;
                     font-size: 11pt;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
                     height: 28px;
-                    line-height: 28px;
+                }
+        
+                .value-cell .cell-content {
+                    justify-content: center;
                 }
         
                 .value-cell-end {
-                    text-align: center;
-                    vertical-align: middle;
                     font-size: 11pt;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
                     height: 28px;
-                    line-height: 28px;
+                }
+        
+                .value-cell-end .cell-content {
+                    justify-content: center;
                 }
         
                 /* Células unificadas alinhadas à esquerda */
                 .unified-left {
-                    text-align: left;
-                    vertical-align: middle;
                     font-size: 11pt;
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
-                    padding-left: 12px;
                     height: 28px;
-                    line-height: 28px;
+                }
+        
+                .unified-left .cell-content {
+                    justify-content: flex-start;
+                    padding-left: 12px;
                 }
         
                 .unified-left strong {
@@ -1443,14 +1457,15 @@
         
                 /* TIPO DE OCORRÊNCIA - centralizado */
                 .unified-center {
-                    text-align: center;
-                    vertical-align: middle;
                     font-size: 11pt;
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     height: 28px;
-                    line-height: 28px;
+                }
+        
+                .unified-center .cell-content {
+                    justify-content: center;
                 }
         
                 .unified-center strong {
@@ -1466,9 +1481,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: none;
-                    padding-left: 12px;
+                    padding: 8px 12px;
                     height: 28px;
-                    line-height: 28px;
                 }
         
                 .procedimentos-value {
@@ -1490,9 +1504,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: none;
-                    padding-left: 12px;
+                    padding: 8px 12px;
                     height: 28px;
-                    line-height: 28px;
                 }
         
                 .danos-value {
@@ -1509,35 +1522,30 @@
         
                 /* Headers da tabela de bombeiros */
                 .table-header {
-                    text-align: center;
-                    vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     height: 28px;
-                    line-height: 28px;
+                }
+        
+                .table-header .cell-content {
+                    justify-content: center;
                 }
         
                 .ba-funcao {
-                    text-align: center;
-                    vertical-align: middle;
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
                     height: 28px;
-                    line-height: 28px;
                 }
         
                 .ba-nome {
-                    text-align: center;
-                    vertical-align: middle;
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
                     height: 28px;
-                    line-height: 28px;
                 }
         
                 .ba-equipamentos {
@@ -1575,49 +1583,49 @@
                                      crossorigin="anonymous"
                                      onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%2280%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%2280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2218%22 fill=%22%23666%22%3ELOGO%3C/text%3E%3C/svg%3E';">
                             </td>
-                            <td class="header-info" colspan="2">FORMULÁRIO</td>
-                            <td class="header-codigo" colspan="2">CÓDIGO:</td>
+                            <td class="header-info" colspan="2"><div class="cell-content">FORMULÁRIO</div></td>
+                            <td class="header-codigo" colspan="2"><div class="cell-content">CÓDIGO:</div></td>
                         </tr>
                         <tr>
                             <td class="header-title" colspan="2" rowspan="3">Ocorrência não Aeronáutica</td>
-                            <td class="header-data-criacao" colspan="2">MMS.BR.BA.FOR.002</td>
+                            <td class="header-data-criacao" colspan="2"><div class="cell-content">MMS.BR.BA.FOR.002</div></td>
                         </tr>
                         <tr>
-                            <td class="header-info">VERSÃO:</td>
-                            <td class="header-codigo">DATA CRIAÇÃO:</td>
+                            <td class="header-info"><div class="cell-content">VERSÃO:</div></td>
+                            <td class="header-codigo"><div class="cell-content">DATA CRIAÇÃO:</div></td>
                         </tr>
                         <tr>
-                            <td class="header-versao">0</td>
+                            <td class="header-versao"><div class="cell-content">0</div></td>
                             <td class="header-title">06/2025</td>
                         </tr>
         
                         <tr>
-                            <td class="label-bold">Data:</td>
-                            <td class="value-cell" colspan="2">${dataFormatada}</td>
-                            <td class="label-bold">Hora:</td>
-                            <td class="value-cell">${horaFormatada}</td>
-                            <td class="label-bold">Relatório n°:</td>
-                            <td class="value-cell-end">${dados.numero}</td>
+                            <td class="label-bold"><div class="cell-content">Data:</div></td>
+                            <td class="value-cell" colspan="2"><div class="cell-content">${dataFormatada}</div></td>
+                            <td class="label-bold"><div class="cell-content">Hora:</div></td>
+                            <td class="value-cell"><div class="cell-content">${horaFormatada}</div></td>
+                            <td class="label-bold"><div class="cell-content">Relatório n°:</div></td>
+                            <td class="value-cell-end"><div class="cell-content">${dados.numero}</div></td>
                         </tr>
         
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Área do evento (Mapa de Grade):</strong> ${dados.locais}, ${dados.areasGrade}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Área do evento (Mapa de Grade):</strong> ${dados.locais}, ${dados.areasGrade}</div></td>
                         </tr>
         
                         <tr>
-                            <td class="unified-center" colspan="7"><strong>TIPO DE OCORRÊNCIA:</strong> ${dados.tipoOcorrencia}</td>
+                            <td class="unified-center" colspan="7"><div class="cell-content"><strong>TIPO DE OCORRÊNCIA:</strong> ${dados.tipoOcorrencia}</div></td>
                         </tr>
         
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Equipe:</strong> ${dados.equipe}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Equipe:</strong> ${dados.equipe}</div></td>
                         </tr>
         
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Nome Solicitante:</strong> ${dados.nomeSolicitante}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Nome Solicitante:</strong> ${dados.nomeSolicitante}</div></td>
                         </tr>
         
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Empresa Envolvida:</strong> ${dados.empresaEnvolvida}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Empresa Envolvida:</strong> ${dados.empresaEnvolvida}</div></td>
                         </tr>
         
                         <tr>
@@ -1628,19 +1636,19 @@
                         </tr>
         
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Acionamento:</strong> ${dados.acionamento}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Acionamento:</strong> ${dados.acionamento}</div></td>
                         </tr>
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Saída:</strong> ${dados.saida}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Saída:</strong> ${dados.saida}</div></td>
                         </tr>
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Chegada no local:</strong> ${dados.chegada}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Chegada no local:</strong> ${dados.chegada}</div></td>
                         </tr>
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Término da ocorrência:</strong> ${dados.termino}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Término da ocorrência:</strong> ${dados.termino}</div></td>
                         </tr>
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Retorno à SCI:</strong> ${dados.retorno}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Retorno à SCI:</strong> ${dados.retorno}</div></td>
                         </tr>
         
                         <tr>
@@ -1651,19 +1659,19 @@
                         </tr>
         
                         <tr>
-                            <td class="table-header">Função</td>
-                            <td class="table-header" colspan="4">Nomes dos Bombeiros Envolvidos</td>
-                            <td class="table-header" colspan="2">CCI e Equipamentos Utilizados</td>
+                            <td class="table-header"><div class="cell-content">Função</div></td>
+                            <td class="table-header" colspan="4"><div class="cell-content">Nomes dos Bombeiros Envolvidos</div></td>
+                            <td class="table-header" colspan="2"><div class="cell-content">CCI e Equipamentos Utilizados</div></td>
                         </tr>
         
                         ${bombeirosList}
         
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Tempo Gasto no atendimento:</strong> ${dados.tempoGasto}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Tempo Gasto no atendimento:</strong> ${dados.tempoGasto}</div></td>
                         </tr>
         
                         <tr>
-                            <td class="unified-left" colspan="7"><strong>Material Utilizado:</strong> ${dados.materialUtilizado || ''}</td>
+                            <td class="unified-left" colspan="7"><div class="cell-content"><strong>Material Utilizado:</strong> ${dados.materialUtilizado || ''}</div></td>
                         </tr>
         
                         <tr>
