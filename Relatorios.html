@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>2
+<head>3
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1274,7 +1274,7 @@
                 const funcao = dados[`funcao${i}`] || '';
                 const nome = dados[`nomeBa${i}`] || '';
                 bombeirosList += `
-                    <tr style="height: 22px;">
+                    <tr>
                         <td class="ba-funcao">${funcao}</td>
                         <td class="ba-nome" colspan="4">${nome}</td>
                         ${i === 1 ? `<td class="ba-equipamentos" colspan="2" rowspan="6">${dados.equipamentos || ''}</td>` : ''}
@@ -1310,10 +1310,9 @@
                 }
         
                 .relatorio-table td {
-                    padding: 6px 10px;
+                    padding: 0;
                     color: #000000;
                     vertical-align: middle;
-                    line-height: 1.2;
                 }
         
                 .header-logo {
@@ -1323,11 +1322,11 @@
                     vertical-align: middle;
                     height: 90px;
                     width: 40%;
-                    line-height: 90px;
+                    padding: 5px;
                 }
         
                 .header-logo img {
-                    max-height: 75px;
+                    max-height: 80px;
                     max-width: 95%;
                     display: inline-block;
                     vertical-align: middle;
@@ -1340,7 +1339,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 1.4;
+                    padding: 6px 10px;
+                    height: 26px;
                 }
         
                 .header-codigo {
@@ -1350,7 +1350,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 1.4;
+                    padding: 6px 10px;
+                    height: 26px;
                 }
         
                 .header-title {
@@ -1360,7 +1361,7 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 1.4;
+                    padding: 6px 10px;
                 }
         
                 .header-versao {
@@ -1370,7 +1371,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 11pt;
-                    line-height: 1.4;
+                    padding: 6px 10px;
+                    height: 26px;
                 }
         
                 .header-data-criacao {
@@ -1380,7 +1382,8 @@
                     vertical-align: middle;
                     font-weight: bold;
                     font-size: 10pt;
-                    line-height: 1.4;
+                    padding: 6px 10px;
+                    height: 26px;
                 }
         
                 /* Labels e valores sem borda entre eles */
@@ -1391,8 +1394,8 @@
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
                     border-right: none;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 10px;
+                    height: 28px;
                 }
         
                 .value-cell {
@@ -1402,8 +1405,8 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 10px;
+                    height: 28px;
                 }
         
                 .value-cell-end {
@@ -1413,8 +1416,8 @@
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
                     border-left: none;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 10px;
+                    height: 28px;
                 }
         
                 /* Células unificadas alinhadas à esquerda */
@@ -1424,9 +1427,8 @@
                     font-size: 11pt;
                     border-bottom: 2px solid #434343;
                     border-right: 1px solid #434343;
-                    padding-left: 12px;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 12px;
+                    height: 28px;
                 }
         
                 .unified-left strong {
@@ -1442,8 +1444,8 @@
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 12px;
+                    height: 28px;
                 }
         
                 .unified-center strong {
@@ -1459,9 +1461,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: none;
-                    padding-left: 12px;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 12px;
+                    height: 28px;
                 }
         
                 .procedimentos-value {
@@ -1473,7 +1474,7 @@
                     padding: 10px 12px;
                     min-height: 100px;
                     white-space: pre-wrap;
-                    line-height: 1.4;
+                    line-height: 1.5;
                 }
         
                 .danos-label {
@@ -1483,9 +1484,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: none;
-                    padding-left: 12px;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 12px;
+                    height: 28px;
                 }
         
                 .danos-value {
@@ -1497,7 +1497,7 @@
                     padding: 10px 12px;
                     min-height: 50px;
                     white-space: pre-wrap;
-                    line-height: 1.4;
+                    line-height: 1.5;
                 }
         
                 /* Headers da tabela de bombeiros - centralizados */
@@ -1509,8 +1509,8 @@
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
                     border-right: 1px solid #434343;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 10px;
+                    height: 28px;
                 }
         
                 .ba-funcao {
@@ -1519,8 +1519,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 10px;
+                    height: 28px;
                 }
         
                 .ba-nome {
@@ -1529,8 +1529,8 @@
                     font-size: 10pt;
                     border-right: 1px solid #434343;
                     border-bottom: 1px solid #434343;
-                    height: 22px;
-                    line-height: 22px;
+                    padding: 6px 10px;
+                    height: 28px;
                 }
         
                 .ba-equipamentos {
@@ -1541,7 +1541,7 @@
                     border-right: 1px solid #434343;
                     padding: 10px 12px;
                     white-space: pre-wrap;
-                    line-height: 1.4;
+                    line-height: 1.5;
                 }
         
                 .assinatura-cell {
@@ -1549,9 +1549,8 @@
                     vertical-align: middle;
                     font-size: 10pt;
                     border-right: 1px solid #434343;
-                    min-height: 45px;
+                    min-height: 50px;
                     padding: 12px;
-                    line-height: 1.4;
                 }
         
                 .assinatura-cell strong {
@@ -1563,9 +1562,10 @@
                     <table class="relatorio-table">
                         <tr>
                             <td class="header-logo" colspan="3" rowspan="4">
-                                <img src="https://lh3.googleusercontent.com/d/1qRTQ2m7853VqWVPnms99f0cPBlQHahXq" 
-                                     alt="Logo SCI"
-                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%2280%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%2280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2218%22 fill=%22%23666%22%3ELOGO%20SCI%3C/text%3E%3C/svg%3E';">
+                                <img src="https://medmais.com/wp-content/uploads/2025/04/logo_compress.png" 
+                                     alt="Logo MedMais"
+                                     crossorigin="anonymous"
+                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%2280%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%2280%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2218%22 fill=%22%23666%22%3ELOGO%3C/text%3E%3C/svg%3E';">
                             </td>
                             <td class="header-info" colspan="2">FORMULÁRIO</td>
                             <td class="header-codigo" colspan="2">CÓDIGO:</td>
@@ -1675,7 +1675,7 @@
                 } else {
                     img.onload = resolve;
                     img.onerror = resolve;
-                    setTimeout(resolve, 2000); // Timeout de segurança
+                    setTimeout(resolve, 2000);
                 }
             });
             
