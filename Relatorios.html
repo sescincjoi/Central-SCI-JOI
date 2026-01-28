@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>6
+<head>7
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1274,7 +1274,7 @@
                 const funcao = dados[`funcao${i}`] || '';
                 const nome = dados[`nomeBa${i}`] || '';
                 bombeirosList += `
-                    <tr>
+                    <tr style="height: 28px;">
                         <td class="ba-funcao">${funcao}</td>
                         <td class="ba-nome" colspan="4">${nome}</td>
                         ${i === 1 ? `<td class="ba-equipamentos" colspan="2" rowspan="6">${dados.equipamentos || ''}</td>` : ''}
@@ -1287,13 +1287,22 @@
             tempDiv.style.position = 'absolute';
             tempDiv.style.left = '-9999px';
             tempDiv.style.width = '210mm'; // A4
-            tempDiv.style.padding = '10mm';
+            tempDiv.style.padding = '15mm';
             tempDiv.style.backgroundColor = 'white';
+            tempDiv.style.boxSizing = 'border-box';
             
             tempDiv.innerHTML = `
                 <style type="text/css">
+                .relatorio-container {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100%;
+                }
+                
                 .relatorio-table {
                     width: 100%;
+                    max-width: 180mm;
                     border-collapse: collapse;
                     font-family: 'Calibri', Arial, sans-serif;
                     background: #ffffff;
@@ -1312,7 +1321,14 @@
                     border-right: 1px solid #434343;
                     text-align: center;
                     vertical-align: middle;
-                    height: 90px;
+                    height: 100px;
+                }
+        
+                .header-logo img {
+                    max-height: 85px;
+                    max-width: 90%;
+                    display: block;
+                    margin: 0 auto;
                 }
         
                 .header-info {
@@ -1326,7 +1342,7 @@
         
                 .header-codigo {
                     border-bottom: 1px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                     text-align: center;
                     vertical-align: middle;
                     font-weight: bold;
@@ -1335,7 +1351,7 @@
         
                 .header-title {
                     border-bottom: 2px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                     text-align: center;
                     vertical-align: middle;
                     font-weight: bold;
@@ -1353,7 +1369,7 @@
         
                 .header-data-criacao {
                     border-bottom: 2px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                     text-align: center;
                     vertical-align: middle;
                     font-weight: bold;
@@ -1361,11 +1377,12 @@
                 }
         
                 .label-bold {
-                    text-align: center;
+                    text-align: right;
                     vertical-align: middle;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 10pt;
                     border-bottom: 1px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .value-cell {
@@ -1381,15 +1398,16 @@
                     vertical-align: middle;
                     font-size: 11pt;
                     border-bottom: 1px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .section-label {
-                    text-align: center;
+                    text-align: left;
                     vertical-align: middle;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 10pt;
                     border-bottom: 2px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .section-value {
@@ -1397,33 +1415,35 @@
                     vertical-align: middle;
                     font-size: 11pt;
                     border-bottom: 2px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .tipo-label {
-                    text-align: center;
+                    text-align: right;
                     vertical-align: middle;
                     font-weight: bold;
-                    font-size: 12pt;
+                    font-size: 11pt;
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .tipo-value {
                     text-align: center;
                     vertical-align: middle;
-                    font-size: 12pt;
+                    font-size: 11pt;
                     background-color: #dbe5f1;
                     border-bottom: 1px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .field-label {
-                    text-align: center;
+                    text-align: left;
                     vertical-align: middle;
                     font-weight: bold;
-                    font-size: 11pt;
+                    font-size: 10pt;
                     border-bottom: 1px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .field-value {
@@ -1431,15 +1451,16 @@
                     vertical-align: middle;
                     font-size: 11pt;
                     border-bottom: 1px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .procedimentos-label {
-                    text-align: center;
+                    text-align: left;
                     vertical-align: middle;
                     font-weight: bold;
-                    font-size: 11pt;
-                    border-right: 2px solid #434343;
+                    font-size: 10pt;
+                    border-bottom: 1px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .procedimentos-value {
@@ -1447,9 +1468,9 @@
                     vertical-align: middle;
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                     padding: 10px;
-                    min-height: 80px;
+                    min-height: 100px;
                     white-space: pre-wrap;
                 }
         
@@ -1458,9 +1479,9 @@
                     vertical-align: middle;
                     font-size: 10pt;
                     border-bottom: 2px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                     padding: 10px;
-                    min-height: 40px;
+                    min-height: 50px;
                     white-space: pre-wrap;
                 }
         
@@ -1468,24 +1489,26 @@
                     text-align: center;
                     vertical-align: middle;
                     font-weight: bold;
-                    font-size: 12pt;
+                    font-size: 11pt;
                     background-color: #dbe5f1;
-                    border: 1px solid #434343;
+                    border-bottom: 1px solid #434343;
+                    border-right: 1px solid #434343;
                 }
         
                 .ba-funcao {
                     text-align: center;
                     vertical-align: middle;
-                    font-size: 11pt;
-                    height: 30px;
+                    font-size: 10pt;
+                    border-right: 1px solid #434343;
+                    border-bottom: 1px solid #434343;
                 }
         
                 .ba-nome {
                     text-align: center;
                     vertical-align: middle;
-                    font-size: 11pt;
-                    border: 1px solid #434343;
-                    height: 30px;
+                    font-size: 10pt;
+                    border-right: 1px solid #434343;
+                    border-bottom: 1px solid #434343;
                 }
         
                 .ba-equipamentos {
@@ -1493,137 +1516,138 @@
                     vertical-align: middle;
                     font-size: 10pt;
                     border-bottom: 1px solid #434343;
-                    border-right: 2px solid #434343;
+                    border-right: 1px solid #434343;
                     padding: 10px;
                     white-space: pre-wrap;
                 }
         
                 .assinatura-cell {
-                    text-align: center;
+                    text-align: left;
                     vertical-align: middle;
                     font-weight: bold;
-                    font-size: 11pt;
-                    border-bottom: 2px solid #434343;
-                    border-right: 2px solid #434343;
-                    min-height: 40px;
+                    font-size: 10pt;
+                    border-right: 1px solid #434343;
+                    min-height: 45px;
+                    padding: 12px;
                 }
                 </style>
         
-                <table class="relatorio-table">
-                    <tr>
-                        <td class="header-logo" colspan="3" rowspan="4">
-                            <img src="https://medmais.com/wp-content/uploads/2025/04/logo_compress.png" 
-                                 alt="Logo" 
-                                 style="max-height: 70px; display: block; margin: 0 auto;"
-                                 crossorigin="anonymous">
-                        </td>
-                        <td class="header-info" colspan="2">FORMULÁRIO</td>
-                        <td class="header-codigo" colspan="2">CÓDIGO:</td>
-                    </tr>
-                    <tr>
-                        <td class="header-title" colspan="2" rowspan="3">Ocorrência não Aeronáutica</td>
-                        <td class="header-data-criacao" colspan="2">MMS.BR.BA.FOR.002</td>
-                    </tr>
-                    <tr>
-                        <td class="header-info">VERSÃO:</td>
-                        <td class="header-codigo">DATA CRIAÇÃO:</td>
-                    </tr>
-                    <tr>
-                        <td class="header-versao">0</td>
-                        <td class="header-title">06/2025</td>
-                    </tr>
+                <div class="relatorio-container">
+                    <table class="relatorio-table">
+                        <tr>
+                            <td class="header-logo" colspan="3" rowspan="4">
+                                <img src="https://medmais.com/wp-content/uploads/2025/04/logo_compress.png" 
+                                     alt="Logo" 
+                                     crossorigin="anonymous">
+                            </td>
+                            <td class="header-info" colspan="2">FORMULÁRIO</td>
+                            <td class="header-codigo" colspan="2">CÓDIGO:</td>
+                        </tr>
+                        <tr>
+                            <td class="header-title" colspan="2" rowspan="3">Ocorrência não Aeronáutica</td>
+                            <td class="header-data-criacao" colspan="2">MMS.BR.BA.FOR.002</td>
+                        </tr>
+                        <tr>
+                            <td class="header-info">VERSÃO:</td>
+                            <td class="header-codigo">DATA CRIAÇÃO:</td>
+                        </tr>
+                        <tr>
+                            <td class="header-versao">0</td>
+                            <td class="header-title">06/2025</td>
+                        </tr>
         
-                    <tr>
-                        <td class="label-bold">Data:</td>
-                        <td class="value-cell" colspan="2">${dataFormatada}</td>
-                        <td class="label-bold">Hora:</td>
-                        <td class="value-cell">${horaFormatada}</td>
-                        <td class="field-label">Relatório n°:</td>
-                        <td class="value-cell-end">${dados.numero}</td>
-                    </tr>
+                        <tr>
+                            <td class="label-bold">Data:</td>
+                            <td class="value-cell" colspan="2">${dataFormatada}</td>
+                            <td class="label-bold">Hora:</td>
+                            <td class="value-cell">${horaFormatada}</td>
+                            <td class="field-label">Relatório n°:</td>
+                            <td class="value-cell-end">${dados.numero}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="section-label" colspan="3">Área do evento (Mapa de Grade):</td>
-                        <td class="section-value" colspan="4">${dados.locais}, ${dados.areasGrade}</td>
-                    </tr>
+                        <tr>
+                            <td class="section-label" colspan="3">Área do evento (Mapa de Grade):</td>
+                            <td class="section-value" colspan="4">${dados.locais}, ${dados.areasGrade}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="tipo-label" colspan="3">TIPO DE OCORRÊNCIA:</td>
-                        <td class="tipo-value" colspan="4">${dados.tipoOcorrencia}</td>
-                    </tr>
+                        <tr>
+                            <td class="tipo-label" colspan="3">TIPO DE OCORRÊNCIA:</td>
+                            <td class="tipo-value" colspan="4">${dados.tipoOcorrencia}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="field-label" colspan="2">Equipe:</td>
-                        <td class="field-value" colspan="5">${dados.equipe}</td>
-                    </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Equipe:</td>
+                            <td class="field-value" colspan="5">${dados.equipe}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="field-label" colspan="2">Nome Solicitante:</td>
-                        <td class="field-value" colspan="5">${dados.nomeSolicitante}</td>
-                    </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Nome Solicitante:</td>
+                            <td class="field-value" colspan="5">${dados.nomeSolicitante}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="field-label" colspan="2">Empresa Envolvida:</td>
-                        <td class="field-value" colspan="5">${dados.empresaEnvolvida}</td>
-                    </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Empresa Envolvida:</td>
+                            <td class="field-value" colspan="5">${dados.empresaEnvolvida}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="procedimentos-label" colspan="7">Procedimentos Estabelecidos:</td>
-                    </tr>
-                    <tr>
-                        <td class="procedimentos-value" colspan="7">${dados.procedimentos}</td>
-                    </tr>
+                        <tr>
+                            <td class="procedimentos-label" colspan="7">Procedimentos Estabelecidos:</td>
+                        </tr>
+                        <tr>
+                            <td class="procedimentos-value" colspan="7">${dados.procedimentos}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="field-label" colspan="2">Acionamento:</td>
-                        <td class="field-value" colspan="5">${dados.acionamento}</td>
-                    </tr>
-                    <tr>
-                        <td class="field-label" colspan="2">Saída:</td>
-                        <td class="field-value" colspan="5">${dados.saida}</td>
-                    </tr>
-                    <tr>
-                        <td class="field-label" colspan="2">Chegada no local:</td>
-                        <td class="field-value" colspan="5">${dados.chegada}</td>
-                    </tr>
-                    <tr>
-                        <td class="field-label" colspan="2">Término da ocorrência:</td>
-                        <td class="field-value" colspan="5">${dados.termino}</td>
-                    </tr>
-                    <tr>
-                        <td class="field-label" colspan="2">Retorno à SCI:</td>
-                        <td class="field-value" colspan="5">${dados.retorno}</td>
-                    </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Acionamento:</td>
+                            <td class="field-value" colspan="5">${dados.acionamento}</td>
+                        </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Saída:</td>
+                            <td class="field-value" colspan="5">${dados.saida}</td>
+                        </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Chegada no local:</td>
+                            <td class="field-value" colspan="5">${dados.chegada}</td>
+                        </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Término da ocorrência:</td>
+                            <td class="field-value" colspan="5">${dados.termino}</td>
+                        </tr>
+                        <tr>
+                            <td class="field-label" colspan="2">Retorno à SCI:</td>
+                            <td class="field-value" colspan="5">${dados.retorno}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="procedimentos-label" colspan="7">Relação de danos:</td>
-                    </tr>
-                    <tr>
-                        <td class="danos-value" colspan="7">${dados.relacaoDanos || ''}</td>
-                    </tr>
+                        <tr>
+                            <td class="procedimentos-label" colspan="7">Relação de danos:</td>
+                        </tr>
+                        <tr>
+                            <td class="danos-value" colspan="7">${dados.relacaoDanos || ''}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="table-header">Função</td>
-                        <td class="table-header" colspan="4">Nomes dos Bombeiros Envolvidos</td>
-                        <td class="table-header" colspan="2">CCI e Equipamentos Utilizados</td>
-                    </tr>
+                        <tr>
+                            <td class="table-header">Função</td>
+                            <td class="table-header" colspan="4">Nomes dos Bombeiros Envolvidos</td>
+                            <td class="table-header" colspan="2">CCI e Equipamentos Utilizados</td>
+                        </tr>
         
-                    ${bombeirosList}
+                        ${bombeirosList}
         
-                    <tr>
-                        <td class="field-label" colspan="3">Tempo Gasto no atendimento:</td>
-                        <td class="field-value" colspan="4">${dados.tempoGasto}</td>
-                    </tr>
+                        <tr>
+                            <td class="field-label" colspan="3">Tempo Gasto no atendimento:</td>
+                            <td class="field-value" colspan="4">${dados.tempoGasto}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="field-label" colspan="3">Material Utilizado:</td>
-                        <td class="field-value" colspan="4">${dados.materialUtilizado || ''}</td>
-                    </tr>
+                        <tr>
+                            <td class="field-label" colspan="3">Material Utilizado:</td>
+                            <td class="field-value" colspan="4">${dados.materialUtilizado || ''}</td>
+                        </tr>
         
-                    <tr>
-                        <td class="assinatura-cell" colspan="7">Assinatura do Chefe de Equipe:</td>
-                    </tr>
-                </table>
+                        <tr>
+                            <td class="assinatura-cell" colspan="7">Assinatura do Chefe de Equipe:</td>
+                        </tr>
+                    </table>
+                </div>
             `;
             
             document.body.appendChild(tempDiv);
@@ -1631,10 +1655,12 @@
             try {
                 // Renderizar com html2canvas
                 const canvas = await html2canvas(tempDiv, {
-                    scale: 2,
+                    scale: 3,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    windowWidth: 794, // A4 width in pixels at 96 DPI
+                    windowHeight: 1123 // A4 height in pixels at 96 DPI
                 });
                 
                 // Remover elemento temporário
@@ -1645,10 +1671,16 @@
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 
                 const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 210; // A4 width in mm
+                const pdfWidth = 210; // A4 width in mm
+                const pdfHeight = 297; // A4 height in mm
+                const imgWidth = 180; // Largura da imagem no PDF
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
                 
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                // Centralizar horizontalmente e verticalmente
+                const xOffset = (pdfWidth - imgWidth) / 2;
+                const yOffset = (pdfHeight - imgHeight) / 2;
+                
+                pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
                 
                 // Converter PDF para Blob e criar URL
                 const pdfBlob = pdf.output('blob');
@@ -1666,7 +1698,9 @@
                 
             } catch (error) {
                 console.error('Erro ao gerar PDF:', error);
-                document.body.removeChild(tempDiv);
+                if (document.body.contains(tempDiv)) {
+                    document.body.removeChild(tempDiv);
+                }
                 hideLoading();
                 showToast('Erro ao gerar PDF', 'error');
             }
