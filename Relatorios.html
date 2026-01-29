@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>7
+<head>8
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -371,17 +371,8 @@
             }
             
             .modal-header,
-            .modal-footer,
-            .nav-bar,
-            iframe {
+            .modal-footer {
                 display: none !important;
-            }
-            
-            /* Mostrar o conteúdo renderizado do PDF */
-            .relatorio-container,
-            .relatorio-table {
-                display: block !important;
-                visibility: visible !important;
             }
         }
         
@@ -1791,17 +1782,45 @@
                 
                 if (result.success) {
                     hideLoading();
-                    showToast(`Relatório #${result.numero} enviado com sucesso!`, 'success');
                     
                     // Fechar modal
                     fecharModal();
                     
-                    // Aguardar um pouco e então abrir a impressão
-                    setTimeout(() => {
-                        window.print();
-                    }, 500);
+                    // Mostrar toast de sucesso
+                    showToast(`Relatório #${result.numero} enviado com sucesso!`, 'success');
                     
-                    // Resetar formulário após impressão
+                    // Imprimir o PDF gerado
+                    if (window.pdfGerado) {
+                        // Abrir o PDF em nova janela e imprimir
+                        const pdfBlob = window.pdfGerado.output('blob');
+                        const pdfUrl = URL.createObjectURL(pdfBlob);
+                        
+                        // Criar iframe oculto para impressão
+                        const printFrame = document.createElement('iframe');
+                        printFrame.style.position = 'absolute';
+                        printFrame.style.width = '0';
+                        printFrame.style.height = '0';
+                        printFrame.style.border = 'none';
+                        
+                        document.body.appendChild(printFrame);
+                        
+                        printFrame.onload = function() {
+                            setTimeout(() => {
+                                printFrame.contentWindow.focus();
+                                printFrame.contentWindow.print();
+                                
+                                // Remover iframe após impressão
+                                setTimeout(() => {
+                                    document.body.removeChild(printFrame);
+                                    URL.revokeObjectURL(pdfUrl);
+                                }, 1000);
+                            }, 500);
+                        };
+                        
+                        printFrame.src = pdfUrl;
+                    }
+                    
+                    // Resetar formulário
                     setTimeout(() => {
                         document.getElementById('formRelatorio').reset();
                         
