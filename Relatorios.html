@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>7
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -502,6 +502,103 @@
             border-color: #007AFF;
             box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
         }
+
+        /* Modal de Input Customizado */
+        .custom-prompt-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-prompt-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .custom-prompt-box {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 28px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .custom-prompt-overlay.active .custom-prompt-box {
+            transform: scale(1);
+        }
+        
+        .custom-prompt-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 16px;
+        }
+        
+        .custom-prompt-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d1d6;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            margin-bottom: 20px;
+        }
+        
+        .custom-prompt-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
+        
+        .custom-prompt-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .custom-prompt-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .custom-prompt-btn-cancel {
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+        
+        .custom-prompt-btn-cancel:hover {
+            background: #e8e8ed;
+        }
+        
+        .custom-prompt-btn-confirm {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            color: white;
+        }
+        
+        .custom-prompt-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+        }
         
     </style>
 </head>
@@ -960,6 +1057,18 @@
         <div class="spinner"></div>
     </div>
 
+    <!-- Modal de Input Customizado -->
+    <div class="custom-prompt-overlay" id="customPrompt">
+        <div class="custom-prompt-box">
+            <div class="custom-prompt-title" id="promptTitle">Digite o valor</div>
+            <input type="text" class="custom-prompt-input" id="promptInput" placeholder="">
+            <div class="custom-prompt-buttons">
+                <button class="custom-prompt-btn custom-prompt-btn-cancel" onclick="fecharPrompt(false)">Cancelar</button>
+                <button class="custom-prompt-btn custom-prompt-btn-confirm" onclick="fecharPrompt(true)">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="toast" id="toast"></div>
 
     <script>
@@ -1217,7 +1326,7 @@
         }
         
         async function novoLocal() {
-            const valor = prompt('Digite o novo local:');
+            const valor = await customPrompt('Novo Local', 'Digite o nome do local...');
             if (!valor) return;
             
             try {
@@ -1257,7 +1366,7 @@
         }
         
         async function novoTipo() {
-            const valor = prompt('Digite o novo tipo de ocorrência:');
+            const valor = await customPrompt('Novo Tipo de Ocorrência', 'Digite o tipo...');
             if (!valor) return;
             
             try {
@@ -1294,7 +1403,7 @@
         }
         
         async function novaEmpresa() {
-            const valor = prompt('Digite o nome da nova empresa:');
+            const valor = await customPrompt('Nova Empresa', 'Digite o nome da empresa...');
             if (!valor) return;
             
             try {
@@ -1331,7 +1440,7 @@
         }
         
         async function novoEquipamento() {
-            const valor = prompt('Digite o novo equipamento:');
+            const valor = await customPrompt('Novo Equipamento', 'Digite o nome do equipamento...');
             if (!valor) return;
             
             try {
@@ -2043,6 +2152,47 @@
             }, 3000);
         }
 
+        // Sistema de Prompt Customizado
+        let promptResolve = null;
+        
+        function customPrompt(titulo, placeholder = '') {
+            return new Promise((resolve) => {
+                promptResolve = resolve;
+                
+                document.getElementById('promptTitle').textContent = titulo;
+                document.getElementById('promptInput').value = '';
+                document.getElementById('promptInput').placeholder = placeholder;
+                document.getElementById('customPrompt').classList.add('active');
+                
+                // Focar no input
+                setTimeout(() => {
+                    document.getElementById('promptInput').focus();
+                }, 100);
+            });
+        }
+        
+        function fecharPrompt(confirmed) {
+            const overlay = document.getElementById('customPrompt');
+            overlay.classList.remove('active');
+            
+            if (promptResolve) {
+                if (confirmed) {
+                    const valor = document.getElementById('promptInput').value.trim();
+                    promptResolve(valor || null);
+                } else {
+                    promptResolve(null);
+                }
+                promptResolve = null;
+            }
+        }
+        
+        // Enter para confirmar no prompt
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.getElementById('customPrompt').classList.contains('active')) {
+                fecharPrompt(true);
+            }
+        });
+        
         // Variável para controlar o estado do procedimento
         let procedimentoOriginal = '';
         let modoEdicao = false;
