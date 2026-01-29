@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>8
+<head>9
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1782,46 +1782,27 @@
                 
                 if (result.success) {
                     hideLoading();
-                    
-                    // Fechar modal
-                    fecharModal();
-                    
-                    // Mostrar toast de sucesso
                     showToast(`Relatório #${result.numero} enviado com sucesso!`, 'success');
                     
-                    // Imprimir o PDF gerado
+                    // PRIMEIRO: Acionar impressão enquanto modal ainda está aberto
                     if (window.pdfGerado) {
-                        // Abrir o PDF em nova janela e imprimir
-                        const pdfBlob = window.pdfGerado.output('blob');
-                        const pdfUrl = URL.createObjectURL(pdfBlob);
+                        const iframe = document.querySelector('#conteudoRelatorio iframe');
                         
-                        // Criar iframe oculto para impressão
-                        const printFrame = document.createElement('iframe');
-                        printFrame.style.position = 'absolute';
-                        printFrame.style.width = '0';
-                        printFrame.style.height = '0';
-                        printFrame.style.border = 'none';
-                        
-                        document.body.appendChild(printFrame);
-                        
-                        printFrame.onload = function() {
-                            setTimeout(() => {
-                                printFrame.contentWindow.focus();
-                                printFrame.contentWindow.print();
-                                
-                                // Remover iframe após impressão
-                                setTimeout(() => {
-                                    document.body.removeChild(printFrame);
-                                    URL.revokeObjectURL(pdfUrl);
-                                }, 1000);
-                            }, 500);
-                        };
-                        
-                        printFrame.src = pdfUrl;
+                        if (iframe && iframe.contentWindow) {
+                            try {
+                                iframe.contentWindow.focus();
+                                iframe.contentWindow.print();
+                            } catch (e) {
+                                console.error('Erro ao imprimir:', e);
+                            }
+                        }
                     }
                     
-                    // Resetar formulário
+                    // DEPOIS: Fechar modal e resetar (após impressão)
                     setTimeout(() => {
+                        fecharModal();
+                        
+                        // Resetar formulário
                         document.getElementById('formRelatorio').reset();
                         
                         // Resetar áreas extras
@@ -1835,7 +1816,8 @@
                         limparProcedimentos();
                         
                         carregarConfiguracoes();
-                    }, 2000);
+                    }, 1000);
+                    
                 } else {
                     hideLoading();
                     showToast('Erro ao enviar relatório', 'error');
