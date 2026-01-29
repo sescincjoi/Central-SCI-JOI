@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>6
+<head>7
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1050,6 +1050,11 @@
             // Tipos de Ocorrência
             const selectTipo = document.getElementById('tipoOcorrencia');
             if (configData.tiposOcorrencia && Array.isArray(configData.tiposOcorrencia)) {
+                // Limpar opções existentes (exceto a primeira "Selecione...")
+                while (selectTipo.options.length > 1) {
+                    selectTipo.remove(1);
+                }
+                
                 configData.tiposOcorrencia.forEach(tipo => {
                     const opt = document.createElement('option');
                     opt.value = tipo;
@@ -1061,6 +1066,11 @@
             // Empresas
             const selectEmpresa = document.getElementById('empresaEnvolvida');
             if (configData.empresas && Array.isArray(configData.empresas)) {
+                // Limpar opções existentes (exceto a primeira "Selecione...")
+                while (selectEmpresa.options.length > 1) {
+                    selectEmpresa.remove(1);
+                }
+                
                 configData.empresas.forEach(empresa => {
                     const opt = document.createElement('option');
                     opt.value = empresa;
@@ -1073,6 +1083,12 @@
             if (configData.efetivo && Array.isArray(configData.efetivo)) {
                 for (let i = 1; i <= 6; i++) {
                     const select = document.getElementById(`nomeBa${i}`);
+                    
+                    // Limpar opções existentes (exceto a primeira "Selecione...")
+                    while (select.options.length > 1) {
+                        select.remove(1);
+                    }
+                    
                     configData.efetivo.forEach(nome => {
                         const opt = document.createElement('option');
                         opt.value = nome;
