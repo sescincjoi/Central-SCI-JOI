@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>9
+<head>2
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -375,6 +375,133 @@
                 display: none !important;
             }
         }
+
+        /* Modal de Histórico */
+        .historico-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            padding: 20px;
+        }
+        
+        .historico-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .historico-container {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .historico-overlay.active .historico-container {
+            transform: scale(1);
+        }
+        
+        .historico-header {
+            padding: 24px;
+            border-bottom: 1px solid #e5e5ea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .historico-search {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e5e5ea;
+        }
+        
+        .historico-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .historico-item {
+            background: #f5f5f7;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .historico-item:hover {
+            background: #e8e8ed;
+            border-color: #007AFF;
+            transform: translateX(4px);
+        }
+        
+        .historico-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .historico-item-numero {
+            font-weight: 700;
+            font-size: 16px;
+            color: #007AFF;
+        }
+        
+        .historico-item-data {
+            font-size: 13px;
+            color: #86868b;
+        }
+        
+        .historico-item-info {
+            font-size: 14px;
+            color: #1d1d1f;
+            line-height: 1.5;
+        }
+        
+        .historico-item-tipo {
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        
+        .historico-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #86868b;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d1d1d6;
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+        }
         
     </style>
 </head>
@@ -412,9 +539,15 @@
                 </div>
             </div>
             
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-gray-500 uppercase">Relatório Nº</span>
-                <span id="numeroRelatorio" class="badge">Carregando...</span>
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-gray-500 uppercase">Relatório Nº</span>
+                    <span id="numeroRelatorio" class="badge">Carregando...</span>
+                </div>
+                <button type="button" class="btn-secondary" onclick="abrirHistorico()">
+                    <i data-lucide="history" class="w-4 h-4 inline mr-1"></i>
+                    Histórico
+                </button>
             </div>
         </div>
 
@@ -757,6 +890,35 @@
         </form>
     </div>
 
+    <!-- Modal de Histórico de Relatórios -->
+    <div class="historico-overlay" id="modalHistorico">
+        <div class="historico-container">
+            <div class="historico-header">
+                <h2 class="text-xl font-bold text-gray-900">Histórico de Relatórios</h2>
+                <button type="button" class="btn-close" onclick="fecharHistorico()">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div class="historico-search">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchHistorico" 
+                    placeholder="Buscar por número, tipo, equipe..."
+                    oninput="filtrarHistorico()"
+                >
+            </div>
+            
+            <div class="historico-body" id="listaHistorico">
+                <div class="historico-empty">
+                    <i data-lucide="search" class="w-16 h-16 mx-auto mb-4 opacity-30"></i>
+                    <p>Carregando relatórios...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Modal de Visualização -->
     <div class="modal-overlay" id="modalRelatorio">
         <div class="modal-container">
@@ -795,11 +957,13 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwuX4BeUvSTZ3hpfMlK8da83kAz5dHpPOqlmT7C4xAvZ17HIkBf4EV-lkCtD4ybUmDInA/exec';
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx6KiyidcMCtdFX_ggXKuG40cMque3kC5p50D6U7Ug0VpsiKWn0vBEf6yeQDuox_XWWSg/exec';
         
         let configData = null;
         let proximoNumero = null;
         let areaCount = 1;
+        let relatoriosHistorico = [];
+        let relatorioEmEdicao = null;
         
         const EQUIPES = ['ALFA', 'BRAVO', 'CHARLIE', 'DELTA'];
         const DATA_REF_FIXA = new Date('2026-01-15T17:00:00');
@@ -1773,7 +1937,8 @@
                 const response = await fetch(WEB_APP_URL, {
                     method: 'POST',
                     body: JSON.stringify({
-                        action: 'salvarRelatorio',
+                        action: relatorioEmEdicao ? 'editarRelatorio' : 'salvarRelatorio',
+                        linha: relatorioEmEdicao ? relatorioEmEdicao.linha : null,
                         ...dados
                     })
                 });
@@ -1799,24 +1964,28 @@
                     }
                     
                     // DEPOIS: Fechar modal e resetar (após impressão)
-                    setTimeout(() => {
-                        fecharModal();
-                        
-                        // Resetar formulário
-                        document.getElementById('formRelatorio').reset();
-                        
-                        // Resetar áreas extras
-                        const container = document.getElementById('areasContainer');
-                        const firstRow = container.querySelector('.area-row');
-                        container.innerHTML = '';
-                        container.appendChild(firstRow);
-                        areaCount = 1;
-                        
-                        // Limpar procedimentos
-                        limparProcedimentos();
-                        
-                        carregarConfiguracoes();
-                    }, 1000);
+                        setTimeout(() => {
+                            fecharModal();
+                            
+                            // Resetar formulário
+                            document.getElementById('formRelatorio').reset();
+                            
+                            // Resetar áreas extras
+                            const container = document.getElementById('areasContainer');
+                            const firstRow = container.querySelector('.area-row');
+                            container.innerHTML = '';
+                            container.appendChild(firstRow);
+                            areaCount = 1;
+                            
+                            // Limpar procedimentos
+                            limparProcedimentos();
+                            
+                            carregarConfiguracoes();
+                            
+                            // Limpar modo edição
+                            relatorioEmEdicao = null;
+                            document.getElementById('numeroRelatorio').classList.remove('bg-amber-500');
+                        }, 1000);
                     
                 } else {
                     hideLoading();
@@ -1929,6 +2098,242 @@
             botoes.style.display = 'none';
             procedimentoOriginal = '';
             modoEdicao = false;
+        }
+
+        // ========== HISTÓRICO DE RELATÓRIOS ==========
+
+        async function abrirHistorico() {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${WEB_APP_URL}?action=getRelatorios`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    relatoriosHistorico = data.relatorios;
+                    renderizarHistorico(relatoriosHistorico);
+                    document.getElementById('modalHistorico').classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Recriar ícones
+                    setTimeout(() => lucide.createIcons(), 100);
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro ao carregar histórico:', error);
+                showToast('Erro ao carregar histórico', 'error');
+                hideLoading();
+            }
+        }
+        
+        function fecharHistorico() {
+            document.getElementById('modalHistorico').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('searchHistorico').value = '';
+        }
+        
+        function renderizarHistorico(relatorios) {
+            const container = document.getElementById('listaHistorico');
+            
+            if (!relatorios || relatorios.length === 0) {
+                container.innerHTML = `
+                    <div class="historico-empty">
+                        <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 opacity-30"></i>
+                        <p>Nenhum relatório encontrado</p>
+                    </div>
+                `;
+                setTimeout(() => lucide.createIcons(), 50);
+                return;
+            }
+            
+            container.innerHTML = relatorios.map(rel => `
+                <div class="historico-item" onclick="carregarRelatorio(${rel.linha})">
+                    <div class="historico-item-header">
+                        <span class="historico-item-numero">#${rel.numero}</span>
+                        <span class="historico-item-data">${formatarData(rel.dataHora)}</span>
+                    </div>
+                    <div class="historico-item-info">
+                        <div><span class="historico-item-tipo">${rel.tipoOcorrencia}</span></div>
+                        <div>Equipe: ${rel.equipe} • ${rel.locais || 'N/A'}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            setTimeout(() => lucide.createIcons(), 50);
+        }
+        
+        function filtrarHistorico() {
+            const busca = document.getElementById('searchHistorico').value.toLowerCase();
+            
+            if (!busca) {
+                renderizarHistorico(relatoriosHistorico);
+                return;
+            }
+            
+            const filtrados = relatoriosHistorico.filter(rel => {
+                return (
+                    rel.numero.toString().includes(busca) ||
+                    rel.tipoOcorrencia.toLowerCase().includes(busca) ||
+                    rel.equipe.toLowerCase().includes(busca) ||
+                    (rel.locais && rel.locais.toLowerCase().includes(busca))
+                );
+            });
+            
+            renderizarHistorico(filtrados);
+        }
+        
+        async function carregarRelatorio(linha) {
+            try {
+                showLoading();
+                
+                const response = await fetch(`${WEB_APP_URL}?action=getRelatorio&linha=${linha}`);
+                const data = await response.json();
+                
+                if (data.success && data.relatorio) {
+                    const rel = data.relatorio;
+                    
+                    // Marcar como edição
+                    relatorioEmEdicao = {
+                        linha: linha,
+                        numeroOriginal: rel.numero
+                    };
+                    
+                    // Preencher formulário
+                    document.getElementById('numeroRelatorio').textContent = rel.numero + ' (EDITANDO)';
+                    document.getElementById('numeroRelatorio').classList.add('bg-amber-500');
+                    
+                    // Preencher locais (checkboxes)
+                    const locaisSelecionados = rel.locais ? rel.locais.split(', ') : [];
+                    document.querySelectorAll('#locaisContainer input[type="checkbox"]').forEach(cb => {
+                        cb.checked = locaisSelecionados.includes(cb.value);
+                    });
+                    
+                    // Preencher áreas do grid
+                    const areas = rel.areasGrade ? rel.areasGrade.split(', ') : [];
+                    const container = document.getElementById('areasContainer');
+                    container.innerHTML = '';
+                    
+                    if (areas.length > 0) {
+                        areas.forEach((area, index) => {
+                            const [letra, numero] = area.split('-');
+                            
+                            const newRow = document.createElement('div');
+                            newRow.className = 'area-row';
+                            newRow.innerHTML = `
+                                <div>
+                                    <label class="form-label">Área (Letra)</label>
+                                    <select class="form-select area-letra" required>
+                                        <option value="">Selecione...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Área (Número)</label>
+                                    <select class="form-select area-numero" required>
+                                        <option value="">Selecione...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    ${index === 0 ? `
+                                        <button type="button" class="btn-add-area" onclick="adicionarArea()">
+                                            <i data-lucide="plus" class="w-4 h-4"></i>
+                                            Adicionar
+                                        </button>
+                                    ` : `
+                                        <button type="button" class="btn-remove-area" onclick="removerArea(this)">
+                                            <i data-lucide="x" class="w-4 h-4"></i>
+                                            Excluir
+                                        </button>
+                                    `}
+                                </div>
+                            `;
+                            
+                            container.appendChild(newRow);
+                            
+                            // Preencher selects de grid
+                            const selectLetra = newRow.querySelector('.area-letra');
+                            const selectNumero = newRow.querySelector('.area-numero');
+                            
+                            if (configData.gridLetras) {
+                                configData.gridLetras.forEach(l => {
+                                    const opt = document.createElement('option');
+                                    opt.value = l;
+                                    opt.textContent = l;
+                                    selectLetra.appendChild(opt);
+                                });
+                                selectLetra.value = letra;
+                            }
+                            
+                            if (configData.gridNumeros) {
+                                configData.gridNumeros.forEach(n => {
+                                    const opt = document.createElement('option');
+                                    opt.value = n;
+                                    opt.textContent = n;
+                                    selectNumero.appendChild(opt);
+                                });
+                                selectNumero.value = numero;
+                            }
+                        });
+                        
+                        areaCount = areas.length;
+                    }
+                    
+                    // Resto dos campos
+                    document.getElementById('tipoOcorrencia').value = rel.tipoOcorrencia || '';
+                    document.getElementById('equipe').value = rel.equipe || '';
+                    document.getElementById('nomeSolicitante').value = rel.nomeSolicitante || '';
+                    document.getElementById('empresaEnvolvida').value = rel.empresaEnvolvida || '';
+                    document.getElementById('procedimentos').value = rel.procedimentos || '';
+                    document.getElementById('procedimentos').style.color = '#1d1d1f';
+                    document.getElementById('procedimentos').readOnly = false;
+                    document.getElementById('botoesEdicao').style.display = 'none';
+                    
+                    document.getElementById('acionamento').value = rel.acionamento || '';
+                    document.getElementById('saida').value = rel.saida || '';
+                    document.getElementById('chegada').value = rel.chegada || '';
+                    document.getElementById('termino').value = rel.termino || '';
+                    document.getElementById('retorno').value = rel.retorno || '';
+                    document.getElementById('relacaoDanos').value = rel.relacaoDanos || '';
+                    
+                    // Bombeiros
+                    for (let i = 1; i <= 6; i++) {
+                        document.getElementById(`funcao${i}`).value = rel[`funcao${i}`] || '';
+                        document.getElementById(`nomeBa${i}`).value = rel[`nomeBa${i}`] || '';
+                    }
+                    
+                    // Equipamentos (checkboxes)
+                    const equipamentosSelecionados = rel.equipamentos ? rel.equipamentos.split(', ') : [];
+                    document.querySelectorAll('#equipamentosContainer input[type="checkbox"]').forEach(cb => {
+                        cb.checked = equipamentosSelecionados.includes(cb.value);
+                    });
+                    
+                    document.getElementById('tempoGasto').value = rel.tempoGasto || '';
+                    document.getElementById('materialUtilizado').value = rel.materialUtilizado || '';
+                    
+                    // Recriar ícones
+                    setTimeout(() => lucide.createIcons(), 100);
+                    
+                    // Fechar modal de histórico
+                    fecharHistorico();
+                    
+                    // Scroll para o topo
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    showToast('Relatório carregado para edição', 'success');
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('Erro ao carregar relatório:', error);
+                showToast('Erro ao carregar relatório', 'error');
+                hideLoading();
+            }
+        }
+        
+        function formatarData(dataStr) {
+            if (!dataStr) return 'N/A';
+            const data = new Date(dataStr);
+            return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
         }
         
         window.addEventListener('load', () => {
