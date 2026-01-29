@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>2
+<head>4
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios - Central SCI JOI</title>
@@ -1400,7 +1400,7 @@
                 .join(', ');
             
             return {
-                numero: proximoNumero,
+                numero: relatorioEmEdicao ? relatorioEmEdicao.numeroOriginal : proximoNumero,
                 areasGrade: areasGradeString,
                 locais: locaisSelecionados,
                 tipoOcorrencia: document.getElementById('tipoOcorrencia').value,
@@ -1982,9 +1982,10 @@
                             
                             carregarConfiguracoes();
                             
-                            // Limpar modo edição
+                           // Limpar modo edição
                             relatorioEmEdicao = null;
-                            document.getElementById('numeroRelatorio').classList.remove('bg-amber-500');
+                            document.getElementById('numeroRelatorio').style.backgroundColor = '';
+                            document.getElementById('numeroRelatorio').style.color = '';
                         }, 1000);
                     
                 } else {
@@ -2201,8 +2202,9 @@
                     
                     // Preencher formulário
                     document.getElementById('numeroRelatorio').textContent = rel.numero + ' (EDITANDO)';
-                    document.getElementById('numeroRelatorio').classList.add('bg-amber-500');
-                    
+                    document.getElementById('numeroRelatorio').style.backgroundColor = '#f59e0b';
+                    document.getElementById('numeroRelatorio').style.color = '#fff';
+                                        
                     // Preencher locais (checkboxes)
                     const locaisSelecionados = rel.locais ? rel.locais.split(', ') : [];
                     document.querySelectorAll('#locaisContainer input[type="checkbox"]').forEach(cb => {
