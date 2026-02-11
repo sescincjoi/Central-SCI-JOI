@@ -2548,13 +2548,45 @@
             
             showToast('Formulário resetado para novo relatório', 'success');
         }
-        
-        window.addEventListener('load', () => {
-            carregarConfiguracoes();
-            lucide.createIcons();
-        });
 
-        // Formatação automática do campo Tempo Gasto
+        // Cálculo automático do Tempo Gasto
+        function calcularTempoGasto() {
+            const saida = document.getElementById('saida').value;
+            const retorno = document.getElementById('retorno').value;
+            
+            if (!saida || !retorno) {
+                return;
+            }
+            
+            // Converter horários para minutos
+            const [horaSaida, minutoSaida] = saida.split(':').map(Number);
+            const [horaRetorno, minutoRetorno] = retorno.split(':').map(Number);
+            
+            let totalMinutosSaida = horaSaida * 60 + minutoSaida;
+            let totalMinutosRetorno = horaRetorno * 60 + minutoRetorno;
+            
+            // Se retorno for menor que saída, passou da meia-noite
+            if (totalMinutosRetorno < totalMinutosSaida) {
+                totalMinutosRetorno += 24 * 60; // Adiciona 24 horas
+            }
+            
+            // Calcular diferença
+            const diferencaMinutos = totalMinutosRetorno - totalMinutosSaida;
+            
+            // Converter para HH:MM
+            const horas = Math.floor(diferencaMinutos / 60);
+            const minutos = diferencaMinutos % 60;
+            
+            const tempoFormatado = String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0');
+            
+            document.getElementById('tempoGasto').value = tempoFormatado;
+        }
+        
+        // Adicionar listeners nos campos de horário
+        document.getElementById('saida').addEventListener('change', calcularTempoGasto);
+        document.getElementById('retorno').addEventListener('change', calcularTempoGasto);
+        
+        // Formatação automática do campo Tempo Gasto (MANTÉM ESSE TRECHO)
         document.getElementById('tempoGasto').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, ''); // Remove não-números
             
@@ -2573,6 +2605,11 @@
                 showToast('Formato inválido. Use HH:MM (ex: 02:30)', 'error');
                 e.target.focus();
             }
+        });
+        
+        window.addEventListener('load', () => {
+            carregarConfiguracoes();
+            lucide.createIcons();
         });
         
     </script>
