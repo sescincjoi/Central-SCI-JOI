@@ -2573,11 +2573,15 @@
             // Calcular diferença
             const diferencaMinutos = totalMinutosRetorno - totalMinutosSaida;
             
-            // Converter para HH:MM
+            // Converter para HH:MM:SS
             const horas = Math.floor(diferencaMinutos / 60);
             const minutos = diferencaMinutos % 60;
+            const segundos = 0; // Mantém 00 pois cálculo é em minutos
             
-            const tempoFormatado = String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0');
+            const tempoFormatado = 
+                String(horas).padStart(2, '0') + ':' +
+                String(minutos).padStart(2, '0') + ':' +
+                String(segundos).padStart(2, '0');
             
             document.getElementById('tempoGasto').value = tempoFormatado;
         }
@@ -2591,21 +2595,25 @@
             let value = e.target.value.replace(/\D/g, ''); // Remove não-números
             
             if (value.length >= 2) {
-                value = value.substring(0, 2) + ':' + value.substring(2, 4);
+                value = value.substring(0, 2) + ':' + value.substring(2);
+            }
+            if (value.length >= 5) {
+                value = value.substring(0, 5) + ':' + value.substring(5);
             }
             
-            e.target.value = value.substring(0, 5); // Limita a HH:MM
+            e.target.value = value.substring(0, 8); // Limita a HH:MM:SS
         });
         
         document.getElementById('tempoGasto').addEventListener('blur', function(e) {
             const value = e.target.value;
-            const regex = /^([0-9]{2}):([0-9]{2})$/;
+            const regex = /^([0-9]{2}):([0-9]{2}):([0-9]{2})$/;
             
             if (value && !regex.test(value)) {
-                showToast('Formato inválido. Use HH:MM (ex: 02:30)', 'error');
+                showToast('Formato inválido. Use HH:MM:SS (ex: 02:30:00)', 'error');
                 e.target.focus();
             }
         });
+
         
         window.addEventListener('load', () => {
             carregarConfiguracoes();
