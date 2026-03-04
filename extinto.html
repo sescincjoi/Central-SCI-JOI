@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <script>
+    (function () {
+      const key = Object.keys(localStorage).find(k => k.startsWith('firebase:authUser'));
+      const savedUser = key ? localStorage.getItem(key) : null;
+      if (!savedUser) document.documentElement.style.display = 'none';
+    })();
+  </script>  
+  <link rel="manifest" href="../pwa/manifest.json">
+  <link rel="icon" type="image/png" href="../pwa/icons/icon-192.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#f5f5f7">
+  <meta charset="UTF-8">
+  <title>Inspeção de Extintores</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    * {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f7;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    body.auth-ready {
+      opacity: 1;
+    }
+
+    /* ── Nav ── */
+    .nav-bar {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 0.5px solid rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      padding-top: env(safe-area-inset-top);
+    }
+
+    .nav-bar::before {
+      content: '';
+      position: absolute;
+      top: calc(-1 * env(safe-area-inset-top));
+      left: 0;
+      right: 0;
+      height: env(safe-area-inset-top);
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Progress bar ── */
+    .progress-track {
+      background: #e5e5ea;
+      border-radius: 100px;
+      height: 7px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, #34C759, #30D158);
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-fill.warn {
+      background: linear-gradient(90deg, #FF9500, #FF6B00);
+    }
+
+    .progress-fill.danger {
+      background: linear-gradient(90deg, #FF3B30, #FF2D55);
+    }
+
+    /* ── Search input ── */
+    .search-wrap {
+      position: relative;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #86868b;
+      pointer-events: none;
+    }
+
+    .search-input {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 10px 14px 10px 38px;
+      font-size: 15px;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+      color: #1d1d1f;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+
+    .search-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: #86868b;
+    }
+
+    /* ── Building select ── */
+    .select-wrap {
+      position: relative;
+    }
+
+    .select-wrap svg {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #86868b;
+    }
+
+    .building-select {
+      background: #ffffff;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 10px 36px 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+      font-family: inherit;
+      outline: none;
+      appearance: none;
+      width: 100%;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+
+    .building-select:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+    }
+
+    /* ── Inspector badge / name ── */
+    .nome-input {
+      background: rgba(0, 122, 255, 0.06);
+      border: 1px solid rgba(0, 122, 255, 0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #007AFF;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      box-sizing: border-box;
+      transition: all 0.2s;
+    }
+
+    .nome-input:focus {
+      border-color: #007AFF;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+      background: rgba(0, 122, 255, 0.08);
+    }
+
+    .nome-input::placeholder {
+      color: rgba(0, 122, 255, 0.5);
+      font-weight: 500;
+    }
+
+    /* ── Section labels ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #86868b;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      margin-top: 20px;
+      padding: 0 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-label:first-child {
+      margin-top: 0;
+    }
+
+    /* ── Extintor row ── */
+    .ext-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #ffffff;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 6px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      border: 1.5px solid transparent;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ext-row::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #e5e5ea;
+      transition: background 0.2s;
+    }
+
+    .ext-row.inspected::before {
+      background: #34C759;
+    }
+
+    .ext-row.pending::before {
+      background: #007AFF;
+    }
+
+    .ext-row:hover {
+      transform: translateX(3px);
+      border-color: rgba(0, 122, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .ext-row.inspected:hover {
+      border-color: rgba(52, 199, 89, 0.2);
+    }
+
+    .ext-row:active {
+      transform: scale(0.99);
+    }
+
+    /* ── Status dot ── */
+    .status-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+
+    .status-dot.done {
+      background: rgba(52, 199, 89, 0.12);
+    }
+
+    .status-dot.pending {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-blue {
+      background: rgba(0, 122, 255, 0.1);
+      color: #007AFF;
+    }
+
+    .badge-green {
+      background: rgba(52, 199, 89, 0.12);
+      color: #34C759;
+    }
+
+    .badge-orange {
+      background: rgba(255, 149, 0, 0.1);
+      color: #FF9500;
+    }
+
+    .badge-gray {
+      background: rgba(0, 0, 0, 0.06);
+      color: #86868b;
+    }
+
+    /* ── Building progress card ── */
+    #building-info-card {
+      transition: all 0.3s ease;
+    }
+
+    /* ── Reset button — fixed bottom bar ── */
+    .reset-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 0;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      background: linear-gradient(135deg, #f7f7f7, #ffffff);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-top: 1px solid rgb(227 227 227);
+      z-index: 40;
+    }
+
+    .reset-btn {
+      background: none;
+      color: #222222;
+      border: none;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      display: block;
+      margin: 0 auto;
+      transition: all 0.2s;
+      font-family: inherit;
+      filter: hue-rotate(135deg);
+    }
+
+    .reset-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 59, 48, 0.35);
+    }
+
+    .reset-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ── Confirm reset overlay ── */
+    #confirmResetOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 99999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    #confirmReset {
+      background: #1c1c1e;
+      color: #ffffff;
+      width: 100%;
+      max-width: 340px;
+      padding: 28px 24px 24px;
+      text-align: center;
+      border-radius: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    #confirmReset .confirm-icon {
+      font-size: 42px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    #confirmReset h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+
+    #confirmReset p {
+      font-size: 13px;
+      color: #98989d;
+      line-height: 1.6;
+      margin: 0 0 24px;
+    }
+
+    #confirmReset .reset-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    #confirmReset .reset-actions button {
+      flex: 1;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 10px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    #confirmReset .btn-confirm {
+      background: #34C759;
+      color: white;
+    }
+
+    #confirmReset .btn-confirm:hover {
+      background: #30D158;
+      transform: translateY(-1px);
+    }
+
+    #confirmReset .btn-dismiss {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ebebf5;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    }
+
+    #confirmReset .btn-dismiss:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    /* ── Modal ── */
+    #modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: none;
+      justify-content: center;
+      align-items: flex-end;
+      z-index: 9999;
+    }
+
+    #modalContent {
+      background: #ffffff;
+      padding: 24px 20px;
+      width: 100%;
+      max-height: 92dvh;
+      overflow-y: auto;
+      border-radius: 24px 24px 0 0;
+      animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0.8;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @media (min-width: 768px) {
+      #modal {
+        align-items: center;
+        padding: 20px;
+      }
+
+      #modalContent {
+        border-radius: 20px;
+        max-width: 500px;
+        animation: zoomIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes zoomIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    }
+
+    /* Modal form elements */
+    #modal h2 {
+      margin: 0 0 4px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #1d1d1f;
+    }
+
+    #modal h2::before {
+      content: "🧯 ";
+    }
+
+    #modalTipo {
+      font-size: 14px;
+      font-weight: 600;
+      color: #007AFF;
+      margin-bottom: 2px;
+    }
+
+    #modalDescricao {
+      font-size: 13px;
+      color: #86868b;
+      margin-bottom: 0;
+    }
+
+    #formInspecao {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .pergunta {
+      font-size: 15px;
+      margin-bottom: 14px;
+      background: #f9f9fb;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .pergunta label {
+      display: block;
+      padding: 10px 14px 8px;
+      background: rgba(0, 0, 0, 0.03);
+      font-size: 14px;
+      font-weight: 600;
+      color: #1d1d1f;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .pergunta label p {
+      font-size: 12px;
+      font-weight: 400;
+      color: #86868b;
+      margin: 4px 0 0;
+      line-height: 1.4;
+    }
+
+    .pergunta div {
+      display: flex;
+      align-items: center;
+      padding: 8px 14px;
+    }
+
+    label.opcoes-nc {
+      display: flex !important;
+      padding: 6px 14px !important;
+      background: none !important;
+      font-size: 14px !important;
+      margin-bottom: 0 !important;
+      border-radius: 0 !important;
+      align-items: center;
+      font-weight: 500 !important;
+    }
+
+    input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      margin-left: 10px;
+      margin-right: 5px;
+      accent-color: #007AFF;
+    }
+
+    .pergunta select,
+    .pergunta input[type="month"],
+    .pergunta input[type="number"],
+    .pergunta textarea {
+      width: calc(100% - 28px);
+      margin: 0 14px 12px;
+      font-size: 14px;
+      padding: 8px 12px;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+      color: #1d1d1f;
+      font-weight: 600;
+      background: #ffffff;
+      font-family: inherit;
+      box-sizing: border-box;
+      display: block;
+    }
+
+    .pergunta textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    /* Checkbox custom */
+    .custom-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin: 0;
+      padding: 5px 0;
+    }
+
+    .custom-checkbox input {
+      display: none;
+    }
+
+    .custom-checkbox span {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #c7c7cc;
+      border-radius: 50%;
+      display: inline-block;
+      transition: all .15s ease;
+      flex-shrink: 0;
+    }
+
+    .custom-checkbox input:checked+span {
+      background: #007AFF;
+      border-color: #007AFF;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+    }
+
+    /* Modal buttons */
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-enviar {
+      flex: 2;
+      background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-enviar:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-cancelar {
+      flex: 1;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-cancelar:hover {
+      background: #e8e8ed;
+    }
+
+    /* Close modal btn */
+    #Xfecharmodal {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.07);
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #86868b;
+      font-family: monospace;
+      line-height: 1;
+    }
+
+    #Xfecharmodal:hover {
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: #86868b;
+    }
+
+    .empty-state .emoji {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 14px;
+      height: 68px;
+      margin-bottom: 6px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Status dot pulse */
+    .status-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+      }
+    }
+  </style>
+</head>
+
+<body data-auth-required data-auth-login>
+
+  <!-- ── Nav bar ── -->
+  <div class="nav-bar">
+    <div class="max-w-2xl mx-auto px-4">
+      <div class="flex items-center justify-between h-14">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style="background: linear-gradient(135deg, #e00d00, #ed7676);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="flame"
+              class="lucide lucide-flame w-6 h-6 text-white">
+              <path
+                d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z">
+              </path>
+            </svg>
+          </div>
+          <div>
+            <div class="text-base font-bold text-gray-900" style="line-height:1.2">Extintores</div>
+            <div class="text-xs text-gray-400 font-medium">SCI Aeroporto de Joinville</div>
+          </div>
+        </div>
+        <button onclick="history.back()"
+          class="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors"
+          style="background:none;border:none;cursor:pointer;padding:0;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" />
+          </svg>
+          Voltar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main content ── -->
+  <div class="max-w-2xl mx-auto px-4"
+    style="padding-top: calc(56px + env(safe-area-inset-top) + 16px); padding-bottom: calc(80px + env(safe-area-inset-bottom) + 16px);">
+
+    <!-- Global progress card -->
+    <div class="card p-5 mb-4 fade-in">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+          style="background: linear-gradient(135deg, #0c8b15, #bdcbbb);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="55%" height="50%" viewBox="0 0 20 20">
+            <path
+              d="M17 1h-2a1 1 0 0 0-1 1v16.992h4V2a1 1 0 0 0-1-1zm-6 6H9a1 1 0 0 0-1 1v10.992h4V8a1 1 0 0 0-1-1zm-6 6H3a1 1 0 0 0-1 1v4.992h4V14a1 1 0 0 0-1-1z">
+            </path>
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-0.5">Progresso Geral</div>
+          <div class="flex items-baseline gap-2">
+            <span id="global-done" class="text-3xl font-black text-gray-900" style="letter-spacing:-0.5px;">0</span>
+            <span class="text-sm font-medium text-gray-400">de <span id="global-total">0</span> extintores</span>
+            <span id="global-pct" class="text-sm font-bold text-green-500 ml-auto">0%</span>
+          </div>
+        </div>
+      </div>
+      <div class="progress-track mb-2">
+        <div class="progress-fill" id="global-fill" style="width:0%"></div>
+      </div>
+      <div class="flex justify-between text-xs font-medium text-gray-400 mt-1">
+        <span><span id="global-pending" class="text-orange-500 font-semibold">0</span> pendentes</span>
+        <div class="flex items-center gap-1.5">
+          <div class="status-pulse" style="background:#34C759;"></div>
+          <span>Atualização em tempo real</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inspector + filters card -->
+    <div class="card p-4 mb-4 fade-in">
+      <!-- Nome field -->
+      <div class="mb-3">
+        <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">Inspecionando como</div>
+        <div class="flex items-center gap-2">
+          <div
+            style="background:rgba(0,122,255,0.08); border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#007AFF" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+          <input type="text" id="nomeUsuario" class="nome-input" placeholder="Nome do inspetor (obrigatório)">
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrap mb-3">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nº, tipo, descrição…"
+          oninput="onSearch(this.value)">
+      </div>
+
+      <!-- Building select -->
+      <div class="select-wrap">
+        <select id="edificacao" class="building-select" onchange="onBuildingChange(this.value)">
+          <option value="">Todas as edificações</option>
+        </select>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Building info card (shown when building selected) -->
+    <div id="building-info-card" class="card p-4 mb-4 fade-in" style="display:none;">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Edificação selecionada</div>
+          <div id="bldg-name" class="text-lg font-bold text-gray-900">—</div>
+          <div id="bldg-desc" class="text-xs text-gray-400 mt-0.5" style="line-height:1.4">—</div>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <div class="text-2xl font-black text-gray-900" style="letter-spacing:-0.5px;">
+            <span id="bldg-done">0</span><span class="text-sm font-medium text-gray-300">/</span><span
+              class="text-sm font-semibold text-gray-400" id="bldg-total">0</span>
+          </div>
+          <div id="bldg-pct" class="text-xs font-bold text-green-500">0%</div>
+        </div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="bldg-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Extintor list -->
+    <div id="ext-list">
+      <!-- Estado de carregamento -->
+      <div id="loading-extintores" class="card p-5" style="text-align:center;">
+        <div style="font-size:48px; margin-bottom:12px;">📥</div>
+        <div style="font-size:16px; font-weight:600; color:#1d1d1f; margin-bottom:4px;">
+          Carregando extintores...
+        </div>
+        <div style="font-size:13px; color:#86868b;">
+          Buscando dados do Firestore
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- ── Fixed reset bar ── -->
+  <div class="reset-bar">
+    <button class="reset-btn" onclick="resetarTodos()">🔄 Resetar TODOS os extintores</button>
+  </div>
+
+  <!-- ── Confirm reset overlay ── -->
+  <div id="confirmResetOverlay" onclick="handleOverlayClick(event)">
+    <div id="confirmReset">
+      <span class="confirm-icon">⚠️</span>
+      <h3>Resetar todos?</h3>
+      <p>Faça o reset ao término de toda vistoria mensal ou para iniciar uma nova vistoria geral. Todos os status serão
+        apagados.</p>
+      <div class="reset-actions">
+        <button class="btn-dismiss" onclick="confirmReset(false)">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmReset(true)">✅ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Inspection modal ── -->
+  <div id="modal">
+    <div id="modalContent">
+      <button id="Xfecharmodal" onclick="fecharModal()">×</button>
+      <h2 id="modalTitulo"></h2>
+      <div id="modalTipo"></div>
+      <div id="modalDescricao"></div>
+      <form id="formInspecao"></form>
+      <div class="modal-buttons">
+        <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+        <button type="button" class="btn-enviar" onclick="enviarFormulario()">✓ Registrar inspeção</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <!-- Auth Central -->
+  <script type="module">
+    import authCore from '../js/auth/auth-core.js';
+    import authUI from '../js/auth/auth-ui.js';
+    import authLock from '../js/auth/auth-lock.js';
+    import authGuard from '../js/auth/auth-guard.js';
+
+    window.authCore = authCore;
+    window.authUI = authUI;
+    window.authGuard = authGuard;
+    window.authLock = authLock;
+
+    async function initAuth() {
+      if (window.authUI && window.authUI.openModal && window.authGuard) {
+        window.addEventListener('auth-state-changed', async (e) => {
+          if (e.detail && e.detail.user) {
+            document.documentElement.style.display = '';
+            document.body.classList.add('auth-ready');
+            
+            // Auto-fill nome
+            const displayName = e.detail.user.displayName;
+            if (displayName) {
+              const input = document.getElementById('nomeUsuario');
+              if (input) {
+                input.value = displayName;
+                localStorage.setItem('nomeUsuario', displayName);
+              }
+            }
+            
+            // ═══ NOVO: Carregar extintores do Firestore ═══
+            await carregarExtintoresDoFirestore();
+          }
+        });
+        if (authCore.initialized && authCore.isAuthenticated()) {
+          document.documentElement.style.display = '';
+          document.body.classList.add('auth-ready');
+          
+          if (authCore.currentUser && authCore.currentUser.displayName) {
+            const input = document.getElementById('nomeUsuario');
+            if (input) {
+              input.value = authCore.currentUser.displayName;
+              localStorage.setItem('nomeUsuario', authCore.currentUser.displayName);
+            }
+          }
+          
+          // ═══ NOVO: Carregar extintores do Firestore ═══
+          await carregarExtintoresDoFirestore();
+        }
+      } else {
+        setTimeout(initAuth, 50);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAuth);
+    } else {
+      initAuth();
+    }
+  </script>
+
+  <script>
+    // ──────────────────────────────────────────
+    //  Firebase config
+    // ──────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "AIzaSyC7lypBBMv9RJ7ta3uaXTiU4txg8x91TWI",
+      authDomain: "ronda-extintores.firebaseapp.com",
+      projectId: "ronda-extintores",
+      storageBucket: "ronda-extintores.firebasestorage.app",
+      messagingSenderId: "712050420595",
+      appId: "1:712050420595:web:96ce82f25307c7aba4f306",
+      measurementId: "G-S8SERMVVCR",
+      databaseURL: "https://ronda-extintores-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // ══════════════════════════════════════════════════════════
+    //  VARIÁVEIS DINÂMICAS (carregadas do Firestore)
+    // ══════════════════════════════════════════════════════════
+    let edificacoesDescr = {};
+    let extintoresInfo = {};
+    let edificacoesArray = [];
+    let sistemaCarregado = false;
+
+    // Service layer (inicializar após Firebase estar pronto)
+    let extintorService;
+    
+    // ══════════════════════════════════════════════════════════
+    //  INICIALIZAR SERVICE
+    // ══════════════════════════════════════════════════════════
+    function inicializarExtintorService() {
+      if (!extintorService) {
+        try {
+          extintorService = new ExtintorService().init();
+          console.log('✅ ExtintorService inicializado');
+        } catch (error) {
+          console.error('❌ Erro ao inicializar ExtintorService:', error);
+          throw error;
+        }
+      }
+      return extintorService;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    //  CARREGAR EXTINTORES DO FIRESTORE
+    // ══════════════════════════════════════════════════════════
+    async function carregarExtintoresDoFirestore() {
+      const loadingEl = document.getElementById('loading-extintores');
+      const extList = document.getElementById('ext-list');
+      
+      try {
+        // Mostrar loading
+        if (loadingEl) {
+          loadingEl.style.display = 'block';
+        } else {
+          // Criar loading se não existir
+          if (extList) {
+            extList.innerHTML = `
+              <div id="loading-extintores" class="card p-5" style="text-align:center;">
+                <div style="font-size:48px; margin-bottom:12px;">📥</div>
+                <div style="font-size:16px; font-weight:600; color:#1d1d1f; margin-bottom:4px;">
+                  Carregando extintores...
+                </div>
+                <div style="font-size:13px; color:#86868b;">
+                  Buscando dados do Firestore
+                </div>
+              </div>`;
+          }
+        }
+        
+        const service = inicializarExtintorService();
+        const dados = await service.getExtintoresFormatoAntigo();
+        
+        edificacoesDescr = dados.edificacoesDescr;
+        extintoresInfo = dados.extintoresInfo;
+        edificacoesArray = dados.edificacoesArray;
+        
+        console.log(`✅ Carregados: ${edificacoesArray.length} edificações`);
+        
+        popularSelectEdificacoes();
+        sistemaCarregado = true;
+        
+        // Esconder loading
+        if (loadingEl) loadingEl.style.display = 'none';
+        
+        iniciarListenerVistorias();
+        
+      } catch (error) {
+        console.error('❌ Erro:', error);
+        if (loadingEl) loadingEl.style.display = 'none';
+      }
+    }
+    
+    function popularSelectEdificacoes() {
+      const selectEl = document.getElementById('edificacao');
+      if (!selectEl) return;
+      
+      // Limpa opções existentes (mantém a primeira)
+      selectEl.innerHTML = '<option value="">Todas as edificações</option>';
+      
+      // Adiciona edificações
+      edificacoesArray.forEach(ed => {
+        const opt = document.createElement('option');
+        opt.value = ed;
+        opt.textContent = ed;
+        selectEl.appendChild(opt);
+      });
+    }
+    
+    function iniciarListenerVistorias() {
+      db.ref('extintores').on('value', snapshot => {
+        globalData = snapshot.val() || {};
+        
+        // ✅ Só atualiza se os extintores já foram carregados
+        if (Object.keys(extintoresInfo).length > 0) {
+          updateGlobalCounter();
+          updateSelectProgress();
+          renderList();
+        } else {
+          console.warn('⚠️ Aguardando carregamento dos extintores do Firestore...');
+        }
+      });
+    }
+
+    // ──────────────────────────────────────────
+    //  App state
+    // ──────────────────────────────────────────
+    let globalData = {};
+    let currentBuilding = '';
+    let searchQuery = '';
+    let numeroAtual = null;
+    let edificacaoAtual = null;
+
+    // ──────────────────────────────────────────
+    //  Firebase global listener
+    // ──────────────────────────────────────────
+    db.ref('extintores').on('value', snapshot => {
+      globalData = snapshot.val() || {};
+      updateGlobalCounter();
+      updateSelectProgress();
+      renderList();
+    });
+
+    function updateGlobalCounter() {
+      let total = 0, done = 0;
+      
+      // ✅ Contar baseado no Firestore (fonte da verdade)
+      Object.entries(extintoresInfo).forEach(([edificacao, extintores]) => {
+        Object.keys(extintores).forEach(numero => {
+          total++;
+          
+          // Verificar vistoria no Realtime DB
+          const vistoriado = globalData[edificacao]?.[numero]?.vistoriado;
+          if (vistoriado) done++;
+        });
+      });
+      
+      const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+    
+      const elDone = document.getElementById('global-done');
+      const elTotal = document.getElementById('global-total');
+      const elPending = document.getElementById('global-pending');
+      const elPct = document.getElementById('global-pct');
+      const fill = document.getElementById('global-fill');
+    
+      if (elDone) elDone.textContent = done;
+      if (elTotal) elTotal.textContent = total;
+      if (elPending) elPending.textContent = total - done;
+      if (elPct) elPct.textContent = pct + '%';
+    
+      if (fill) {
+        fill.style.width = pct + '%';
+        fill.className = 'progress-fill' + (pct < 30 ? ' danger' : pct < 70 ? ' warn' : '');
+      }
+    }
+
+    function updateSelectProgress() {
+      const selectEl = document.getElementById('edificacao');
+      if (!selectEl) return;
+      const opts = selectEl.querySelectorAll('option[value]');
+      opts.forEach(opt => {
+        const ed = opt.value;
+        if (!ed) return;
+        const bldg = globalData[ed] || {};
+        const keys = Object.keys(extintoresInfo[ed] || {});
+        const total = keys.length;
+        const done = keys.filter(k => bldg[k] && bldg[k].vistoriado).length;
+        opt.textContent = total > 0 ? `${ed}  (${done}/${total})` : ed;
+      });
+    }
+
+    // ──────────────────────────────────────────
+    //  Event handlers
+    // ──────────────────────────────────────────
+    function onBuildingChange(val) {
+      currentBuilding = val;
+      renderList();
+    }
+
+    function onSearch(val) {
+      searchQuery = val.toLowerCase().trim();
+      renderList();
+    }
+
+    // ──────────────────────────────────────────
+    //  Render list
+    // ──────────────────────────────────────────
+    function renderList() {
+      const container = document.getElementById('ext-list');
+      const loading = document.getElementById('loading-extintores');
+      
+      // Esconder loading se existir
+      if (loading) loading.style.display = 'none';
+
+      // Build flat list
+      let items = [];
+      const buildingsToShow = currentBuilding ? [currentBuilding] : edificacoesArray;
+
+      buildingsToShow.forEach(ed => {
+        const fbBldg = globalData[ed] || {};
+        const staticBldg = extintoresInfo[ed] || {};
+        Object.keys(staticBldg).forEach(num => {
+          const fb = fbBldg[num] || {};
+          items.push({
+            numero: parseInt(num),
+            numeroStr: num,
+            edificacao: ed,
+            tipo: staticBldg[num].tipo,
+            kg: staticBldg[num].kg,
+            descricao: staticBldg[num].descricao,
+            vistoriado: !!fb.vistoriado,
+            por: fb.por || ''
+          });
+        });
+      });
+
+      // Apply search
+      if (searchQuery) {
+        items = items.filter(item =>
+          item.numeroStr.includes(searchQuery) ||
+          item.tipo.toLowerCase().includes(searchQuery) ||
+          item.descricao.toLowerCase().includes(searchQuery) ||
+          item.edificacao.toLowerCase().includes(searchQuery)
+        );
+      }
+
+      // Sort: pending first (numeric), then done (numeric)
+      items.sort((a, b) => {
+        if (a.vistoriado !== b.vistoriado) return a.vistoriado ? 1 : -1;
+        return a.numero - b.numero;
+      });
+
+      const pending = items.filter(i => !i.vistoriado);
+      const done = items.filter(i => i.vistoriado);
+
+      // Update building info card
+      if (currentBuilding) {
+        const allForBldg = Object.keys(extintoresInfo[currentBuilding] || {});
+        const bldgTotal = allForBldg.length;
+        const bldgDone = allForBldg.filter(k => globalData[currentBuilding]?.[k]?.vistoriado).length;
+        const bldgPct = bldgTotal > 0 ? Math.round((bldgDone / bldgTotal) * 100) : 0;
+
+        document.getElementById('bldg-name').textContent = currentBuilding;
+        document.getElementById('bldg-desc').textContent = edificacoesDescr[currentBuilding] || '';
+        document.getElementById('bldg-done').textContent = bldgDone;
+        document.getElementById('bldg-total').textContent = bldgTotal;
+        document.getElementById('bldg-pct').textContent = bldgPct + '%';
+        const bldgFill = document.getElementById('bldg-fill');
+        bldgFill.style.width = bldgPct + '%';
+        bldgFill.className = 'progress-fill' + (bldgPct < 30 ? ' danger' : bldgPct < 70 ? ' warn' : '');
+        document.getElementById('building-info-card').style.display = 'block';
+      } else {
+        document.getElementById('building-info-card').style.display = 'none';
+      }
+
+      // Render rows
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <span class="emoji">🔍</span>
+            <p>Nenhum extintor encontrado</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      if (pending.length > 0) {
+        const lbl = document.createElement('div');
+        lbl.className = 'section-label';
+        lbl.innerHTML = `
+          <div style="width:8px;height:8px;border-radius:50%;background:#FF9500;flex-shrink:0;"></div>
+          Pendentes · ${pending.length}`;
+        container.appendChild(lbl);
+        pending.forEach(item => container.appendChild(createExtRow(item)));
+      }
+
+      if (done.length > 0) {
+        const lbl = document.createElement('div');
+        lbl.className = 'section-label';
+        lbl.innerHTML = `
+          <div style="width:8px;height:8px;border-radius:50%;background:#34C759;flex-shrink:0;"></div>
+          Inspecionados · ${done.length}`;
+        container.appendChild(lbl);
+        done.forEach(item => container.appendChild(createExtRow(item)));
+      }
+    }
+
+    function createExtRow(item) {
+      const div = document.createElement('div');
+      div.className = 'ext-row ' + (item.vistoriado ? 'inspected' : 'pending');
+      div.onclick = () => abrirModal(item.edificacao, item.numeroStr);
+
+      // Type badge color
+      const typeColor = item.tipo.includes('CO') ? '#5856D6' :
+        item.tipo.includes('ABC') ? '#007AFF' : '#FF9500';
+      const typeBg = item.tipo.includes('CO') ? 'rgba(88,86,214,0.1)' :
+        item.tipo.includes('ABC') ? 'rgba(0,122,255,0.1)' : 'rgba(255,149,0,0.1)';
+
+      div.innerHTML = `
+        <div class="status-dot ${item.vistoriado ? 'done' : 'pending'}">
+          ${item.vistoriado ? '✅' : '🧯'}
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:3px;">
+            <span style="font-size:16px; font-weight:800; color:#1d1d1f; flex-shrink:0;">Nº ${item.numero}</span>
+            <span style="font-size:11px; font-weight:700; color:${typeColor}; background:${typeBg}; padding:2px 7px; border-radius:7px; flex-shrink:0;">${item.tipo} ${item.kg}kg</span>
+            ${!currentBuilding ? `<span style="font-size:10px; font-weight:600; color:#86868b; background:#f5f5f7; padding:2px 6px; border-radius:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px;">${item.edificacao}</span>` : ''}
+          </div>
+          <div style="font-size:13px; color:#86868b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:calc(100% - 4px);">${item.descricao}</div>
+          ${item.vistoriado && item.por ? `
+            <div style="margin-top:4px; display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:#34C759; background:rgba(52,199,89,0.1); padding:2px 8px; border-radius:6px;">
+              <svg viewBox="0 0 24 24" width="10" height="10" fill="#34C759"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+              ${item.por}
+            </div>` : ''}
+        </div>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#c7c7cc" stroke-width="2.5" style="flex-shrink:0;">
+          <path d="m9 18 6-6-6-6"/>
+        </svg>`;
+
+      return div;
+    }
+
+    // ──────────────────────────────────────────
+    //  Modal
+    // ──────────────────────────────────────────
+    function abrirModal(edificacao, numero) {
+      const nomeUsuario = document.getElementById('nomeUsuario').value.trim();
+      if (!nomeUsuario) {
+        alert('⚠️ Preencha seu nome antes de iniciar a inspeção.');
+        document.getElementById('nomeUsuario').focus();
+        return;
+      }
+
+      numeroAtual = numero;
+      edificacaoAtual = edificacao;
+
+      const info = extintoresInfo[edificacao]?.[numero] || { descricao: 'Descrição não cadastrada', tipo: 'N/D', kg: 'N/D' };
+
+      document.getElementById('modalTitulo').textContent = `Extintor ${numero}`;
+      document.getElementById('modalTipo').textContent = `Tipo: ${info.tipo} ${info.kg}Kg`;
+      document.getElementById('modalDescricao').textContent = info.descricao;
+
+      const form = document.getElementById('formInspecao');
+      form.innerHTML = `
+        <div class="pergunta">
+          <label>1 — Este extintor é um ${info.tipo} ${info.kg}Kg?</label>
+          <div>
+            <input type="radio" name="p1" value="Sim" onchange="mostrarTipoKg(this.value)" required> Sim
+            <input type="radio" name="p1" value="Não" onchange="mostrarTipoKg(this.value)" required> Não
+          </div>
+        </div>
+
+        <div class="pergunta" id="p1_1" style="display:none;">
+          <label>1.1 — Tipo do extintor encontrado:<br><p>Capacidade Extintora reduzida → declare como não conformidade.</p></label>
+          <select name="p1_1">
+            <option value="">-- Selecione --</option>
+            <option>PQS ABC</option><option>PQS BC</option><option>CO²</option>
+            <option>Água</option><option>Espuma</option><option>Classe K</option>
+          </select>
+        </div>
+
+        <div class="pergunta" id="p1_2" style="display:none;">
+          <label>1.2 — Capacidade (Kg):<br><p>Capacidade Extintora reduzida → declare como não conformidade.</p></label>
+          <select name="p1_2">
+            <option value="">-- Selecione --</option>
+            <option>4</option><option>6</option><option>10</option>
+          </select>
+        </div>
+
+        <div class="pergunta">
+          <label>2 — Inspeção de Nível 2:<br><p>Etiqueta ilegível → deixe em branco e declare como não conformidade.</p></label>
+          <input type="month" name="p2">
+        </div>
+
+        <div class="pergunta">
+          <label>3 — Inspeção de Nível 3:<br><p>Etiqueta ilegível → deixe em branco e declare como não conformidade.</p></label>
+          <input type="number" name="p3" min="2023" max="2100" placeholder="Ano">
+        </div>
+
+        <div class="pergunta">
+          <label>4 — Resultado da inspeção:<br><p>Verifique: Pressão, Lacre, Validade, Sinalização, Integridade e Capacidade Extintora.</p></label>
+          <div>
+            <input type="radio" name="p4" value="Conforme" onchange="mostrarNaoConforme(this.value)" required> Conforme
+            <input type="radio" name="p4" value="Não conforme" onchange="mostrarNaoConforme(this.value)" required> Não conforme
+          </div>
+        </div>
+
+        <div class="pergunta" id="p4_1" style="display:none;">
+          <label>4.1 — Não conformidade(s):</label>
+          ${[
+          'Despressurização', 'Lacre Rompido', 'Vencido', 'Sinalização',
+          'Integridade', 'Capacidade Extintora reduzida', 'Etiqueta ilegível ou ausente', 'Outros'
+        ].map(nc => `
+            <label class="custom-checkbox opcoes-nc" style="padding:6px 14px;">
+              <input type="checkbox" name="p4_1" value="${nc}">
+              <span></span>
+              ${nc}
+            </label>`).join('<br>')}
+        </div>
+
+        <div class="pergunta">
+          <label>5 — Observação:<br><p>Descreva não conformidades, acesso, melhorias ou outras informações relevantes.</p></label>
+          <textarea name="p5"></textarea>
+        </div>
+
+        <div class="pergunta">
+          <label>6 — Equipe:</label>
+          <select name="p6" required>
+            <option value="" disabled selected>-- Selecione a equipe --</option>
+            <option>Alfa</option><option>Bravo</option><option>Charlie</option><option>Delta</option>
+          </select>
+        </div>`;
+
+      document.getElementById('modal').style.display = 'flex';
+      document.getElementById('modalContent').scrollTop = 0;
+    }
+
+    function fecharModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function mostrarTipoKg(valor) {
+      const show = valor === 'Não';
+      document.getElementById('p1_1').style.display = show ? 'block' : 'none';
+      document.getElementById('p1_2').style.display = show ? 'block' : 'none';
+      const sel1 = document.querySelector("[name='p1_1']");
+      const sel2 = document.querySelector("[name='p1_2']");
+      if (sel1) sel1.required = show;
+      if (sel2) sel2.required = show;
+    }
+
+    function mostrarNaoConforme(valor) {
+      document.getElementById('p4_1').style.display = valor === 'Não conforme' ? 'block' : 'none';
+    }
+
+    function enviarFormulario() {
+      const form = document.getElementById('formInspecao');
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
+      const dados = {
+        numero: numeroAtual,
+        usuario: document.getElementById('nomeUsuario').value,
+        edificacao: edificacaoAtual,
+        descricao: extintoresInfo[edificacaoAtual][numeroAtual].descricao,
+        tipo: extintoresInfo[edificacaoAtual][numeroAtual].tipo,
+        kg: extintoresInfo[edificacaoAtual][numeroAtual].kg,
+        pergunta1: form.p1.value,
+        pergunta1_1: form.p1_1 ? (form.p1_1.value || '-') : '-',
+        pergunta1_2: form.p1_2 ? (form.p1_2.value || '-') : '-',
+        pergunta2: form.p2.value || '-',
+        pergunta3: form.p3.value || '-',
+        pergunta4: form.p4.value,
+        pergunta4_1: (() => {
+          const checked = Array.from(document.querySelectorAll('input[name="p4_1"]:checked')).map(cb => cb.value);
+          return checked.length > 0 ? checked.join(', ') : '-';
+        })(),
+        pergunta5: form.p5.value || '-',
+        pergunta6: form.p6.value
+      };
+
+      // Save to Firebase
+      db.ref(`extintores/${edificacaoAtual}/${numeroAtual}`).update({
+        vistoriado: true,
+        por: dados.usuario,
+        dataHora: new Date().toISOString(),
+        respostas: dados
+      });
+
+      // Send to Google Sheets
+      fetch("https://script.google.com/macros/s/AKfycbzBoQ_sx5EMrIK-FECB5S2-Oq_Ysr1TBC-T0nXGEVlCe8EeY1aYXyVP06_sXM1GD3E_/exec", {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
+      });
+
+      fecharModal();
+    }
+
+    // ──────────────────────────────────────────
+    //  Reset
+    // ──────────────────────────────────────────
+    function resetarTodos() {
+      const overlay = document.getElementById('confirmResetOverlay');
+      overlay.style.display = 'flex';
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('confirmResetOverlay')) confirmReset(false);
+    }
+
+    function confirmReset(decisao) {
+      document.getElementById('confirmResetOverlay').style.display = 'none';
+      if (!decisao) return;
+      db.ref('extintores').once('value').then(snapshot => {
+        const updates = {};
+        snapshot.forEach(ed => {
+          ed.forEach(ext => {
+            updates[`extintores/${ed.key}/${ext.key}`] = { vistoriado: false, por: '' };
+          });
+        });
+        db.ref().update(updates);
+      });
+    }
+
+    // ──────────────────────────────────────────
+    //  Nome — localStorage fallback & save
+    // ──────────────────────────────────────────
+    document.getElementById('nomeUsuario').addEventListener('input', e => {
+      localStorage.setItem('nomeUsuario', e.target.value);
+    });
+
+    window.addEventListener('auth-initialized', () => {
+      if (window.authCore?.currentUser?.displayName) {
+        const nome = window.authCore.currentUser.displayName;
+        const input = document.getElementById('nomeUsuario');
+        if (input) {
+          input.value = nome;
+          localStorage.setItem('nomeUsuario', nome);
+        }
+      }
+    });
+
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('nomeUsuario');
+      const input = document.getElementById('nomeUsuario');
+      if (saved && input && !input.value) input.value = saved;
+    });
+
+    // ──────────────────────────────────────────
+    //  Seed (commented out)
+    // ──────────────────────────────────────────
+    // function seedExtintores() { ... }
+  </script>
+
+  <!-- PWA Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => { });
+    }
+  </script>
+  <script src="../pwa/app.js"></script>
+  
+  <!-- Service Layer Extintores -->
+  <script src="./extintor-service.js"></script>
+</body>
+
+</html>
