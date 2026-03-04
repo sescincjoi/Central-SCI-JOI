@@ -2,13 +2,6 @@
 <html lang="pt-BR">
 
 <head>
-  <script>
-    (function () {
-      const key = Object.keys(localStorage).find(k => k.startsWith('firebase:authUser'));
-      const savedUser = key ? localStorage.getItem(key) : null;
-      if (!savedUser) document.documentElement.style.display = 'none';
-    })();
-  </script>  
   <link rel="manifest" href="../pwa/manifest.json">
   <link rel="icon" type="image/png" href="../pwa/icons/icon-192.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
@@ -794,7 +787,7 @@
   </style>
 </head>
 
-<body data-auth-required data-auth-login>
+<body>
 
   <!-- ── Nav bar ── -->
   <div class="nav-bar">
@@ -978,64 +971,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 
-  <!-- Auth Central -->
-  <script type="module">
-    import authCore from '../js/auth/auth-core.js';
-    import authUI from '../js/auth/auth-ui.js';
-    import authLock from '../js/auth/auth-lock.js';
-    import authGuard from '../js/auth/auth-guard.js';
-
-    window.authCore = authCore;
-    window.authUI = authUI;
-    window.authGuard = authGuard;
-    window.authLock = authLock;
-
-    async function initAuth() {
-      if (window.authUI && window.authUI.openModal && window.authGuard) {
-        window.addEventListener('auth-state-changed', async (e) => {
-          if (e.detail && e.detail.user) {
-            document.documentElement.style.display = '';
-            document.body.classList.add('auth-ready');
-            
-            // Auto-fill nome
-            const displayName = e.detail.user.displayName;
-            if (displayName) {
-              const input = document.getElementById('nomeUsuario');
-              if (input) {
-                input.value = displayName;
-                localStorage.setItem('nomeUsuario', displayName);
-              }
-            }
-            
-            // ═══ NOVO: Carregar extintores do Firestore ═══
-            await carregarExtintoresDoFirestore();
-          }
-        });
-        if (authCore.initialized && authCore.isAuthenticated()) {
-          document.documentElement.style.display = '';
-          document.body.classList.add('auth-ready');
-          
-          if (authCore.currentUser && authCore.currentUser.displayName) {
-            const input = document.getElementById('nomeUsuario');
-            if (input) {
-              input.value = authCore.currentUser.displayName;
-              localStorage.setItem('nomeUsuario', authCore.currentUser.displayName);
-            }
-          }
-          
-          // ═══ NOVO: Carregar extintores do Firestore ═══
-          await carregarExtintoresDoFirestore();
-        }
-      } else {
-        setTimeout(initAuth, 50);
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initAuth);
-    } else {
-      initAuth();
-    }
+  <script>
+  document.documentElement.style.display = '';
+  document.body.classList.add('auth-ready');
+  document.addEventListener('DOMContentLoaded', () => {
+    carregarExtintoresDoFirestore();
+  });
   </script>
 
   <script>
